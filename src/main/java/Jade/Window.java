@@ -3,6 +3,7 @@ package Jade;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import util.Time;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -96,6 +97,9 @@ public class Window {
     }
 
     public void loop() {
+        float deltaTime;
+        Time.get().beginFrame();
+
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll Events
             glfwPollEvents();
@@ -103,11 +107,22 @@ public class Window {
             glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-                IO.println("SPACE");
+            if (KeyListener.isKeyPressed(GLFW_KEY_7)) {
+                IO.println("7");
+            }
+            if (MouseListener.isDragging()) {
+                IO.println("Dragging");
+            }
+            if (MouseListener.mouseBtnPress(GLFW_MOUSE_BUTTON_LEFT)) {
+                IO.println("Left Mouse");
             }
 
             glfwSwapBuffers(glfwWindow);
+
+            // Calculates elapsed frame time
+            deltaTime = Time.get().endFrame();
+            Time.get().beginFrame();
+            IO.println(deltaTime);
         }
     }
 }
