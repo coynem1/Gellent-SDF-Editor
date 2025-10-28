@@ -27,4 +27,14 @@ public class KeyListener {
             get().keyPressed[key] = false;
         }
     }
+
+    // Returns if certain keys pressed or not
+    public static boolean isKeyPressed(int keyCode) {
+        if (keyCode < get().keyPressed.length) {    // Valid?
+            return get().keyPressed[keyCode];
+        }
+        return false;
+    }
+
+
 }

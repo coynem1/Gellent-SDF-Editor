@@ -31,7 +31,7 @@ public class Window {
     }
 
     public void run() {
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
+        IO.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
         loop();
@@ -75,9 +75,11 @@ public class Window {
             throw new IllegalStateException("Failed to create the GLFW window");
         }
 
+        // Bind inputs
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);  // Lambda bind
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
+        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
 
 
         // Make OpenGL current context
@@ -100,6 +102,10 @@ public class Window {
 
             glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+                IO.println("SPACE");
+            }
 
             glfwSwapBuffers(glfwWindow);
         }
