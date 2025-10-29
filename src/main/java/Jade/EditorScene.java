@@ -1,8 +1,11 @@
 package Jade;
 
 public class EditorScene extends Scene {
-    public EditorScene() {
+    private String name;
 
+    public EditorScene(String name) {
+        super(name);
+        this.name = name;
     }
 
     @Override

@@ -23,17 +23,20 @@ public class SceneManager {
 
     public void setScene(Scene scene) {
         if (scene == null) {return;}
-        currentScene = scene;
+        get().currentScene = scene;
     }
 
     public Scene getScene() {
-        return currentScene;
+        return get().currentScene;
     }
 
     // Adds new scene to dict
     public Scene createScene(String name) {
         // Check if scene exists
-        if (cachedScenes.get())
+        if (get().cachedScenes.get(name) != null) {
+            Scene scene = new EditorScene(name);
+            get().cachedScenes.put(name, scene);
+        }
 
         return null;
     }
