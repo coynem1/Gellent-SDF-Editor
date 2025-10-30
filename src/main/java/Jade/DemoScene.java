@@ -1,9 +1,9 @@
 package Jade;
 
-public class EditorScene extends Scene {
+public class DemoScene extends Scene {
     private String name;
 
-    public EditorScene(String name) {
+    public DemoScene(String name) {
         super(name);
         this.name = name;
     }

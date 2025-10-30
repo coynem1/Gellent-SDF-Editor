@@ -24,6 +24,7 @@ public class SceneManager {
     public void setScene(Scene scene) {
         if (scene == null) {return;}
         get().currentScene = scene;
+        // Update Scene here
     }
 
     public Scene getScene() {
@@ -34,10 +35,13 @@ public class SceneManager {
     public Scene createScene(String name) {
         // Check if scene exists
         if (get().cachedScenes.get(name) != null) {
-            Scene scene = new EditorScene(name);
+            Scene scene = new DemoScene(name);
+            setScene(scene);
             get().cachedScenes.put(name, scene);
         }
 
         return null;
     }
+
+    // Add function for deleting scene
 }
