@@ -7,9 +7,13 @@ public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
     // private Dictionary<String, Scene> cachedScenes = new Hashtable<>();
+    private static int currentMode;   // Editing, Playing or Debugging, etc.
+    private static String[] sceneModes;
 
     public SceneManager() {
-        currentScene = new DemoScene("DemoScene");
+        sceneModes = new String[]{"Editing", "Playing", "Debugging"};
+        currentMode = 0;
+        setScene(new DemoScene("DemoScene"));
     }
 
     // Singleton
@@ -28,7 +32,7 @@ public class SceneManager {
 
     public void setScene(Scene scene) {
         if (scene == null) {return;}
-        get().currentScene = scene;
+        currentScene = scene;
         // Update Scene here
     }
 
