@@ -1,9 +1,18 @@
 package Jade;
 
-public abstract class Scene {
+public class Scene {
     private String name;
 
-    public abstract void update(float delta);
+    public Scene(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+
+    public void process(float delta) {}
 
 
 }

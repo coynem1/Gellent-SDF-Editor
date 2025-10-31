@@ -97,7 +97,7 @@ public class Window {
     }
 
     public void loop() {
-        float deltaTime;
+        float deltaTime = 0;
         Time.get().beginFrame();
 
         while (!glfwWindowShouldClose(glfwWindow)) {
@@ -106,6 +106,12 @@ public class Window {
 
             glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            // Send frame update to SceneManager
+            SceneManager.get().process(deltaTime);
+
+
+
 
             if (KeyListener.isKeyPressed(GLFW_KEY_7)) {
                 IO.println("7");
@@ -122,7 +128,6 @@ public class Window {
             // Calculates elapsed frame time
             deltaTime = Time.get().endFrame();
             Time.get().beginFrame();
-            IO.println(deltaTime);
         }
     }
 }

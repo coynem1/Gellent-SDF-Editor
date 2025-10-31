@@ -6,10 +6,10 @@ import java.util.Hashtable;
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
-    private Dictionary<String, Scene> cachedScenes = new Hashtable<>();
+    // private Dictionary<String, Scene> cachedScenes = new Hashtable<>();
 
     public SceneManager() {
-
+        currentScene = new DemoScene("DemoScene");
     }
 
     // Singleton
@@ -18,6 +18,11 @@ public class SceneManager {
             instance = new SceneManager();
         }
         return instance;
+    }
+
+    // Pass Frame update to scene
+    public void process(float delta) {
+        get().currentScene.process(delta);
     }
 
 
@@ -33,14 +38,9 @@ public class SceneManager {
 
     // Adds new scene to dict
     public Scene createScene(String name) {
-        // Check if scene exists
-        if (get().cachedScenes.get(name) != null) {
-            Scene scene = new DemoScene(name);
-            setScene(scene);
-            get().cachedScenes.put(name, scene);
-        }
-
-        return null;
+        Scene scene = new Scene(name);
+        setScene(scene);
+        return scene;
     }
 
     // Add function for deleting scene
