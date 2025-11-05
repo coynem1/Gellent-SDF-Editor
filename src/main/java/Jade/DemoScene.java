@@ -1,6 +1,8 @@
 package Jade;
 
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class DemoScene extends Scene {
     private String vShaderSrc = "#version 330 core\n" +
@@ -23,19 +25,21 @@ public class DemoScene extends Scene {
             "}";
 
     private int vertexID, fragmentID, shaderProgram;
-    si
+    
     private float[] vertices = {
-            // Pos                  // Col
-            -0.5f, 0.5f, 0.0f,      0.0f, 1.0f, 0.2f, 0.0f,      // Top Left
-            0.5f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f, 0.0f ,     // Top Right
-            -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f, 0.0f,      // Bottom Left
-            0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.2f, 0.0f,      // Bottom Right
+            // Pos                      // Col
+            -0.5f,  0.5f,   0.0f,       0.0f, 1.0f, 0.2f, 0.0f,      // Top Left
+            0.5f,   0.5f,   0.0f,       1.0f, 1.0f, 0.0f, 0.0f ,     // Top Right
+            -0.5f,  -0.5f,  0.0f,       0.0f, 0.0f, 1.0f, 0.0f,      // Bottom Left
+            0.5f,   -0.5f,  0.0f,       0.0f, 1.0f, 0.2f, 0.0f,      // Bottom Right
     };
 
-    private int[] elements = {
+    private int[] screenBox = {
             0, 1, 2,    // Top Left
             2, 3, 1     // Bottom Right
     };
+
+    private int vaoID, vboID, eboID;
 
 
 
@@ -100,7 +104,47 @@ public class DemoScene extends Scene {
             System.err.println("Error compiling link shader: " + glGetShaderInfoLog(shaderProgram, GL_FALSE));
             assert false : "";
         }
+
+        // Generate VAO, VBO, and EBO buffer objects for GPU
+        // Create VAO
+        vaoID = glGenVertexArrays();
+        glBindVertexArray(vaoID);
+
+        // Create VBO
+        vboID = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+
+        // Create EBO
+        eboID = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, screenBox, GL_STATIC_DRAW);
+
+        // Position & Color attributes
+        int posSize = 3;
+        int colSize = 4;
+        glVertexAttribPointer(0, posSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, 0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(0, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, 0);
+        glEnableVertexAttribArray(0);
+
+//        shaderProgram = createShaderProgram(vShaderSrc, fShaderSrc);
     }
+
+
+    private void checkCompileErrors(int shader, String type) {
+        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE)
+            throw new RuntimeException("Shader compile error (" + type + "): " + glGetShaderInfoLog(shader));
+    }
+
+    private void checkLinkErrors(int program) {
+        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE)
+            throw new RuntimeException("Program link error: " + glGetProgramInfoLog(program));
+    }
+
+
+
 
     // Custom circle level
     private void circle() {
