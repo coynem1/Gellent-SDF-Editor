@@ -63,6 +63,7 @@ public class DemoScene extends Scene {
 
     }
 
+    // Begin shader setup
     @Override
     public void init() {
         // Load and compile
@@ -73,12 +74,7 @@ public class DemoScene extends Scene {
         glCompileShader(vertexID);
 
         // Check for errors
-        int success = glGetShaderi(vertexID, GL_COMPILE_STATUS);
-        if (success == GL_FALSE) {
-            System.err.println("Error compiling Vertex shader: " + glGetShaderInfoLog(vertexID, GL_FALSE));
-            assert false : "";
-        }
-
+        checkCompileErrors(vertexID, "Vertex");
 
         // Load and compile
         fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -88,11 +84,7 @@ public class DemoScene extends Scene {
         glCompileShader(fragmentID);
 
         // Check for errors
-        success = glGetShaderi(fragmentID, GL_COMPILE_STATUS);
-        if (success == GL_FALSE) {
-            System.err.println("Error compiling Fragment shader: " + glGetShaderInfoLog(fragmentID, GL_FALSE));
-            assert false : "";
-        }
+        checkCompileErrors(fragmentID, "Fragment");
 
         // Link shaders
         shaderProgram = glCreateProgram();
@@ -100,12 +92,8 @@ public class DemoScene extends Scene {
         glAttachShader(shaderProgram, fragmentID);
         glLinkProgram(shaderProgram);
 
-        success = glGetProgrami(shaderProgram, GL_LINK_STATUS);
-        if (success == GL_FALSE) {
-            // int len = glGetProgrami(shaderProgram, GL_LINK_STATUS);
-            System.err.println("Error compiling link shader: " + glGetShaderInfoLog(shaderProgram, GL_FALSE));
-            assert false : "";
-        }
+        // Check for Shader errors
+        checkLinkErrors(shaderProgram);
 
         // Generate VAO, VBO, and EBO buffer objects for GPU
         // Create VAO
@@ -167,19 +155,21 @@ public class DemoScene extends Scene {
     }
 
 
-
+    // Stops program if there's a shader compiling error
     private void checkCompileErrors(int shader, String type) {
-        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE)
-            throw new RuntimeException("Shader compile error (" + type + "): " + glGetShaderInfoLog(shader));
+        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+            System.err.println("Error compiling " + type +" shader: " + glGetShaderInfoLog(fragmentID, GL_FALSE));
+            assert false : "";
+        }
     }
 
+    // Stops program if there's a shader link compiling error
     private void checkLinkErrors(int program) {
-        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE)
-            throw new RuntimeException("Program link error: " + glGetProgramInfoLog(program));
+        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
+            System.err.println("Error compiling link shader: " + glGetShaderInfoLog(shaderProgram, GL_FALSE));
+            assert false : "";
+        }
     }
-
-
-
 
     // Custom circle level
     private void circle() {
