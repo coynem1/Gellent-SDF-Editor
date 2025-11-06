@@ -1,5 +1,10 @@
 package Jade;
 
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
@@ -54,11 +59,8 @@ public class DemoScene extends Scene {
         this.demos = new String[]{"Circle", "MultipleShapes", "BlendShapes", "Cutting"};
         super(name);
 
-    }
+        init();
 
-    @Override
-    public void process(float delta) {
-        IO.println("Running at " + (1.0f / delta) + "FPS");
     }
 
     @Override
@@ -110,10 +112,18 @@ public class DemoScene extends Scene {
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
 
+        // Create float buffer of vertices
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
+        vertexBuffer.put(vertices).flip();
+
         // Create VBO
         vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+
+        // Create indices and upload
+        IntBuffer elementBuffer = BufferUtils.createIntBuffer(screenBox.length);
+        elementBuffer.put(screenBox).flip();
 
         // Create EBO
         eboID = glGenBuffers();
@@ -126,11 +136,36 @@ public class DemoScene extends Scene {
         glVertexAttribPointer(0, posSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(0, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, 0);
-        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, posSize * Float.BYTES);
+        glEnableVertexAttribArray(1);
 
 //        shaderProgram = createShaderProgram(vShaderSrc, fShaderSrc);
     }
+
+    @Override
+    public void process(float delta) {
+        IO.println("Running at " + (1.0f / delta) + "FPS");
+
+        // Bind shader
+        glUseProgram(shaderProgram);
+
+        // Bind VAO
+        glBindVertexArray(vaoID);
+
+        // Enable vertex pointers
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
+
+        // Unbind everything
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
 
 
     private void checkCompileErrors(int shader, String type) {
