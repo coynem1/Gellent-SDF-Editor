@@ -34,8 +34,8 @@ public class Window {
     public void run() {
         IO.println("Hello LWJGL " + Version.getVersion() + "!");
 
-        init();
-        loop();
+        init(); // Run screen initializations
+        loop(); // Refresh loop until windows closed
 
         // Free memory
         glfwFreeCallbacks(glfwWindow);
@@ -44,15 +44,6 @@ public class Window {
         // Terminate GLFW and free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
-
-
-//        // Free the window callbacks and destroy the window
-//        glfwFreeCallbacks(window);
-//        glfwDestroyWindow(window);
-//
-//        // Terminate GLFW and free the error callback
-//        glfwTerminate();
-//        glfwSetErrorCallback(null).free();
     }
 
     public void init() {
@@ -110,18 +101,16 @@ public class Window {
             // Send frame update to SceneManager
             SceneManager.get().process(deltaTime);
 
-
-
-
-            if (KeyListener.isKeyPressed(GLFW_KEY_7)) {
-                IO.println("7");
-            }
-            if (MouseListener.isDragging()) {
-                IO.println("Dragging");
-            }
-            if (MouseListener.mouseBtnPress(GLFW_MOUSE_BUTTON_LEFT)) {
-                IO.println("Left Mouse");
-            }
+//            // Check inputs are working
+//            if (KeyListener.isKeyPressed(GLFW_KEY_7)) {
+//                IO.println("7");
+//            }
+//            if (MouseListener.isDragging()) {
+//                IO.println("Dragging");
+//            }
+//            if (MouseListener.mouseBtnPress(GLFW_MOUSE_BUTTON_LEFT)) {
+//                IO.println("Left Mouse");
+//            }
 
             glfwSwapBuffers(glfwWindow);
 
