@@ -48,6 +48,7 @@ public class Shader {
 //        IO.println(this.fragmentShader);
     }
 
+    // Loads
     private String openFile(String filename) {
         try {
             File file = new File(filename);
@@ -116,6 +117,17 @@ public class Shader {
     public void run() {
         glUseProgram(shaderProgramID);
     }
+
+    // 
+    public void uploadMat4(String varName, Matrix4f mat4) {
+        final int FOUR_BY_FOUR = 16;
+
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        FloatBuffer matBuffer = BufferUtils.createFloatBuffer(FOUR_BY_FOUR);
+        mat4.get(matBuffer);
+        glUniformMatrix4fv(varLocation, false, matBuffer);
+    }
+
 
 //    public void detachShader() {
 //        glUseProgram(0);

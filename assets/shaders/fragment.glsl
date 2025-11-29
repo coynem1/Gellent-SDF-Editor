@@ -1,5 +1,7 @@
 #version 330 core
-//uniform vec2 u_resolution;
+uniform mat4 uProjection;
+uniform mat4 uView;
+
 out vec4 FragColor;
 
 void main()
