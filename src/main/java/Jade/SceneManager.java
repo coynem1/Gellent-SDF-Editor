@@ -29,7 +29,6 @@ public class SceneManager {
         get().currentScene.process(delta);
     }
 
-
     public void setScene(Scene scene) {
         if (scene == null) {return;}
         currentScene = scene;

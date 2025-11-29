@@ -23,33 +23,29 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class ScreenRender {
     private String vShaderSrc = "#version 330 core\n" +
-            "layout (location=0) in vec3 aPos;\n" +
-            "layout (location=1) in vec4 aColour;\n" +
+            "layout (location = 0) in vec3 aPos;\n" +
             "\n" +
-            "out vec4 fColour;\n" +
-            "\n" +
-            "void main() {\n" +
-            "    fColour = aColour;\n" +
+            "void main()\n" +
+            "{\n" +
             "    gl_Position = vec4(aPos, 1.0);\n" +
             "}";
     private String fShaderSrc = "#version 330 core\n" +
+            "out vec4 FragColor;\n" +
             "\n" +
-            "in vec4 fColour;\n" +
-            "out vec4 colour;\n" +
-            "\n" +
-            "void main() {\n" +
-            "    colour = fColour;\n" +
-            "}";
+            "void main()\n" +
+            "{\n" +
+            "    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // solid green test\n" +
+            "}\n";
 
     private int vertexID, fragmentID, shaderProgram;
     private String[] shaderNames;
 
     private float[] vertices = {
-            // Pos                      // Col
-            -1.0f,  1.0f,   0.0f,       0.0f, 1.0f, 0.2f, 0.0f,      // Top Left
-            1.0f,   1.0f,   0.0f,       1.0f, 1.0f, 0.0f, 0.0f ,     // Top Right
-            -1.0f,  -1.0f,  0.0f,       0.0f, 0.0f, 1.0f, 0.0f,      // Bottom Left
-            1.0f,   -1.0f,  0.0f,       0.0f, 1.0f, 0.2f, 0.0f,      // Bottom Right
+            // Pos
+            -1.0f,  1.0f,   0.0f,   // Top Left
+            1.0f,   1.0f,   0.0f,   // Top Right
+            -1.0f,  -1.0f,  0.0f,   // Bottom Left
+            1.0f,   -1.0f,  0.0f,   // Bottom Right
     };
 
     private int[] screenBox = {
@@ -116,35 +112,23 @@ public class ScreenRender {
 
         // Position & Color attributes
         int posSize = 3;
-        int colSize = 4;
-        glVertexAttribPointer(0, posSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, 0);
+//        int colSize = 4;
+        glVertexAttribPointer(0, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, posSize * Float.BYTES);
-        glEnableVertexAttribArray(1);
+//        glVertexAttribPointer(1, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, posSize * Float.BYTES);
+//        glEnableVertexAttribArray(1);
 
     }
 
     // Renders shaders every frame
     public void process(float delta) {
+        IO.println("Running at " + (1.0f / delta) + "FPS");
+
         // Bind shader
         glUseProgram(shaderProgram);
 
-        // Bind VAO
-        glBindVertexArray(vaoID);
-
-        // Enable vertex pointers
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
-
-        // Unbind everything
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
     }
 
 
