@@ -1,6 +1,7 @@
 package Jade;
 
 import org.lwjgl.BufferUtils;
+import util.Shader;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -22,23 +23,26 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 
 public class ScreenRender {
-    private String vShaderSrc = "#version 330 core\n" +
-            "layout (location = 0) in vec3 aPos;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "    gl_Position = vec4(aPos, 1.0);\n" +
-            "}";
-    private String fShaderSrc = "#version 330 core\n" +
-            "out vec4 FragColor;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // solid green test\n" +
-            "}\n";
-
-    private int vertexID, fragmentID, shaderProgram;
-    private String[] shaderNames;
+//    private String vShaderSrc = "#version 330 core\n" +
+//            "layout (location = 0) in vec3 aPos;\n" +
+//            "\n" +
+//            "void main()\n" +
+//            "{\n" +
+//            "    gl_Position = vec4(aPos, 1.0);\n" +
+//            "}";
+//    private String fShaderSrc = "#version 330 core\n" +
+//            "out vec4 FragColor;\n" +
+//            "\n" +
+//            "void main()\n" +
+//            "{\n" +
+//            "    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // solid green test\n" +
+//            "}\n";
+//
+//    private int vertexID, fragmentID, shaderProgram;
+//    private String[] shaderNames;
+    private Shader currentShader;
+    private String vertexShaderFilename = "assets/shaders/vertex.glsl";
+    private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
 
     private float[] vertices = {
             // Pos
@@ -58,37 +62,9 @@ public class ScreenRender {
 
     // Begin shader setup
     public ScreenRender() {
-        // Load and compile
-        vertexID = glCreateShader(GL_VERTEX_SHADER);
+        // Open shader files, compile and link them
+        useShaders(vertexShaderFilename, fragmentShaderFilename);
 
-        // Pass shader src to GPU
-        glShaderSource(vertexID, vShaderSrc);
-        glCompileShader(vertexID);
-
-        // Check for errors
-        compileShader(vertexID, "Vertex");
-
-        // Load and compile
-        fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-
-        // Pass shader src to GPU
-        glShaderSource(fragmentID, fShaderSrc);
-        glCompileShader(fragmentID);
-
-        // Check for errors
-        compileShader(fragmentID, "Fragment");
-
-        // Link shaders
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexID);
-        glAttachShader(shaderProgram, fragmentID);
-        glLinkProgram(shaderProgram);
-
-        // Check for Shader errors
-        compileShaderLink(shaderProgram);
-
-        // Generate VAO, VBO, and EBO buffer objects for GPU
-        // Create VAO
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
 
@@ -110,41 +86,23 @@ public class ScreenRender {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, screenBox, GL_STATIC_DRAW);
 
-        // Position & Color attributes
+        // Position attribute
         int posSize = 3;
-//        int colSize = 4;
         glVertexAttribPointer(0, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
 
-//        glVertexAttribPointer(1, colSize, GL_FLOAT, false, (posSize + colSize) * Float.BYTES, posSize * Float.BYTES);
-//        glEnableVertexAttribArray(1);
-
     }
 
-    // Renders shaders every frame
+    // Open shader files, compile, and link them
+    private void useShaders(String vertexFilename, String fragFilename) {
+        currentShader = new Shader(vertexFilename, fragFilename);
+        currentShader.compile();
+    }
+
+    // Renders every frame
     public void process(float delta) {
-        IO.println("Running at " + (1.0f / delta) + "FPS");
-
-        // Bind shader
-        glUseProgram(shaderProgram);
-
+//        IO.println("Running at " + (1.0f / delta) + "FPS");
+        currentShader.run();
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
-    }
-
-
-    // Stops program if there's a shader compiling error
-    private void compileShader(int shader, String type) {
-        if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Error compiling " + type + " : " + glGetShaderInfoLog(shader, GL_FALSE));
-            assert false : "";
-        }
-    }
-
-    // Stops program if there's a shader link compiling error
-    private void compileShaderLink(int program) {
-        if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Error compiling link shader: " + glGetShaderInfoLog(shaderProgram, GL_FALSE));
-            assert false : "";
-        }
     }
 }

@@ -42,3 +42,11 @@ dependencies {
     implementation "org.joml:joml:${jomlVersion}"
     implementation "com.code-disaster.steamworks4j:steamworks4j:${steamworks4jVersion}"
 }
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += [
+            "--enable-native-access=ALL-UNNAMED",
+            "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
+            "--add-opens", "java.base/java.nio=ALL-UNNAMED"
+    ]
+}
