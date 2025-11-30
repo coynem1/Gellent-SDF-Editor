@@ -94,7 +94,7 @@ public class ScreenRender {
 
     // Renders every frame
     public void process(float delta) {
-//        IO.println("Running at " + (1.0f / delta) + "FPS");
+        // IO.println("Running at " + (1.0f / delta) + "FPS");
         currentShader.run();
         // camera.setPosition(new Vector2f(camera.getPosition().x + delta * -50.0f, camera.getPosition().y + delta * -50.0f));
         // IO.println("Camera position: " + camera.getPosition());
