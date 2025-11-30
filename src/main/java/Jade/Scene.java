@@ -8,8 +8,6 @@ public class Scene {
         this.name = name;
     }
 
-//    public void init() {}
-
     public String getName() {
         return name;
     }

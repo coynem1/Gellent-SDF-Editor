@@ -95,7 +95,7 @@ public class Window {
             // Poll Events
             glfwPollEvents();
 
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+            glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             // Send frame update to SceneManager

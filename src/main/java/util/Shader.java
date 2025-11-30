@@ -1,6 +1,10 @@
 package util;
 
+import org.joml.*;
+import org.lwjgl.BufferUtils;
+
 import java.io.File;
+import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -15,6 +19,7 @@ public class Shader {
     private String vertexShader, fragmentShader;
     private String vertexFilename;
     private String fragFilename;
+    private boolean currentlyUsed;
 
 
     // Opens a shader file
@@ -25,16 +30,9 @@ public class Shader {
 
         // Open files
         try {
-            this.vertexShader = openFile(filename);
+            this.vertexShader = new String(Files.readAllBytes(Paths.get(filename)));
             filename = fragFilename;
-            this.fragmentShader = openFile(filename);
-//            System.err.println("ERR: Could not load shader file " + filename);
-//            this.vertexShader = new String(Files.readAllBytes(Paths.get(filename)));
-//            filename = fragFilename;
-//            this.fragmentShader = new String(Files.readAllBytes(Paths.get(filename)));
-//            System.err.println("ERR: Could not load shader file " + filename);
-////            e.printStackTrace();
-//            throw new RuntimeException("ERR: Could not load shader file " + filename);
+            this.fragmentShader = new String(Files.readAllBytes(Paths.get(filename)));
         }
         catch (Exception e) {
 //            throw new RuntimeException("ERR: Could not load shader file " + filename, e);
@@ -42,24 +40,6 @@ public class Shader {
             e.printStackTrace();
             throw new RuntimeException("ERR: Could not load shader file " + filename, e);
 
-        }
-
-//        IO.println(this.vertexShader);
-//        IO.println(this.fragmentShader);
-    }
-
-    // Loads
-    private String openFile(String filename) {
-        try {
-            File file = new File(filename);
-            assert file.exists(): "ERR: Failed to open file, shader: " + filename + " does not exist";
-
-            return new String(Files.readAllBytes(Paths.get(filename)));
-        }
-        catch (Exception e) {
-            System.err.println("ERR: Could not load shader file " + filename);
-            e.printStackTrace();
-            throw new RuntimeException("ERR: Could not load shader file " + filename, e);
         }
     }
 
@@ -115,22 +95,63 @@ public class Shader {
 
     // Bind shader
     public void run() {
-        glUseProgram(shaderProgramID);
+        // Only runs once
+        if (!currentlyUsed) {
+            glUseProgram(shaderProgramID);
+            currentlyUsed = true;
+        }
     }
 
-    // 
-    public void uploadMat4(String varName, Matrix4f mat4) {
+    // Posts new variable to shader
+    public void uploadMat4(String varName, Matrix4f matrix) {
         final int FOUR_BY_FOUR = 16;
-
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+
         FloatBuffer matBuffer = BufferUtils.createFloatBuffer(FOUR_BY_FOUR);
-        mat4.get(matBuffer);
+        matrix.get(matBuffer);
         glUniformMatrix4fv(varLocation, false, matBuffer);
     }
 
+    public void uploadMat3(String varName, Matrix3f matrix) {
+        final int THREE_BY_THREE = 9;
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
 
-//    public void detachShader() {
-//        glUseProgram(0);
-//    }
+        FloatBuffer matBuffer = BufferUtils.createFloatBuffer(THREE_BY_THREE);
+        matrix.get(matBuffer);
+        glUniformMatrix3fv(varLocation, false, matBuffer);
+    }
+
+    public void uploadVec4f(String varName, Vector4f vec) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform4f(varLocation, vec.x, vec.y, vec.z, vec.w);
+    }
+
+    public void uploadVec3f(String varName, Vector3f vec) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform3f(varLocation, vec.x, vec.y, vec.z);
+    }
+
+    public void uploadVec2f(String varName, Vector2f vec) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform2f(varLocation, vec.x, vec.y);
+    }
+
+    public void uploadFloat(String varName, float val) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform1f(varLocation, val);
+    }
+
+    public void uploadInt(String varName, int val) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform1i(varLocation, val);
+    }
+
 
 }

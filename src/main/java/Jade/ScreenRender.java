@@ -1,7 +1,9 @@
 package Jade;
 
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import util.Shader;
+import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -23,33 +25,17 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 
 public class ScreenRender {
-//    private String vShaderSrc = "#version 330 core\n" +
-//            "layout (location = 0) in vec3 aPos;\n" +
-//            "\n" +
-//            "void main()\n" +
-//            "{\n" +
-//            "    gl_Position = vec4(aPos, 1.0);\n" +
-//            "}";
-//    private String fShaderSrc = "#version 330 core\n" +
-//            "out vec4 FragColor;\n" +
-//            "\n" +
-//            "void main()\n" +
-//            "{\n" +
-//            "    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // solid green test\n" +
-//            "}\n";
-//
-//    private int vertexID, fragmentID, shaderProgram;
-//    private String[] shaderNames;
     private Shader currentShader;
     private String vertexShaderFilename = "assets/shaders/vertex.glsl";
     private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
+    private Camera camera;
 
     private float[] vertices = {
             // Pos
-            -1.0f,  1.0f,   0.0f,   // Top Left
-            1.0f,   1.0f,   0.0f,   // Top Right
-            -1.0f,  -1.0f,  0.0f,   // Bottom Left
-            1.0f,   -1.0f,  0.0f,   // Bottom Right
+            0.0f,   672.0f,   0.0f,   // Top Left
+            1280.0f,   672.0f,   0.0f,   // Top Right
+            0.0f,  0.0f,  0.0f,   // Bottom Left
+            1280.0f,   0.0f,  0.0f,   // Bottom Right
     };
 
     private int[] screenBox = {
@@ -65,6 +51,20 @@ public class ScreenRender {
         // Open shader files, compile and link them
         useShaders(vertexShaderFilename, fragmentShaderFilename);
 
+        // Camera declare
+        this.camera = new Camera(new Vector2f());   // set to 0,0
+
+        loadBuffers();  // VBO, VAO, EBO used for rendering
+    }
+
+    // Open shader files, compile, and link them
+    private void useShaders(String vertexFilename, String fragFilename) {
+        currentShader = new Shader(vertexFilename, fragFilename);
+        currentShader.compile();
+    }
+
+    // TODO: Buffer code in a function here
+    private void loadBuffers() {
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
 
@@ -90,19 +90,21 @@ public class ScreenRender {
         int posSize = 3;
         glVertexAttribPointer(0, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
-
-    }
-
-    // Open shader files, compile, and link them
-    private void useShaders(String vertexFilename, String fragFilename) {
-        currentShader = new Shader(vertexFilename, fragFilename);
-        currentShader.compile();
     }
 
     // Renders every frame
     public void process(float delta) {
 //        IO.println("Running at " + (1.0f / delta) + "FPS");
         currentShader.run();
+        // camera.setPosition(new Vector2f(camera.getPosition().x + delta * -50.0f, camera.getPosition().y + delta * -50.0f));
+        // IO.println("Camera position: " + camera.getPosition());
+
+
+        // Upload matrices for camera
+        currentShader.uploadMat4("uProjection", camera.getProjectionMat());
+        currentShader.uploadMat4("uView", camera.getViewMat());
+        currentShader.uploadFloat("uTime", Time.getTime());
+
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
     }
 }

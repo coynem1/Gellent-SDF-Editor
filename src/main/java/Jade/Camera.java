@@ -12,12 +12,13 @@ public class Camera {
         this.projectionMat = new Matrix4f();
         this.viewMat = new Matrix4f();
         this.position = position;
+        adjustProjection();
     }
 
     // Used for scaling screen
     public void adjustProjection() {
         projectionMat.identity();
-        projectionMat.ortho(0.0f, 18.0f * 60.0f, 0.0f, 32.0f * 60.0f, 0.0f, 1000.0f);
+        projectionMat.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
     }
 
     // Base camera matrix
@@ -26,7 +27,7 @@ public class Camera {
         Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
         this.viewMat.identity();
         this.viewMat = viewMat.lookAt(
-                new Vector3f(position.x, position.y, 100.0f),   // Camera location
+                new Vector3f(position.x, position.y, 50.0f),   // Camera location
                 camFront.add(position.x, position.y, 0.0f),     // Camera viewing center
                 camUp                                              // Up
         );
@@ -36,6 +37,14 @@ public class Camera {
     // Window screen matrix
     public Matrix4f getProjectionMat() {
         return this.projectionMat;
+    }
+
+    public Vector2f getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(Vector2f position) {
+        this.position = position;
     }
 
 
