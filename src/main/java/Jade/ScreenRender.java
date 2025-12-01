@@ -29,7 +29,9 @@ public class ScreenRender {
     private String vertexShaderFilename = "assets/shaders/vertex.glsl";
     private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
     private Camera camera;
+
     private int demoScene = 0;
+    private float blend;
 
     private float[] vertices = {
             // Pos
@@ -96,6 +98,9 @@ public class ScreenRender {
     public void setDemoScene(int demoScene) {
         this.demoScene = demoScene;
     }
+    public void setDemoBlend(float blend) {
+        this.blend = blend;
+    }
 
     // Renders every frame
     public void process(float delta) {
@@ -110,6 +115,7 @@ public class ScreenRender {
         currentShader.uploadMat4("uView", camera.getViewMat());
         currentShader.uploadFloat("uTime", Time.getTime());
         currentShader.uploadInt("uDemoScene", demoScene);
+        currentShader.uploadFloat("uBlend", blend);
         // IO.println("demoScene: " + demoScene);
 
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);

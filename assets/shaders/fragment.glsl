@@ -3,14 +3,16 @@ uniform mat4 uProjection;
 uniform mat4 uView;
 uniform float uTime;
 uniform int uDemoScene;
+uniform float uBlend;
 
 out vec4 FragColor;
 
+// sigmoid smoothing
 float smin( float a, float b, float k )
 {
-    k *= 1.0;
-    float r = exp2(-a/k) + exp2(-b/k);
-    return -k*log2(r);
+    k *= log(2.0);
+    float x = b-a;
+    return a + x/(1.0-exp2(x/k));
 }
 
 float sdCircle(vec2 p, float r) {
@@ -73,14 +75,26 @@ float shapesScene() {
     float xMid = gl_FragCoord.x-offset.x;
     float yMid = gl_FragCoord.y-offset.y;
 
-    float dCircle1 = sdCircle(vec2(xMid, yMid), 100.0f);
+    float dCircle1 = sdCircle(vec2(xMid, yMid), 250.0f);
     float dBox1 = sdBox(vec2(xMid-200, yMid + 400.0f), vec2(100.0f, 100.0f));
     float dBox2 = sdBox(vec2(xMid-600, yMid + 80.0f), vec2(250.0f, 100.0f));
     float dTriangle = sdEquilateralTriangle(vec2(xMid+240, yMid + 700.0f), 400.0f);
     float dStar = sdStar(vec2(xMid+600, yMid), 200.0f + sin(uTime) * 50.0f);
 
 
-    return min(min(min(min(dCircle1, dTriangle), dBox1), dBox2), dStar);
+    return min(min(min(smin(dCircle1, dTriangle, 10.0f * uBlend), dBox1), dBox2), dStar);
+}
+
+// smooth blend between shapes
+float smoothingScene() {
+    vec2 offset = vec2(1100.0f, 900.0f);
+    float xMid = gl_FragCoord.x-offset.x;
+    float yMid = gl_FragCoord.y-offset.y;
+
+    float dCircle1 = sdCircle(vec2(xMid+150, yMid), 300.0f);
+    float dBox1 = sdBox(vec2(xMid-500, yMid + 300.0f), vec2(200.0f, 300.0f));
+
+    return smin(dCircle1, dBox1, 10.0f * uBlend);
 }
 
 // Renders SDFs with animated isolines
@@ -108,9 +122,12 @@ void main()
             dist = sdBox(vec2(gl_FragCoord.x-1300.0f, gl_FragCoord.y-700.0f), vec2(300.0f, 300.0f));
             break;
         case 2:
-            dist = shapesScene();
+            dist = smoothingScene();
             break;
         case 3:
+            dist = shapesScene();
+            break;
+        case 4:
             dist = hiDemo();
             break;
         default:
