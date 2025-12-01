@@ -29,6 +29,7 @@ public class ScreenRender {
     private String vertexShaderFilename = "assets/shaders/vertex.glsl";
     private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
     private Camera camera;
+    private int demoScene = 0;
 
     private float[] vertices = {
             // Pos
@@ -63,7 +64,7 @@ public class ScreenRender {
         currentShader.compile();
     }
 
-    // TODO: Buffer code in a function here
+    // Buffers for OpenGL
     private void loadBuffers() {
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
@@ -92,6 +93,10 @@ public class ScreenRender {
         glEnableVertexAttribArray(0);
     }
 
+    public void setDemoScene(int demoScene) {
+        this.demoScene = demoScene;
+    }
+
     // Renders every frame
     public void process(float delta) {
         // IO.println("Running at " + (1.0f / delta) + "FPS");
@@ -104,6 +109,8 @@ public class ScreenRender {
         currentShader.uploadMat4("uProjection", camera.getProjectionMat());
         currentShader.uploadMat4("uView", camera.getViewMat());
         currentShader.uploadFloat("uTime", Time.getTime());
+        currentShader.uploadInt("uDemoScene", demoScene);
+        // IO.println("demoScene: " + demoScene);
 
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
     }
