@@ -32,6 +32,7 @@ public class ScreenRender {
 
     private int demoScene = 0;
     private float blend;
+    private int toggleRender = 0;
 
     private float[] vertices = {
             // Pos
@@ -101,6 +102,9 @@ public class ScreenRender {
     public void setDemoBlend(float blend) {
         this.blend = blend;
     }
+    public void setToggleRender(int val) {
+        this.toggleRender = val;
+    }
 
     // Renders every frame
     public void process(float delta) {
@@ -116,6 +120,7 @@ public class ScreenRender {
         currentShader.uploadFloat("uTime", Time.getTime());
         currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadFloat("uBlend", blend);
+        currentShader.uploadInt("uToggleRender", toggleRender);
         // IO.println("demoScene: " + demoScene);
 
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);

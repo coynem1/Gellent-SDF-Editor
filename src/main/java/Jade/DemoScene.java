@@ -7,9 +7,11 @@ import static org.lwjgl.glfw.GLFW.*;
 public class DemoScene extends Scene {
     private String name;
     private int currentDemo;
-    private float blend = 0.5f;
     private String[] demos;
     private ScreenRender render;
+
+    private float blend = 0.5f;
+    private int toggleRender = 0;
     private boolean blendPressed = false;
 
     public DemoScene(String name) {
@@ -62,6 +64,16 @@ public class DemoScene extends Scene {
             blendPressed = true;
         } else {
             blendPressed = false;
+        }
+
+        // Change render mode
+        if (KeyListener.isKeyPressed(GLFW_KEY_LEFT)) {
+            toggleRender = 0;
+            render.setToggleRender(toggleRender);
+        }
+        if (KeyListener.isKeyPressed(GLFW_KEY_RIGHT)) {
+            toggleRender = 1;
+            render.setToggleRender(toggleRender);
         }
 
 

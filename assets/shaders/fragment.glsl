@@ -4,6 +4,7 @@ uniform mat4 uView;
 uniform float uTime;
 uniform int uDemoScene;
 uniform float uBlend;
+uniform int uToggleRender;
 
 out vec4 FragColor;
 
@@ -94,11 +95,17 @@ float smoothingScene() {
     float dCircle1 = sdCircle(vec2(xMid+150, yMid), 300.0f);
     float dBox1 = sdBox(vec2(xMid-500, yMid + 300.0f), vec2(200.0f, 300.0f));
 
-    return smin(dCircle1, dBox1, 10.0f * uBlend);
+    return smin(dCircle1, dBox1, 5.0f * uBlend);
 }
 
 // Renders SDFs with animated isolines
 void render(float dist, float zoom) {
+    // Black and white
+    if (uToggleRender == 0) {
+        FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0f : -2.0f;
 
