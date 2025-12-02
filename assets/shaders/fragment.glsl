@@ -100,14 +100,23 @@ float smoothingScene() {
 
 // Renders SDFs with animated isolines
 void render(float dist, float zoom) {
+    vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
+    float direction = (dist > 0) ? 2.0f : -2.0f;
+
     // Black and white
     if (uToggleRender == 0) {
         FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
+    else if (uToggleRender == 2) {
+        direction = 0.0f;
+    }
+    else if (uToggleRender == 3) {
+        float feathering = 90.0f;
+        FragColor = vec4(1.0-max(dist /feathering, 0.0f), 1.0-max(dist /feathering, 0.0f), 1.0-max(dist /feathering, 0.0f), 1.0);
 
-    vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
-    float direction = (dist > 0) ? 2.0f : -2.0f;
+        return;
+    }
 
     col *= 1.0 - exp(-0.09 * abs(dist));    // Smoothing
     col *= 0.8 + 0.2 * cos(zoom * dist + uTime * direction);    // Isolines

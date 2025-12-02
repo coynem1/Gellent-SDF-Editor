@@ -17,7 +17,7 @@ public class DemoScene extends Scene {
     public DemoScene(String name) {
         this.name = name;
         this.currentDemo = 0;
-        this.demos = new String[]{"Circle", "Square", "MultipleShapes", "Hi Text", "BlendShapes", "Cutting"};
+        this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
         this.render = new ScreenRender();
         super(name);
     }
@@ -73,6 +73,14 @@ public class DemoScene extends Scene {
         }
         if (KeyListener.isKeyPressed(GLFW_KEY_RIGHT)) {
             toggleRender = 1;
+            render.setToggleRender(toggleRender);
+        }
+        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            toggleRender = 2;
+            render.setToggleRender(toggleRender);
+        }
+        if (KeyListener.isKeyPressed(GLFW_KEY_F)) {
+            toggleRender = 3;
             render.setToggleRender(toggleRender);
         }
 
