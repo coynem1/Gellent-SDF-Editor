@@ -62,10 +62,10 @@ float hiDemo() {
     float yMid = gl_FragCoord.y-offset.y;
 
     float dCircle1 = sdCircle(vec2(xMid, yMid), 100.0f);
-    float dBox1 = sdBox(vec2(xMid, yMid + 500.0f), vec2(80.0f, 330.0f));
-    float dBox2 = sdBox(vec2(xMid+240, yMid + 330.0f), vec2(80.0f, 500.0f));
-    float dBox3 = sdBox(vec2(xMid+600, yMid + 330.0f), vec2(80.0f, 500.0f));
-    float dBox4 = sdBox(vec2(xMid+420, yMid + 330.0f), vec2(250.0f, 80.0f));
+    float dBox1 = sdBox(vec2(xMid, yMid + 500.0f), vec2(80.0f - uBlend, 330.0f - uBlend)) - uBlend;
+    float dBox2 = sdBox(vec2(xMid+240, yMid + 330.0f), vec2(80.0f - uBlend, 500.0f - uBlend)) - uBlend;
+    float dBox3 = sdBox(vec2(xMid+600, yMid + 330.0f), vec2(80.0f - uBlend, 500.0f - uBlend)) - uBlend;
+    float dBox4 = sdBox(vec2(xMid+420, yMid + 330.0f), vec2(250.0f- uBlend, 80.0f -uBlend)) - uBlend;
 
     return min(min(min(min(dCircle1, dBox1), dBox2), dBox3), dBox4);
 }
