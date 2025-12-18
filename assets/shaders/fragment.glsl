@@ -5,6 +5,7 @@ uniform float uTime;
 uniform int uDemoScene;
 uniform float uBlend;
 uniform int uToggleRender;
+uniform vec2 uMouse;
 
 out vec4 FragColor;
 
@@ -99,7 +100,9 @@ float smoothingScene() {
 }
 
 // Renders SDFs with animated isolines
-void render(float dist, float zoom) {
+void render(float dist, float zoom, int uDemoScene) {
+    vec2 p = gl_FragCoord.xy;
+    vec2 m = vec2(0.0f, 0.0f);
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0f : -2.0f;
 
@@ -122,7 +125,35 @@ void render(float dist, float zoom) {
     col *= 0.8 + 0.2 * cos(zoom * dist + uTime * direction);    // Isolines
     col = mix( col, vec3(1.0), 1.0-smoothstep(0.0, 2.0, abs(dist)));    // White outline
 
-    FragColor = vec4(col, 1.0f);
+    m = vec2(float(uMouse.x), float(uMouse.y));
+    //  interactivity
+    if(m.x>0)
+    {
+        float d;
+        switch (uDemoScene) {
+            case 0:
+                d = sdCircle(vec2(m.x -1300.0f, m.y-700.0f), 300.0f);
+                break;
+            case 1:
+                d = sdBox(vec2(m.x-1300.0f, m.y-700.0f), vec2(300.0f, 300.0f));
+                break;
+            case 2:
+                d = smoothingScene();
+                break;
+            case 3:
+                d = shapesScene();
+                break;
+            case 4:
+                d = hiDemo();
+                break;
+            default:
+                break;
+        }
+        col = mix(col, vec3(1.0,1.0,0.0), 1.0 - smoothstep(0.0, 1.5, abs(length(p - m) - abs(d)) - 0.25));
+    }
+
+
+    FragColor = vec4(mod(float(2500f) * 0.0001f, 1.0f), mod(float(m.y) *0.0001f, 1.0f), 0.0f, 1.0f);
 }
 
 
@@ -149,7 +180,7 @@ void main()
         default:
             break;
     }
-    render(dist, 0.2f);
+    render(dist, 0.2f, uDemoScene);
 }
 
 

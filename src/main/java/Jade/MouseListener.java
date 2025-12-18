@@ -1,5 +1,7 @@
 package Jade;
 
+import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -70,6 +72,9 @@ public class MouseListener {
     }
     public static float getY() {
         return (float)get().mouseY;
+    }
+    public static Vector2i getXY() {
+        return new Vector2i((int) get().mouseX, (int) get().mouseY);
     }
 
     // Gets elapsed distance in current frame

@@ -1,6 +1,7 @@
 package Jade;
 
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.lwjgl.BufferUtils;
 import util.Shader;
 import util.Time;
@@ -94,6 +95,8 @@ public class ScreenRender {
         int posSize = 3;
         glVertexAttribPointer(0, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(0);
+
+        currentShader.run();
     }
 
     public void setDemoScene(int demoScene) {
@@ -109,7 +112,7 @@ public class ScreenRender {
     // Renders every frame
     public void process(float delta) {
         // IO.println("Running at " + (1.0f / delta) + "FPS");
-        currentShader.run();
+
         // camera.setPosition(new Vector2f(camera.getPosition().x + delta * -50.0f, camera.getPosition().y + delta * -50.0f));
         // IO.println("Camera position: " + camera.getPosition());
 
@@ -118,10 +121,13 @@ public class ScreenRender {
         currentShader.uploadMat4("uProjection", camera.getProjectionMat());
         currentShader.uploadMat4("uView", camera.getViewMat());
         currentShader.uploadFloat("uTime", Time.getTime());
-        currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadFloat("uBlend", blend);
+        currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadInt("uToggleRender", toggleRender);
-        // IO.println("demoScene: " + demoScene);
+        currentShader.uploadVec2i("uMouse", Window.get().toScreenSpace(MouseListener.getXY()));
+        // IO.println(MouseListener.get().getXY().x);
+        IO.println("demoScene: " + Window.get().toScreenSpace(MouseListener.getXY()).x);
+
 
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);
     }
