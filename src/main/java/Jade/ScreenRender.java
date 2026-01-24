@@ -21,8 +21,8 @@ import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL43C.GL_SHADER_STORAGE_BUFFER;
 
 
 public class ScreenRender {
@@ -31,25 +31,20 @@ public class ScreenRender {
     private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
     private Camera camera;
 
+    // TODO: Remove these for final version
     private int demoScene = 0;
     private float blend;
     private int toggleRender = 0;
 
-    private float[] vertices = {
-            // Pos
-            0.0f,   672.0f,   0.0f,   // Top Left
-            1280.0f,   672.0f,   0.0f,   // Top Right
-            0.0f,  0.0f,  0.0f,   // Bottom Left
-            1280.0f,   0.0f,  0.0f,   // Bottom Right
-    };
+    private float[] vertices = {};
 
+    // Rectangle draw order
     private int[] screenBox = {
             0, 1, 2,    // Top Left
             2, 3, 1     // Bottom Right
     };
 
     private int vaoID, vboID, eboID;
-
 
     // Begin shader setup
     public ScreenRender() {
@@ -59,7 +54,29 @@ public class ScreenRender {
         // Camera declare
         this.camera = new Camera(new Vector2f());   // set to 0,0
 
+
         loadBuffers();  // VBO, VAO, EBO used for rendering
+
+
+        // CPU side
+//        int ssbo = glGenBuffers();
+//        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+//        glBufferData(GL_SHADER_STORAGE_BUFFER, quadtreeData, GL_DYNAMIC_DRAW);
+//        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+    }
+
+    // Vertices fix to screen aspect ratio
+    private void updateVertices() {
+        float viewHeight = camera.getViewHeight();
+        float viewWidth = camera.getViewWidth();
+
+        vertices = new float[] {
+                // Pos
+                -viewWidth  / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Left
+                viewWidth   / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Right
+                -viewWidth  / 2.0f, -viewHeight / 2.0f, 0.0f,   // Bottom Left
+                viewWidth   / 2.0f, -viewHeight / 2.0f, 0.0f    // Bottom Right
+        };
     }
 
     // Open shader files, compile, and link them
@@ -72,6 +89,9 @@ public class ScreenRender {
     private void loadBuffers() {
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
+
+        // Aspect ratio dependent, repositions screen vertices
+        updateVertices();
 
         // Create float buffer of vertices
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
@@ -121,12 +141,11 @@ public class ScreenRender {
         currentShader.uploadMat4("uProjection", camera.getProjectionMat());
         currentShader.uploadMat4("uView", camera.getViewMat());
         currentShader.uploadFloat("uTime", Time.getTime());
-        currentShader.uploadFloat("uBlend", blend);
         currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadInt("uToggleRender", toggleRender);
         currentShader.uploadVec2i("uMouse", Window.get().toScreenSpace(MouseListener.getXY()));
         // IO.println(MouseListener.get().getXY().x);
-        IO.println("demoScene: " + Window.get().toScreenSpace(MouseListener.getXY()).x);
+//        IO.println("demoScene: " + Window.get().toScreenSpace(MouseListener.getXY()).x);
 
 
         glDrawElements(GL_TRIANGLES, screenBox.length, GL_UNSIGNED_INT, 0);

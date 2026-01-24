@@ -3,9 +3,9 @@ uniform mat4 uProjection;
 uniform mat4 uView;
 uniform float uTime;
 uniform int uDemoScene;
+uniform float uBlend;
 uniform int uToggleRender;
 uniform vec2 uMouse;
-//uniform vec2 uMouse;
 
 out vec4 FragColor;
 
@@ -63,7 +63,12 @@ float hiDemo() {
     float yMid = gl_FragCoord.y-offset.y;
 
     float dCircle1 = sdCircle(vec2(xMid, yMid), 100.0f);
-    return dCircle1;
+    float dBox1 = sdBox(vec2(xMid, yMid + 500.0f), vec2(80.0f - uBlend, 330.0f - uBlend)) - uBlend;
+    float dBox2 = sdBox(vec2(xMid+240, yMid + 330.0f), vec2(80.0f - uBlend, 500.0f - uBlend)) - uBlend;
+    float dBox3 = sdBox(vec2(xMid+600, yMid + 330.0f), vec2(80.0f - uBlend, 500.0f - uBlend)) - uBlend;
+    float dBox4 = sdBox(vec2(xMid+420, yMid + 330.0f), vec2(250.0f- uBlend, 80.0f -uBlend)) - uBlend;
+
+    return min(min(min(min(dCircle1, dBox1), dBox2), dBox3), dBox4);
 }
 
 // Demo of multiple types of shapes
@@ -79,7 +84,7 @@ float shapesScene() {
     float dStar = sdStar(vec2(xMid+600, yMid), 200.0f + sin(uTime) * 50.0f);
 
 
-    return min(min(min(smin(dCircle1, dTriangle, 10.0f), dBox1), dBox2), dStar);
+    return min(min(min(smin(dCircle1, dTriangle, 10.0f * uBlend), dBox1), dBox2), dStar);
 }
 
 // smooth blend between shapes
@@ -91,14 +96,8 @@ float smoothingScene() {
     float dCircle1 = sdCircle(vec2(xMid+150, yMid), 300.0f);
     float dBox1 = sdBox(vec2(xMid-500, yMid + 300.0f), vec2(200.0f, 300.0f));
 
-    return smin(dCircle1, dBox1, 50.0f);
+    return smin(dCircle1, dBox1, 5.0f * uBlend);
 }
-
-
-//// Fragment shader
-//layout(std430, binding = 0) buffer QuadtreeNodes {
-//    vec4 nodes[]; // e.g., xy = pos, z = size, w = depth/color
-//};
 
 // Renders SDFs with animated isolines
 void render(float dist, float zoom, int uDemoScene) {
@@ -107,16 +106,8 @@ void render(float dist, float zoom, int uDemoScene) {
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0f : -2.0f;
 
-
     // Black and white
     if (uToggleRender == 0) {
-//        float boxes[] = float[](3.4, 4.2, 5.0, 5.2, 1.1);
-//        vec4 boundary = vec4(0f,0f, 100f, 100f);
-//        vec4 debugBoxes = renderDebugBox(boxes, boundary);
-
-//        // Draw Debug
-//        if (debugBoxes[3] != 0f) {FragColor = vec4(1.0, 1.0, 1.0, 1.0); return;}
-
         FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
@@ -168,9 +159,6 @@ void render(float dist, float zoom, int uDemoScene) {
 
 void main()
 {
-//    vec2 worldSize = vec2(1f,1f);
-//    vec2 worldOrigin = vec2(1f,1f);
-//    vec2 worldPos = fragUV * worldSize + worldOrigin;
     float dist = 0.0f;
 
     switch (uDemoScene) {
