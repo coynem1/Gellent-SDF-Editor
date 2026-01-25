@@ -1,9 +1,8 @@
-package util;
+package Rendering;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
 
-import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,32 +13,35 @@ import static org.lwjgl.opengl.GL20.glCompileShader;
 import static org.lwjgl.opengl.GL20.glCreateShader;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 
+// General purpose shader
 public class Shader {
     private int shaderProgramID;
-    private String vertexShader, fragmentShader;
+    private String vertexShaderSource, fragmentShaderSource;
     private String vertexFilename;
     private String fragFilename;
     private boolean currentlyUsed;
 
 
     // Opens a shader file
-    public Shader(String vertexFilename, String fragFilename) {
-        String filename = vertexFilename;
+    public Shader() {
+    }
+
+    // General init for inherit overriding
+    public void init(String vertexFilename, String fragFilename) {
+        String currentShader = vertexFilename;
         this.vertexFilename = vertexFilename;
         this.fragFilename = fragFilename;
 
         // Open files
         try {
-            this.vertexShader = new String(Files.readAllBytes(Paths.get(filename)));
-            filename = fragFilename;
-            this.fragmentShader = new String(Files.readAllBytes(Paths.get(filename)));
+            this.vertexShaderSource = new String(Files.readAllBytes(Paths.get(this.vertexFilename)));
+            currentShader = fragFilename;
+            this.fragmentShaderSource = new String(Files.readAllBytes(Paths.get(this.fragFilename)));
         }
         catch (Exception e) {
-//            throw new RuntimeException("ERR: Could not load shader file " + filename, e);
-            System.err.println("ERR: Could not load shader file " + filename);
+            System.err.println("ERR: Could not load shader file " + currentShader);
             e.printStackTrace();
-            throw new RuntimeException("ERR: Could not load shader file " + filename, e);
-
+            throw new RuntimeException("ERR: Could not load shader file " + currentShader, e);
         }
     }
 
@@ -51,7 +53,7 @@ public class Shader {
         vertexID = glCreateShader(GL_VERTEX_SHADER);
 
         // Pass shader src to GPU
-        glShaderSource(vertexID, vertexShader);
+        glShaderSource(vertexID, vertexShaderSource);
         glCompileShader(vertexID);
 
         // Check for errors
@@ -61,7 +63,7 @@ public class Shader {
         fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
 
         // Pass shader src to GPU
-        glShaderSource(fragmentID, fragmentShader);
+        glShaderSource(fragmentID, fragmentShaderSource);
         glCompileShader(fragmentID);
 
         // Check for errors
@@ -74,11 +76,11 @@ public class Shader {
         glLinkProgram(shaderProgramID);
 
         // Check for Shader errors
-        compileShaderLink(shaderProgramID);
+        compileShaderLink(shaderProgramID, "Link");
     }
 
     // Stops program if there's a shader compiling error
-    private void compileShader(int shader, String type) {
+    protected void compileShader(int shader, String type) {
         if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
             System.err.println("Error compiling " + type + " : " + glGetShaderInfoLog(shader, GL_FALSE));
             assert false : "";
@@ -86,9 +88,9 @@ public class Shader {
     }
 
     // Stops program if there's a shader link compiling error
-    private void compileShaderLink(int program) {
+    protected void compileShaderLink(int program, String type) {
         if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Error compiling link shader: " + glGetShaderInfoLog(shaderProgramID, GL_FALSE));
+            System.err.println("Error compiling " + type + " shader: " + glGetShaderInfoLog(shaderProgramID, GL_FALSE));
             assert false : "";
         }
     }

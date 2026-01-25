@@ -1,15 +1,13 @@
 package Jade;
 
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.lwjgl.BufferUtils;
-import util.Shader;
+import Rendering.Shader;
 import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -22,13 +20,12 @@ import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL43C.GL_SHADER_STORAGE_BUFFER;
 
 
 public class ScreenRender {
     private Shader currentShader;
-    private String vertexShaderFilename = "assets/shaders/vertex.glsl";
-    private String fragmentShaderFilename = "assets/shaders/fragment.glsl";
+    private final String vertexShaderFilename = "assets/shaders/vertex.glsl";
+    private final String fragmentShaderFilename = "assets/shaders/fragment.glsl";
     private Camera camera;
 
     // TODO: Remove these for final version
@@ -81,7 +78,8 @@ public class ScreenRender {
 
     // Open shader files, compile, and link them
     private void useShaders(String vertexFilename, String fragFilename) {
-        currentShader = new Shader(vertexFilename, fragFilename);
+        currentShader = new Shader();
+        currentShader.init(vertexFilename, fragFilename);
         currentShader.compile();
     }
 

@@ -6,9 +6,20 @@ import org.w3c.dom.Node;
 import java.nio.FloatBuffer;
 
 public class Quadtree {
-    FloatBuffer QTData;
+    private FloatBuffer QTData;
+    private ComputeShader computeShader;
+
+    private int resolution;
+    private int[] boundary = {0, 0, 100, 100};
+
+    private final String COMPUTE_SHADER_FILENAME = "assets/shaders/quadtree.glsl";
 
     public Quadtree() {
+        resolution = 1024;
+
+        computeShader = new ComputeShader();
+        computeShader.init(COMPUTE_SHADER_FILENAME);
+        computeShader.compile(resolution);
 
 //        // For each node, store:
 //        // - minX, minY, maxX, maxY (bounding box)
