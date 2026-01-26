@@ -85,15 +85,18 @@ public class ScreenRender {
 
     // Buffers for OpenGL
     private void loadBuffers() {
-        vaoID = glGenVertexArrays();
-        glBindVertexArray(vaoID);
-
         // Aspect ratio dependent, repositions screen vertices
         updateVertices();
-
         // Create float buffer of vertices
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
         vertexBuffer.put(vertices).flip();
+
+        vaoID = glGenVertexArrays();
+        glBindVertexArray(vaoID);
+
+
+
+
 
         // Create VBO
         vboID = glGenBuffers();

@@ -12,11 +12,11 @@ public class ComputeShader extends Shader {
     private static final int LOCAL_SIZE_2D = 16;  // 16x16 threads
     private static final int LOCAL_SIZE_2D_Z = 1; // Single process
 
-    private int shaderProgramID;
     private int computeShader;
     private String computeShaderSource;
     private String computeFilename;
-    private boolean currentlyUsed;
+    // private boolean currentlyUsed;
+    // private int shaderProgramID;
 
     // Buffers
     private int ssbo;
@@ -84,22 +84,17 @@ public class ComputeShader extends Shader {
         glCompileShader(computeShader);
 
         // 2. Create program and link
-        shaderProgramID = glCreateProgram();
-        glAttachShader(shaderProgramID, computeShader);
-        glLinkProgram(shaderProgramID);
+        this.shaderProgramID = glCreateProgram();
+        glAttachShader(this.shaderProgramID, computeShader);
+        glLinkProgram(this.shaderProgramID);
 
         // 3. Use it
-        glUseProgram(shaderProgramID);
+        run();  // glUseProgram(this.shaderProgramID);
         workGroups(resolution);
 
         // Check errors linking
-        compileShaderLink(shaderProgramID, "Link Compute Shader");
+        compileShaderLink(this.shaderProgramID, "Link Compute Shader");
     }
-
-    // private void completedInit() {
-    //     // if (computeShaderSource)
-    //     IO.println("[INFO] Compute Shader. " + computeShaderSource);
-    // }
 
     public void readBuffer() {
         // 4. Read back results

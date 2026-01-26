@@ -15,11 +15,11 @@ import static org.lwjgl.opengl.GL20.glShaderSource;
 
 // General purpose shader
 public class Shader {
-    private int shaderProgramID;
+    protected int shaderProgramID;
     private String vertexShaderSource, fragmentShaderSource;
     private String vertexFilename;
     private String fragFilename;
-    private boolean currentlyUsed;
+    protected boolean currentlyUsed;
 
 
     // Opens a shader file
