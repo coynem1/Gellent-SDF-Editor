@@ -8,7 +8,7 @@ public class DemoScene extends Scene {
     private String name;
     private int currentDemo;
     private String[] demos;
-    private ScreenRender render;
+    private RenderSDF render;
 
     private float blend = 0.5f;
     private int toggleRender = 0;
@@ -18,7 +18,7 @@ public class DemoScene extends Scene {
         this.name = name;
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new ScreenRender();
+        this.render = new RenderSDF();
         super(name);
     }
 

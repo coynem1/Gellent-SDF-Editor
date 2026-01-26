@@ -44,6 +44,10 @@ public abstract class Renderer {
     //     currentShader.init(vertexFilename, fragFilename);
     //     currentShader.compile();
     // }
+    
+    protected void setCamera(Camera camera) {
+        this.camera = camera;
+    }
 
 
     protected abstract void init(); {}

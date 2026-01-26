@@ -2,7 +2,7 @@ package Jade;
 
 public class Scene {
     private String name;
-    private ScreenRender render;
+    private RenderSDF render;
 
     public Scene(String name) {
         this.name = name;

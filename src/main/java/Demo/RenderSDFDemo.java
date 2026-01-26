@@ -1,31 +1,28 @@
-package Jade;
+package Demo;
 
+import Jade.Camera;
+import Jade.MouseListener;
+import Jade.Window;
+import Rendering.Shader;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
-import Rendering.Shader;
 import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 
-public class ScreenRender {
+public class RenderSDFDemo {
     private Shader currentShader;
-    private final String vertexShaderFilename = "assets/shaders/vertex.glsl";
-    private final String fragmentShaderFilename = "assets/shaders/fragment.glsl";
+    private final String vertexShaderFilename = "assets/shaders/vertexDemo.glsl";
+    private final String fragmentShaderFilename = "assets/shaders/fragmentDemo.glsl";
     private Camera camera;
 
     // TODO: Remove these for final version
@@ -44,7 +41,7 @@ public class ScreenRender {
     private int vaoID, vboID, eboID;
 
     // Begin shader setup
-    public ScreenRender() {
+    public RenderSDFDemo() {
         // Open shader files, compile and link them
         useShaders(vertexShaderFilename, fragmentShaderFilename);
 
