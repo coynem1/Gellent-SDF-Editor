@@ -9,6 +9,7 @@ import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -25,11 +26,10 @@ import static org.lwjgl.opengl.GL30.*;
 
 
 public class RenderSDF extends Renderer {
-    private final String vertexShaderFilename = "assets/shaders/vertexDemo.glsl";
-    private final String fragmentShaderFilename = "assets/shaders/fragmentDemo.glsl";
+
 
     // Begin shader setup
-    public RenderSDF() {
+    public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath) {
         super();
 
         this.indexBuffer = new int[]{
@@ -39,9 +39,10 @@ public class RenderSDF extends Renderer {
 
         updateVertices();
         loadBuffers();  // VBO, VAO, EBO used for rendering
+        setShaderFiles(vertexShaderPath, fragmentShaderPath);
 
         // Open shader files, compile and link them
-        useShaders(vertexShaderFilename, fragmentShaderFilename);
+        useShaders();
     }
 
     // Vertices fix to screen aspect ratio
@@ -59,9 +60,9 @@ public class RenderSDF extends Renderer {
     }
 
     // Open shader files, compile, and link them
-    private void useShaders(String vertexFilename, String fragFilename) {
+    private void useShaders() {
         this.currentShader = new Shader();
-        this.currentShader.init(vertexFilename, fragFilename);
+        this.currentShader.init(this.vertexShaderPath, this.fragmentShaderPath);
         this.currentShader.compile();
         this.currentShader.run();
     }

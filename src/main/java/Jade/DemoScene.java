@@ -4,11 +4,17 @@ import Rendering.Shader;
 import org.joml.Vector2i;
 import util.Time;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
+    private Path vertexShaderPath = Paths.get("assets/shaders/vertexDemo.glsl");
+    private Path fragmentShaderPath = Paths.get("assets/shaders/fragmentDemo.glsl");
+
     private String name;
     private int currentDemo;
     private String[] demos;
@@ -26,7 +32,7 @@ public class DemoScene extends Scene {
         this.name = name;
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new RenderSDF();
+        this.render = new RenderSDF(vertexShaderPath, fragmentShaderPath);
         this.shaderSDF = this.render.getShader();
         this.camera = render.getCamera();
     }

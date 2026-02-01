@@ -9,6 +9,9 @@ import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -26,6 +29,9 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public abstract class Renderer {
+    protected Path vertexShaderPath;
+    protected Path fragmentShaderPath;
+
     protected Shader currentShader;
     protected int vertexArray;
     protected float[] vertices = {};
@@ -87,6 +93,13 @@ public abstract class Renderer {
         return currentShader;
     }
 
+    public void setShaderFiles(Path vertexShaderPath, Path fragmentShaderPath) {
+        if (!(Files.exists(vertexShaderPath) && Files.exists(fragmentShaderPath))) {
+            throw new FileSystemNotFoundException("Vertex shader and/or fragment shader files do not exist");
+        }
+        this.vertexShaderPath = vertexShaderPath;
+        this.fragmentShaderPath = fragmentShaderPath;
+    }
 
 }
 

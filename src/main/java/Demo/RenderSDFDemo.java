@@ -10,6 +10,7 @@ import util.Time;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -76,7 +77,7 @@ public class RenderSDFDemo {
     // Open shader files, compile, and link them
     private void useShaders(String vertexFilename, String fragFilename) {
         currentShader = new Shader();
-        currentShader.init(vertexFilename, fragFilename);
+        currentShader.init(Paths.get(vertexFilename), Paths.get(fragFilename));
         currentShader.compile();
     }
 
