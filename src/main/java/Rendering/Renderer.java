@@ -26,37 +26,23 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public abstract class Renderer {
+    protected Shader currentShader;
     protected int vertexArray;
-
-    private Shader currentShader;
-    private float[] vertices = {};
+    protected float[] vertices = {};
+    protected int vaoID, vboID, eboID;
 
     protected Camera camera;
 
     // Vertex draw order
     protected int[] indexBuffer;
 
-    protected int vaoID, vboID, eboID;
-
-    // // Open shader files, compile, and link them
-    // private void useShaders(String vertexFilename, String fragFilename) {
-    //     currentShader = new Shader();
-    //     currentShader.init(vertexFilename, fragFilename);
-    //     currentShader.compile();
-    // }
-    
-    protected void setCamera(Camera camera) {
-        this.camera = camera;
+    public Renderer() {
+        // Camera declare
+        this.camera = new Camera(new Vector2f());   // set to 0,0
     }
-
-
-    protected abstract void init(); {}
 
     // Buffers for OpenGL
     protected void loadBuffers() {
-        // Aspect ratio dependent, repositions screen vertices
-        updateVertices();
-
         createVAO();
         createVBO();
         createEBO();
@@ -65,23 +51,6 @@ public abstract class Renderer {
         int posSize = 3;
         glVertexAttribPointer(vertexArray, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(vertexArray);
-
-        // currentShader.run();
-        run();
-    }
-
-    protected abstract void run(); {
-        // currentShader = new Shader();
-        // currentShader.init(vertexFilename, fragFilename);
-        // currentShader.compile();
-        // currentShader.run();
-    }
-
-    // Vertices fix to screen aspect ratio
-    protected void updateVertices() {
-        // Create float buffer of vertices
-        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
-        vertexBuffer.put(vertices).flip();
     }
 
     protected void createVAO() {
@@ -105,10 +74,19 @@ public abstract class Renderer {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
     }
 
-
     // Renders every frame
     public void process(float delta) {
         glDrawElements(GL_TRIANGLES, indexBuffer.length, GL_UNSIGNED_INT, vertexArray);
     }
+
+    public Camera getCamera() {
+        return this.camera;
+    }
+
+    public Shader getShader() {
+        return currentShader;
+    }
+
+
 }
 
