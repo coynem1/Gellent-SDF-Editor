@@ -5,6 +5,7 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -17,8 +18,7 @@ import static org.lwjgl.opengl.GL20.glShaderSource;
 public class Shader {
     protected int shaderProgramID;
     private String vertexShaderSource, fragmentShaderSource;
-    private String vertexFilename;
-    private String fragFilename;
+    private Path vertexPath, fragPath;
     protected boolean currentlyUsed;
 
 
@@ -27,21 +27,19 @@ public class Shader {
     }
 
     // General init for inherit overriding
-    public void init(String vertexFilename, String fragFilename) {
-        String currentShader = vertexFilename;
-        this.vertexFilename = vertexFilename;
-        this.fragFilename = fragFilename;
+    public void init(Path vertexPath, Path fragPath) {
+        Path currentShader = vertexPath;
+        this.vertexPath = vertexPath;
+        this.fragPath = fragPath;
 
         // Open files
         try {
-            this.vertexShaderSource = new String(Files.readAllBytes(Paths.get(this.vertexFilename)));
-            currentShader = fragFilename;
-            this.fragmentShaderSource = new String(Files.readAllBytes(Paths.get(this.fragFilename)));
+            this.vertexShaderSource = new String(Files.readAllBytes(this.vertexPath));
+            currentShader = fragPath;
+            this.fragmentShaderSource = new String(Files.readAllBytes(this.fragPath));
         }
         catch (Exception e) {
-            System.err.println("ERR: Could not load shader file " + currentShader);
-            e.printStackTrace();
-            throw new RuntimeException("ERR: Could not load shader file " + currentShader, e);
+            throw new RuntimeException("ERR: Could not load shader file " + currentShader.toString(), e);
         }
     }
 

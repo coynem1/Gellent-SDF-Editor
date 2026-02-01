@@ -36,3 +36,10 @@ public class RenderDebugger {
         // glDrawArrays(GL_LINE_LOOP, 0, 4);
     }
 }
+
+
+// CPU side
+//        int ssbo = glGenBuffers();
+//        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+//        glBufferData(GL_SHADER_STORAGE_BUFFER, quadtreeData, GL_DYNAMIC_DRAW);
+//        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
