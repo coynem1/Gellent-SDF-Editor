@@ -12,6 +12,8 @@ import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -36,15 +38,18 @@ public abstract class Renderer {
     protected int vertexArray;
     protected float[] vertices = {};
     protected int vaoID, vboID, eboID;
+    protected int indexBufferCapacity = 6;  // Default initial capacity
 
     protected Camera camera;
 
     // Vertex draw order
-    protected int[] indexBuffer;
+    protected IntBuffer indexBuffer;
+    // protected ArrayList<Integer> indexBuffer;
 
     public Renderer() {
         // Camera declare
         this.camera = new Camera(new Vector2f());   // set to 0,0
+        this.indexBuffer = BufferUtils.createIntBuffer(indexBufferCapacity);
     }
 
     // Buffers for OpenGL
@@ -53,7 +58,7 @@ public abstract class Renderer {
         createVBO();
         createEBO();
 
-        // Position attribute
+        // Vertex dimension size
         int posSize = 3;
         glVertexAttribPointer(vertexArray, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
         glEnableVertexAttribArray(vertexArray);
