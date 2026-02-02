@@ -21,32 +21,26 @@ public class RenderDebugger extends Renderer {
         this.indexBufferCapacity = 1024;
         this.indexBuffer = BufferUtils.createIntBuffer(this.indexBufferCapacity);
 
-
-        // this.indexBuffer = new int[]{
-        //         0, 1, 2    // Top Left
-        //         // 2, 3, 1     // Bottom Right
-        // };
-
         // Draw triangle
         this.indexBuffer.put(0).put(1).put(2);
-        //         0, 1, 2    // Top Left
-        //         // 2, 3, 1     // Bottom Right
-        // });
 
         // updateVertices();
+        float viewHeight = camera.getViewHeight();
+        float viewWidth = camera.getViewWidth();
+        this.vertices = new float[] {
+                // Pos
+                -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
+                viewWidth   / 2.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
+                -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f,   // Bottom Left
+                viewWidth   / 4.0f, -viewHeight / 4.0f, 0.0f    // Bottom Right
+        };
+
+
         loadBuffers();  // VBO, VAO, EBO used for rendering
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
 
         // Open shader files, compile and link them
         useShaders();
-    }
-
-    // Changed to dynamic draw for optimised screen updating
-    @Override
-    protected void createVBO() {
-        vboID = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);
     }
 
     // Open shader files, compile, and link them
@@ -66,7 +60,7 @@ public class RenderDebugger extends Renderer {
         //         x, y + height
         // };
 
-        this.indexBuffer[] = 0;
+        // this.indexBuffer[] = 0;
 
         // glUseProgram(shaderProgramID);
         //
@@ -86,6 +80,16 @@ public class RenderDebugger extends Renderer {
         //
         // // Draw as line loop
         // glDrawArrays(GL_LINE_LOOP, 0, 4);
+    }
+
+    @Override
+    protected void createVBO() {
+        // Create indices and upload to GPU
+        indexBuffer.flip();
+
+        eboID = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_DYNAMIC_DRAW);    // Dynamic draw for optimised screen updating
     }
 }
 

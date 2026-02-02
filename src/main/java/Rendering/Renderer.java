@@ -60,7 +60,7 @@ public abstract class Renderer {
 
         // Vertex dimension size
         int posSize = 3;
-        glVertexAttribPointer(vertexArray, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0);
+        glVertexAttribPointer(vertexArray, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0); // Zero for beginning of VBO
         glEnableVertexAttribArray(vertexArray);
     }
 
@@ -76,10 +76,9 @@ public abstract class Renderer {
     }
 
     protected void createEBO() {
-        // Create indices and upload
-        IntBuffer elementBuffer = BufferUtils.createIntBuffer(indexBuffer.length);
-        elementBuffer.put(indexBuffer).flip();
-        
+        // Create indices and upload to GPU
+        indexBuffer.flip();
+
         eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
@@ -87,7 +86,7 @@ public abstract class Renderer {
 
     // Renders every frame
     public void process(float delta) {
-        glDrawElements(GL_TRIANGLES, indexBuffer.length, GL_UNSIGNED_INT, vertexArray);
+        glDrawElements(GL_TRIANGLES, indexBuffer.limit(), GL_UNSIGNED_INT, vertexArray);
     }
 
     public Camera getCamera() {

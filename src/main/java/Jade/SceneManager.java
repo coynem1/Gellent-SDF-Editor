@@ -13,6 +13,8 @@ public class SceneManager {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
         currentMode = 0;
         setScene(new DemoScene("DemoScene"));
+
+        // setScene(new SceneBase("World"));
     }
 
     // Singleton

@@ -32,10 +32,14 @@ public class RenderSDF extends Renderer {
     public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath) {
         super();
 
-        this.indexBuffer = new int[]{
-                0, 1, 2,    // Top Left
-                2, 3, 1     // Bottom Right
-        };
+        // this.indexBuffer = new int[]{
+        //         0, 1, 2,    // Top Left
+        //         2, 3, 1     // Bottom Right
+        // };
+        this.indexBuffer.put(0).put(1).put(2);  // Top Left
+        this.indexBuffer.put(2).put(3).put(1);  // Bottom Right
+        IO.println(indexBuffer.toString());
+        // this.indexBuffer.flip();
 
         updateVertices();
         loadBuffers();  // VBO, VAO, EBO used for rendering
