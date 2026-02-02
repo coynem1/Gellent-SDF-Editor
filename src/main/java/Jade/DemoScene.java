@@ -6,22 +6,17 @@ import util.Time;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
-    private Path vertexShaderPath = Paths.get("assets/shaders/vertexDemo.glsl");
-    private Path fragmentShaderPath = Paths.get("assets/shaders/fragmentDemo.glsl");
-
-    private String name;
     private int currentDemo;
     private String[] demos;
-    private RenderSDF render;
-    private Shader shaderSDF;
-    private Camera camera;
 
+    // Game variables
     private float blend = 0.5f;
     private int toggleRender = 0;
     private boolean blendPressed = false;
@@ -29,10 +24,16 @@ public class DemoScene extends Scene {
     public DemoScene(String name) {
         super(name);
 
+        // File paths
+        this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
+        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentDemo.glsl"));
+        this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
+        this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
+
         this.name = name;
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new RenderSDF(vertexShaderPath, fragmentShaderPath);
+        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF));
         this.shaderSDF = this.render.getShader();
         this.camera = render.getCamera();
     }
@@ -81,7 +82,7 @@ public class DemoScene extends Scene {
         } else {
             blendPressed = false;
         }
-        IO.println("Blend: " + blend);
+        // IO.println("Blend: " + blend);
 
         // Change render mode
         if (KeyListener.isKeyPressed(GLFW_KEY_LEFT)) {

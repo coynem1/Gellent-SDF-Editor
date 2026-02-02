@@ -6,7 +6,6 @@ import java.util.Hashtable;
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
-    // private Dictionary<String, Scene> cachedScenes = new Hashtable<>();
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
 
@@ -32,7 +31,6 @@ public class SceneManager {
     public void setScene(Scene scene) {
         if (scene == null) {return;}
         currentScene = scene;
-        // Update Scene here
     }
 
     public Scene getScene() {

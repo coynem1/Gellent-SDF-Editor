@@ -119,23 +119,14 @@ public class Window {
             // Poll Events
             glfwPollEvents();
 
+            // Base colour
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             // Send frame update to SceneManager
             SceneManager.get().process(deltaTime);
 
-//            // Check inputs are working
-//            if (KeyListener.isKeyPressed(GLFW_KEY_7)) {
-//                IO.println("7");
-//            }
-//            if (MouseListener.isDragging()) {
-//                IO.println("Dragging");
-//            }
-//            if (MouseListener.mouseBtnPress(GLFW_MOUSE_BUTTON_LEFT)) {
-//                IO.println("Left Mouse");
-//            }
-
+            // Display
             glfwSwapBuffers(glfwWindow);
 
             // Calculates elapsed frame time

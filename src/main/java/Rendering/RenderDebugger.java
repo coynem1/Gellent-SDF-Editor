@@ -2,7 +2,7 @@ package Rendering;
 
 import org.joml.Vector4f;
 
-public class RenderDebugger {
+public class RenderDebugger extends Renderer {
     private int shaderProgramID;
 
     public RenderDebugger() {}
