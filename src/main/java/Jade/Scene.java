@@ -17,6 +17,7 @@ public class Scene {
     protected RenderDebugger renderDebugger;
     protected Camera camera;
 
+    protected HashMap<String, Shader> shaders;
     protected Shader shaderSDF;
     protected HashMap<String, Path> vShaderPath;
     protected HashMap<String, Path> fShaderPath;
@@ -25,7 +26,7 @@ public class Scene {
         this.name = name;
         this.vShaderPath = new HashMap<String, Path>();
         this.fShaderPath = new HashMap<String, Path>();
-
+        this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
     }
 

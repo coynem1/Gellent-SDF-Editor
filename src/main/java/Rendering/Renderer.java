@@ -86,10 +86,6 @@ public abstract class Renderer {
         glDrawElements(GL_TRIANGLES, indexBuffer.limit(), GL_UNSIGNED_INT, vertexArray);
     }
 
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-    }
-
     public Shader getShader() {
         return currentShader;
     }

@@ -1,5 +1,6 @@
 package Rendering;
 
+import Jade.Camera;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
@@ -12,10 +13,12 @@ import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBufferData;
 
 public class RenderDebugger extends Renderer {
-    private int shaderProgramID;
+    // private int shaderProgramID;
 
-    public RenderDebugger(Path vertexShaderPath, Path fragmentShaderPath) {
+    public RenderDebugger(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
         super();
+
+        this.camera = camera;
 
         // Larger initial capacity for drawing to reduce reallocation time
         this.indexBufferCapacity = 1024;

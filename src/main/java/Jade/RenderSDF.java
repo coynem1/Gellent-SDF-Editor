@@ -26,8 +26,6 @@ import static org.lwjgl.opengl.GL30.*;
 
 
 public class RenderSDF extends Renderer {
-
-
     // Begin shader setup
     public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
         super();

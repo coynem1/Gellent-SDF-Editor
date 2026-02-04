@@ -1,5 +1,6 @@
 package Jade;
 
+import Rendering.RenderDebugger;
 import Rendering.Shader;
 import org.joml.Vector2i;
 import util.Time;
@@ -34,21 +35,26 @@ public class DemoScene extends Scene {
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
         this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
 
-        // todo: Set camera
-        this.render.setCamera(camera);
-        this.shaderSDF = this.render.getShader();
-        // this.camera = render.getCamera();
+        // Debug Drawing
+        this.renderDebugger = new RenderDebugger(this.vShaderPath.get(RENDER_DEBUG), this.fShaderPath.get(RENDER_DEBUG), this.camera);
+
+        // Shaders
+        this.shaders.put(RENDER_SDF, this.render.getShader());
+        // this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
     }
 
     // Sends variables to shader
     private void uploadShader() {
-        shaderSDF.uploadMat4("uProjection", camera.getProjectionMat());
-        shaderSDF.uploadMat4("uView", camera.getViewMat());
+        shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat());
 
-        shaderSDF.uploadFloat("uTime", Time.getTime());
-        shaderSDF.uploadFloat("uBlend", blend);
-        shaderSDF.uploadInt("uDemoScene", currentDemo);
-        shaderSDF.uploadInt("uToggleRender", toggleRender);
+        // shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
+        // shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
+
+        shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
+        shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
+        shaders.get(RENDER_SDF).uploadInt("uDemoScene", currentDemo);
+        shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
     @Override
@@ -102,6 +108,7 @@ public class DemoScene extends Scene {
 
         uploadShader();
         render.process(delta);
+        // renderDebugger.process(delta);
     }
 
     // Debugging purposes only, delete if un-needed
