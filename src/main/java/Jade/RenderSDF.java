@@ -29,13 +29,15 @@ public class RenderSDF extends Renderer {
 
 
     // Begin shader setup
-    public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath) {
+    public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
         super();
 
         // this.indexBuffer = new int[]{
         //         0, 1, 2,    // Top Left
         //         2, 3, 1     // Bottom Right
         // };
+        this.camera = camera;
+
         this.indexBuffer.put(0).put(1).put(2);  // Top Left
         this.indexBuffer.put(2).put(3).put(1);  // Bottom Right
         IO.println(indexBuffer.toString());

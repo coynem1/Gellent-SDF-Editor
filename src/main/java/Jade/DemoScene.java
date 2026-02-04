@@ -32,9 +32,12 @@ public class DemoScene extends Scene {
 
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF));
+        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
+
+        // todo: Set camera
+        this.render.setCamera(camera);
         this.shaderSDF = this.render.getShader();
-        this.camera = render.getCamera();
+        // this.camera = render.getCamera();
     }
 
     // Sends variables to shader

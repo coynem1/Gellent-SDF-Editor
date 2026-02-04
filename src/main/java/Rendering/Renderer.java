@@ -44,11 +44,8 @@ public abstract class Renderer {
 
     // Vertex draw order
     protected IntBuffer indexBuffer;
-    // protected ArrayList<Integer> indexBuffer;
 
     public Renderer() {
-        // Camera declare
-        this.camera = new Camera(new Vector2f());   // set to 0,0
         this.indexBuffer = BufferUtils.createIntBuffer(indexBufferCapacity);
     }
 
@@ -89,8 +86,8 @@ public abstract class Renderer {
         glDrawElements(GL_TRIANGLES, indexBuffer.limit(), GL_UNSIGNED_INT, vertexArray);
     }
 
-    public Camera getCamera() {
-        return this.camera;
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 
     public Shader getShader() {

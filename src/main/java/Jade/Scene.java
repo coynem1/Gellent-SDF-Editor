@@ -2,6 +2,7 @@ package Jade;
 
 import Rendering.RenderDebugger;
 import Rendering.Shader;
+import org.joml.Vector2f;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -24,12 +25,13 @@ public class Scene {
         this.name = name;
         this.vShaderPath = new HashMap<String, Path>();
         this.fShaderPath = new HashMap<String, Path>();
+
+        this.camera = new Camera(new Vector2f());
     }
 
     public String getName() {
         return name;
     }
-
 
     public void process(float delta) {}
 
