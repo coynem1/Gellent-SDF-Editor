@@ -1,16 +1,13 @@
 package Rendering;
 
 import Jade.Camera;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL14.glMultiDrawArrays;
 import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -27,13 +24,8 @@ public class RenderDebugger extends Renderer {
         this.bufferCapacity = 1024;
         this.indexBuffer = BufferUtils.createIntBuffer(this.bufferCapacity);
 
-        // TODO: why cant I call this after loadbuffers?
-        // createRect(1f, 2f, 60f, 50f);
-        // createRect(102f, 52f, 60f, 23f);
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
-
-        // Open shader files, compile and link them
-        useShaders();
+        useShaders();   // Open shader files, compile and link them
     }
 
     // Initialises the buffers to draw
@@ -55,7 +47,7 @@ public class RenderDebugger extends Renderer {
 
     // Draws every rectangle as an outline
     public void drawRects() {
-        final int SIZE = 4;
+        final int SIZE = 4; // Corners of a rectangle
         final int OFFSET = 0;
         int[] count = new int[vertexBuffer.limit() / SIZE];
         int[] first = new int[vertexBuffer.limit() / SIZE];
@@ -66,6 +58,7 @@ public class RenderDebugger extends Renderer {
 
         glMultiDrawArrays(GL_LINE_LOOP, first, count);
     }
+
 
     public void createRect(float x, float y, float width, float height) {
         // Add vertices to the buffer
@@ -78,8 +71,31 @@ public class RenderDebugger extends Renderer {
     @Override
     public void process(float delta) {
         glBindVertexArray(vaoID);
-        // glDrawArrays(GL_LINE_LOOP, 0, 4);
         drawRects();
-
     }
+
+    // private final int CIRCLE_SEGMENTS = 32;
+    //// Draws every circle as an outline
+    // public void drawCircles() {
+    //     final int OFFSET = 0;
+    //     int[] count = new int[circleVertexBuffer.limit() / CIRCLE_SEGMENTS];
+    //     int[] first = new int[circleVertexBuffer.limit() / CIRCLE_SEGMENTS];
+    //
+    //     // Fill arrays for multi-draw
+    //     Arrays.fill(count, CIRCLE_SEGMENTS);
+    //     IntStream.range(OFFSET, OFFSET + 2).forEach(i -> first[i] = i * CIRCLE_SEGMENTS);    // Map array to increments
+    //
+    //     glMultiDrawArrays(GL_LINE_LOOP, first, count);
+    // }
+
+    // public void createCircle(float x, float y, float radius) {
+    //     for (int i = 0; i < CIRCLE_SEGMENTS; i++) {
+    //         double a = (i * 2.0 * Math.PI) / CIRCLE_SEGMENTS;
+    //         float px = x + (float) (Math.cos(a) * radius);
+    //         float py = y + (float) (Math.sin(a) * radius);
+    //
+    //         circleVertexBuffer.put(px).put(py).put(0.0f);
+    //     }
+    // }
+
 }
