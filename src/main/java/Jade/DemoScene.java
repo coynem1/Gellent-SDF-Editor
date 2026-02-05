@@ -40,7 +40,8 @@ public class DemoScene extends Scene {
 
         // Shaders
         this.shaders.put(RENDER_SDF, this.render.getShader());
-        // this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
+        this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
+        // IO.println("Loaded shaders " + this.shaders.toString());
     }
 
     // Sends variables to shader
@@ -48,8 +49,8 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getProjectionMat());
         shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat());
 
-        // shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
-        // shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
+        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
         shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
@@ -107,13 +108,11 @@ public class DemoScene extends Scene {
         }
 
         uploadShader();
+        shaders.get(RENDER_SDF).run();
         render.process(delta);
-        // renderDebugger.process(delta);
-    }
 
-    // Debugging purposes only, delete if un-needed
-    private void printDemoName() {
-        IO.println("Demo " + name + ": " + demos[currentDemo]);
+        shaders.get(RENDER_DEBUG).run();
+        renderDebugger.process(delta);
     }
 
 }

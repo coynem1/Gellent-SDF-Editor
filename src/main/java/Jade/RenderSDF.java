@@ -29,11 +29,6 @@ public class RenderSDF extends Renderer {
     // Begin shader setup
     public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
         super();
-
-        // this.indexBuffer = new int[]{
-        //         0, 1, 2,    // Top Left
-        //         2, 3, 1     // Bottom Right
-        // };
         this.camera = camera;
 
         this.indexBuffer.put(0).put(1).put(2);  // Top Left
@@ -42,19 +37,19 @@ public class RenderSDF extends Renderer {
         // this.indexBuffer.flip();
 
         updateVertices();
-        loadBuffers();  // VBO, VAO, EBO used for rendering
+        loadBuffers(false);  // VBO, VAO, EBO used for rendering
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
 
         // Open shader files, compile and link them
         useShaders();
     }
 
-    // Vertices fix to screen aspect ratio
+    // Vertices fix to the screen aspect ratio
     protected void updateVertices() {
         float viewHeight = camera.getViewHeight();
         float viewWidth = camera.getViewWidth();
 
-        vertices = new float[] {
+        this.vertices = new float[] {
                 // Pos
                 -viewWidth  / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Left
                 viewWidth   / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Right

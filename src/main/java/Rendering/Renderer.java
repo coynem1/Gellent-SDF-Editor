@@ -1,30 +1,18 @@
 package Rendering;
 
 import Jade.Camera;
-import Jade.MouseListener;
-import Jade.Window;
-import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
-import util.Time;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -35,10 +23,11 @@ public abstract class Renderer {
     protected Path fragmentShaderPath;
 
     protected Shader currentShader;
-    protected int vertexArray;
+    // protected int vertexArray;
     protected float[] vertices = {};
     protected int vaoID, vboID, eboID;
     protected int indexBufferCapacity = 6;  // Default initial capacity
+    protected final int OFFSET_EBO = 0;
 
     protected Camera camera;
 
@@ -47,18 +36,20 @@ public abstract class Renderer {
 
     public Renderer() {
         this.indexBuffer = BufferUtils.createIntBuffer(indexBufferCapacity);
+        // this.vertexArray = 0;
     }
 
     // Buffers for OpenGL
-    protected void loadBuffers() {
+    protected void loadBuffers(boolean dynamic) {
         createVAO();
-        createVBO();
-        createEBO();
+        createVBO(dynamic);
+        createEBO(dynamic);
 
         // Vertex dimension size
         int posSize = 3;
-        glVertexAttribPointer(vertexArray, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0); // Zero for beginning of VBO
-        glEnableVertexAttribArray(vertexArray);
+        int attributeIndex = 0;
+        glVertexAttribPointer(attributeIndex, posSize, GL_FLOAT, false, posSize * Float.BYTES, 0); // Zero for beginning of VBO
+        glEnableVertexAttribArray(attributeIndex);
     }
 
     protected void createVAO() {
@@ -66,24 +57,38 @@ public abstract class Renderer {
         glBindVertexArray(vaoID);
     }
 
-    protected void createVBO() {
+    protected void createVBO(boolean dynamic) {
         vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+
+        if (dynamic) {
+            glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);
+        }
+        else {
+            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+        }
+
     }
 
-    protected void createEBO() {
+    protected void createEBO(boolean dynamic) {
         // Create indices and upload to GPU
         indexBuffer.flip();
 
         eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+
+        if (dynamic) {
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_DYNAMIC_DRAW);
+        }
+        else {
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+        }
     }
 
     // Renders every frame
     public void process(float delta) {
-        glDrawElements(GL_TRIANGLES, indexBuffer.limit(), GL_UNSIGNED_INT, vertexArray);
+        glBindVertexArray(vaoID);
+        glDrawElements(GL_TRIANGLES, indexBuffer.limit(), GL_UNSIGNED_INT, OFFSET_EBO);
     }
 
     public Shader getShader() {

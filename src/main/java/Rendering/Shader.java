@@ -93,13 +93,9 @@ public class Shader {
         }
     }
 
-    // Bind shader
+    // Switch to run shader, for different layers
     public void run() {
-        // Only runs once
-        if (!currentlyUsed) {
-            glUseProgram(shaderProgramID);
-            currentlyUsed = true;
-        }
+        glUseProgram(shaderProgramID);
     }
 
     // Posts new variable to shader

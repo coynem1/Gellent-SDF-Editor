@@ -13,7 +13,6 @@ import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBufferData;
 
 public class RenderDebugger extends Renderer {
-    // private int shaderProgramID;
 
     public RenderDebugger(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
         super();
@@ -27,23 +26,29 @@ public class RenderDebugger extends Renderer {
         // Draw triangle
         this.indexBuffer.put(0).put(1).put(2);
 
-        // updateVertices();
-        float viewHeight = camera.getViewHeight();
-        float viewWidth = camera.getViewWidth();
-        this.vertices = new float[] {
-                // Pos
-                -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
-                viewWidth   / 2.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
-                -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f,   // Bottom Left
-                viewWidth   / 4.0f, -viewHeight / 4.0f, 0.0f    // Bottom Right
-        };
+        updateVertices();
 
+        // Debug
+        // System.out.println("IndexBuffer before " + this.indexBuffer);
 
-        loadBuffers();  // VBO, VAO, EBO used for rendering
+        loadBuffers(true);  // VBO, VAO, EBO used for rendering
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
 
         // Open shader files, compile and link them
         useShaders();
+    }
+
+    // Vertices fix to the screen aspect ratio
+    protected void updateVertices() {
+        float viewHeight = camera.getViewHeight();
+        float viewWidth = camera.getViewWidth();
+
+        this.vertices = new float[] {
+                // Pos
+                -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
+                viewWidth   / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
+                -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f   // Bottom Left
+        };
     }
 
     // Open shader files, compile, and link them
@@ -83,16 +88,6 @@ public class RenderDebugger extends Renderer {
         //
         // // Draw as line loop
         // glDrawArrays(GL_LINE_LOOP, 0, 4);
-    }
-
-    @Override
-    protected void createVBO() {
-        // Create indices and upload to GPU
-        indexBuffer.flip();
-
-        eboID = glGenBuffers();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_DYNAMIC_DRAW);    // Dynamic draw for optimised screen updating
     }
 }
 
