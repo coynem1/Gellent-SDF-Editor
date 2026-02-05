@@ -35,6 +35,11 @@ public class DemoScene extends Scene {
         // Shaders
         this.shaders.put(RENDER_SDF, this.render.getShader());
         this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
+
+        // Drawing shapes
+        this.renderDebugger.createRect(0f, 1f, 100f, 100f);
+        this.renderDebugger.createRect(102f, 52f, 60f, 23f);
+        this.renderDebugger.render();
     }
 
     // Sends variables to shader

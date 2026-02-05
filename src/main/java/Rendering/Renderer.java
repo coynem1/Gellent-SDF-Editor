@@ -8,6 +8,7 @@ import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -19,12 +20,12 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
+// Parent to draw and store buffers
 public abstract class Renderer {
     protected Path vertexShaderPath;
     protected Path fragmentShaderPath;
 
     protected Shader currentShader;
-    // protected float[] vertices = {};
     protected int bufferCapacity = 1024;  // Default initial capacity
     protected int vaoID, vboID, eboID;
 

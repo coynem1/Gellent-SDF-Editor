@@ -18,6 +18,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.glfw.GLFWWindowSizeCallback.get;
 
+// Entire program, looping until closed
 public class Window {
     private int width, height;
     private String title;
@@ -26,6 +27,7 @@ public class Window {
     private static Window window;
 
     private Window() {
+        // Default window size
         this.width = 1920;
         this.height = 1080;
 

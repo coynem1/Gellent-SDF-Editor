@@ -25,7 +25,7 @@ public class SceneManager {
         return instance;
     }
 
-    // Pass Frame update to scene
+    // Pass Frame update to the current scene
     public void process(float delta) {
         get().currentScene.process(delta);
     }

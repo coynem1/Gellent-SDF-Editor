@@ -4,10 +4,18 @@ import Jade.Camera;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
+import static org.lwjgl.opengl.GL11.GL_LINE_LOOP;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL14.glMultiDrawArrays;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
+// Displays an overlay for visualising scene elements
 public class RenderDebugger extends Renderer {
 
     public RenderDebugger(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
@@ -19,35 +27,22 @@ public class RenderDebugger extends Renderer {
         this.bufferCapacity = 1024;
         this.indexBuffer = BufferUtils.createIntBuffer(this.bufferCapacity);
 
-        // Draw triangle
-        this.indexBuffer.put(0).put(1).put(2);
-
-        updateVertices();
-
-        loadBuffers(true);  // VBO, VAO, EBO used for rendering
+        // TODO: why cant I call this after loadbuffers?
+        // createRect(1f, 2f, 60f, 50f);
+        // createRect(102f, 52f, 60f, 23f);
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
 
         // Open shader files, compile and link them
         useShaders();
     }
 
-    // Vertices fix to the screen aspect ratio
-    protected void updateVertices() {
-        float viewHeight = camera.getViewHeight();
-        float viewWidth = camera.getViewWidth();
+    // Initialises the buffers to draw
+    public void render() {
+        if (vertexBuffer.position() == 0) {
+            throw new IllegalStateException("Buffers must be loaded before drawing. Create shapes first before loading.");
+        }
 
-        // this.vertices = new float[] {
-        //         // Pos
-        //         -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
-        //         viewWidth   / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
-        //         -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f   // Bottom Left
-        // };
-
-        vertexBuffer.clear();
-        vertexBuffer.put(-viewWidth / 4.0f).put( viewHeight / 4.0f).put(0.0f);  // Top Left
-        vertexBuffer.put( viewWidth / 4.0f).put( viewHeight / 4.0f).put(0.0f);  // Top Right
-        vertexBuffer.put(-viewWidth / 4.0f).put(-viewHeight / 4.0f).put(0.0f);
-
+        loadBuffers(true);  // VBO, VAO, EBO used for rendering
     }
 
     // Open shader files, compile, and link them
@@ -58,41 +53,33 @@ public class RenderDebugger extends Renderer {
         this.currentShader.run();
     }
 
-    public void drawRect(float x, float y, float width, float height, Vector4f color) {
-        // Rectangle outline as line loop
-        float[] vertices = {
-                x, y,
-                x + width, y,
-                x + width, y + height,
-                x, y + height
-        };
+    // Draws every rectangle as an outline
+    public void drawRects() {
+        final int SIZE = 4;
+        final int OFFSET = 0;
+        int[] count = new int[vertexBuffer.limit() / SIZE];
+        int[] first = new int[vertexBuffer.limit() / SIZE];
 
-        // this.indexBuffer[] = 0;
+        // Fill arrays for multi-draw
+        Arrays.fill(count, SIZE);
+        IntStream.range(OFFSET, OFFSET + 2).forEach(i -> first[i] = i * SIZE);    // Map array to increments
 
-        // glUseProgram(shaderProgramID);
-        //
-        // // Set color
-        // int colorLoc = glGetUniformLocation(shaderProgramID, "color");
-        // glUniform3f(colorLoc, color.x, color.y, color.z);
-        //
-        // // Set projection (orthographic for screen space)
-        // int projLoc = glGetUniformLocation(shaderProgramID, "projection");
-        // // Assuming screen coords 0-width, 0-height
-        // glUniformMatrix4fv(projLoc, false, createOrthoMatrix());
-        //
-        // // Upload vertices
-        // glBindVertexArray(vao);
-        // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        // glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);
-        //
-        // // Draw as line loop
+        glMultiDrawArrays(GL_LINE_LOOP, first, count);
+    }
+
+    public void createRect(float x, float y, float width, float height) {
+        // Add vertices to the buffer
+        vertexBuffer.put(x).put(y).put(0);                        // Top left
+        vertexBuffer.put(x + width).put(y).put(0);             // Top right
+        vertexBuffer.put(x + width).put(y + height).put(0); // Bottom left
+        vertexBuffer.put(x).put(y + height).put(0);            // Bottom right
+    }
+
+    @Override
+    public void process(float delta) {
+        glBindVertexArray(vaoID);
         // glDrawArrays(GL_LINE_LOOP, 0, 4);
+        drawRects();
+
     }
 }
-
-
-// CPU side
-//        int ssbo = glGenBuffers();
-//        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-//        glBufferData(GL_SHADER_STORAGE_BUFFER, quadtreeData, GL_DYNAMIC_DRAW);
-//        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);

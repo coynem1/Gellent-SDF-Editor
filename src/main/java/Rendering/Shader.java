@@ -20,8 +20,6 @@ public class Shader {
     protected int shaderProgramID;
     private String vertexShaderSource, fragmentShaderSource;
     private Path vertexPath, fragPath;
-    // protected boolean currentlyUsed;
-
 
     // Opens a shader file
     public Shader() {}
