@@ -1,27 +1,17 @@
 package Jade;
 
-import Rendering.Shader;
-import org.joml.Vector2i;
+import Rendering.RenderDebugger;
 import util.Time;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
+// Scene filled with different tweakable shapes
 public class DemoScene extends Scene {
-    private Path vertexShaderPath = Paths.get("assets/shaders/vertexDemo.glsl");
-    private Path fragmentShaderPath = Paths.get("assets/shaders/fragmentDemo.glsl");
-
-    private String name;
     private int currentDemo;
     private String[] demos;
-    private RenderSDF render;
-    private Shader shaderSDF;
-    private Camera camera;
 
+    // Game variables
     private float blend = 0.5f;
     private int toggleRender = 0;
     private boolean blendPressed = false;
@@ -29,23 +19,41 @@ public class DemoScene extends Scene {
     public DemoScene(String name) {
         super(name);
 
-        this.name = name;
+        // File paths
+        this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
+        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentDemo.glsl"));
+        this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
+        this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
+
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new RenderSDF(vertexShaderPath, fragmentShaderPath);
-        this.shaderSDF = this.render.getShader();
-        this.camera = render.getCamera();
+
+        // Renderers
+        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
+        this.renderDebugger = new RenderDebugger(this.vShaderPath.get(RENDER_DEBUG), this.fShaderPath.get(RENDER_DEBUG), this.camera);
+
+        // Shaders
+        this.shaders.put(RENDER_SDF, this.render.getShader());
+        this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
+
+        // Drawing shapes
+        this.renderDebugger.createRect(0f, 1f, 100f, 100f);
+        this.renderDebugger.createRect(102f, 52f, 60f, 23f);
+        this.renderDebugger.render();
     }
 
     // Sends variables to shader
     private void uploadShader() {
-        shaderSDF.uploadMat4("uProjection", camera.getProjectionMat());
-        shaderSDF.uploadMat4("uView", camera.getViewMat());
+        shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat());
 
-        shaderSDF.uploadFloat("uTime", Time.getTime());
-        shaderSDF.uploadFloat("uBlend", blend);
-        shaderSDF.uploadInt("uDemoScene", currentDemo);
-        shaderSDF.uploadInt("uToggleRender", toggleRender);
+        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
+
+        shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
+        shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
+        shaders.get(RENDER_SDF).uploadInt("uDemoScene", currentDemo);
+        shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
     @Override
@@ -81,7 +89,6 @@ public class DemoScene extends Scene {
         } else {
             blendPressed = false;
         }
-        IO.println("Blend: " + blend);
 
         // Change render mode
         if (KeyListener.isKeyPressed(GLFW_KEY_LEFT)) {
@@ -98,12 +105,12 @@ public class DemoScene extends Scene {
         }
 
         uploadShader();
-        render.process(delta);
-    }
 
-    // Debugging purposes only, delete if un-needed
-    private void printDemoName() {
-        IO.println("Demo " + name + ": " + demos[currentDemo]);
+        shaders.get(RENDER_SDF).run();
+        render.process(delta);
+
+        shaders.get(RENDER_DEBUG).run();
+        renderDebugger.process(delta);
     }
 
 }
