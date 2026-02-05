@@ -15,8 +15,6 @@ public class ComputeShader extends Shader {
     private int computeShader;
     private String computeShaderSource;
     private String computeFilename;
-    // private boolean currentlyUsed;
-    // private int shaderProgramID;
 
     // Buffers
     private int ssbo;
@@ -28,7 +26,6 @@ public class ComputeShader extends Shader {
 
     public ComputeShader() {
         super();
-        this.currentlyUsed = false;
         this.ssbo = glGenBuffers();
     }
 

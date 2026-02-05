@@ -3,6 +3,7 @@ package Rendering;
 import Jade.Camera;
 import org.lwjgl.BufferUtils;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
@@ -23,20 +24,21 @@ public abstract class Renderer {
     protected Path fragmentShaderPath;
 
     protected Shader currentShader;
-    // protected int vertexArray;
-    protected float[] vertices = {};
+    // protected float[] vertices = {};
+    protected int bufferCapacity = 1024;  // Default initial capacity
     protected int vaoID, vboID, eboID;
-    protected int indexBufferCapacity = 6;  // Default initial capacity
+
     protected final int OFFSET_EBO = 0;
 
     protected Camera camera;
 
     // Vertex draw order
     protected IntBuffer indexBuffer;
+    protected FloatBuffer vertexBuffer;
 
     public Renderer() {
-        this.indexBuffer = BufferUtils.createIntBuffer(indexBufferCapacity);
-        // this.vertexArray = 0;
+        this.indexBuffer = BufferUtils.createIntBuffer(bufferCapacity);
+        this.vertexBuffer = BufferUtils.createFloatBuffer(bufferCapacity);
     }
 
     // Buffers for OpenGL
@@ -60,12 +62,13 @@ public abstract class Renderer {
     protected void createVBO(boolean dynamic) {
         vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        vertexBuffer.flip();
 
         if (dynamic) {
-            glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
         }
         else {
-            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
         }
 
     }

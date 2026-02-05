@@ -1,5 +1,6 @@
 package Rendering;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.BufferUtils;
 
@@ -19,12 +20,11 @@ public class Shader {
     protected int shaderProgramID;
     private String vertexShaderSource, fragmentShaderSource;
     private Path vertexPath, fragPath;
-    protected boolean currentlyUsed;
+    // protected boolean currentlyUsed;
 
 
     // Opens a shader file
-    public Shader() {
-    }
+    public Shader() {}
 
     // General init for inherit overriding
     public void init(Path vertexPath, Path fragPath) {
@@ -99,7 +99,7 @@ public class Shader {
     }
 
     // Posts new variable to shader
-    public void uploadMat4(String varName, Matrix4f matrix) {
+    public void uploadMat4(String varName, @NotNull Matrix4f matrix) {
         final int FOUR_BY_FOUR = 16;
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
@@ -109,7 +109,7 @@ public class Shader {
         glUniformMatrix4fv(varLocation, false, matBuffer);
     }
 
-    public void uploadMat3(String varName, Matrix3f matrix) {
+    public void uploadMat3(String varName, @NotNull Matrix3f matrix) {
         final int THREE_BY_THREE = 9;
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
@@ -119,25 +119,25 @@ public class Shader {
         glUniformMatrix3fv(varLocation, false, matBuffer);
     }
 
-    public void uploadVec4f(String varName, Vector4f vec) {
+    public void uploadVec4f(String varName, @NotNull Vector4f vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform4f(varLocation, vec.x, vec.y, vec.z, vec.w);
     }
 
-    public void uploadVec3f(String varName, Vector3f vec) {
+    public void uploadVec3f(String varName, @NotNull Vector3f vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform3f(varLocation, vec.x, vec.y, vec.z);
     }
 
-    public void uploadVec2f(String varName, Vector2f vec) {
+    public void uploadVec2f(String varName, @NotNull Vector2f vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform2f(varLocation, vec.x, vec.y);
     }
 
-    public void uploadVec2i(String varName, Vector2i vec) {
+    public void uploadVec2i(String varName, @NotNull Vector2i vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform2i(varLocation, vec.x, vec.y);

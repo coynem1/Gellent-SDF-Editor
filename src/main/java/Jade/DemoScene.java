@@ -1,18 +1,12 @@
 package Jade;
 
 import Rendering.RenderDebugger;
-import Rendering.Shader;
-import org.joml.Vector2i;
 import util.Time;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
+// Scene filled with different tweakable shapes
 public class DemoScene extends Scene {
     private int currentDemo;
     private String[] demos;
@@ -33,15 +27,14 @@ public class DemoScene extends Scene {
 
         this.currentDemo = 0;
         this.demos = new String[]{"Circle", "Square", "Blending", "MultipleShapes", "Hi Text"};
-        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
 
-        // Debug Drawing
+        // Renderers
+        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
         this.renderDebugger = new RenderDebugger(this.vShaderPath.get(RENDER_DEBUG), this.fShaderPath.get(RENDER_DEBUG), this.camera);
 
         // Shaders
         this.shaders.put(RENDER_SDF, this.render.getShader());
         this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
-        // IO.println("Loaded shaders " + this.shaders.toString());
     }
 
     // Sends variables to shader
@@ -91,7 +84,6 @@ public class DemoScene extends Scene {
         } else {
             blendPressed = false;
         }
-        // IO.println("Blend: " + blend);
 
         // Change render mode
         if (KeyListener.isKeyPressed(GLFW_KEY_LEFT)) {
@@ -108,6 +100,7 @@ public class DemoScene extends Scene {
         }
 
         uploadShader();
+
         shaders.get(RENDER_SDF).run();
         render.process(delta);
 

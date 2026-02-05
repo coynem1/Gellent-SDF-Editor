@@ -5,11 +5,7 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBufferData;
 
 public class RenderDebugger extends Renderer {
@@ -20,16 +16,13 @@ public class RenderDebugger extends Renderer {
         this.camera = camera;
 
         // Larger initial capacity for drawing to reduce reallocation time
-        this.indexBufferCapacity = 1024;
-        this.indexBuffer = BufferUtils.createIntBuffer(this.indexBufferCapacity);
+        this.bufferCapacity = 1024;
+        this.indexBuffer = BufferUtils.createIntBuffer(this.bufferCapacity);
 
         // Draw triangle
         this.indexBuffer.put(0).put(1).put(2);
 
         updateVertices();
-
-        // Debug
-        // System.out.println("IndexBuffer before " + this.indexBuffer);
 
         loadBuffers(true);  // VBO, VAO, EBO used for rendering
         setShaderFiles(vertexShaderPath, fragmentShaderPath);
@@ -43,12 +36,18 @@ public class RenderDebugger extends Renderer {
         float viewHeight = camera.getViewHeight();
         float viewWidth = camera.getViewWidth();
 
-        this.vertices = new float[] {
-                // Pos
-                -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
-                viewWidth   / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
-                -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f   // Bottom Left
-        };
+        // this.vertices = new float[] {
+        //         // Pos
+        //         -viewWidth  / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Left
+        //         viewWidth   / 4.0f, viewHeight  / 4.0f, 0.0f,   // Top Right
+        //         -viewWidth  / 4.0f, -viewHeight / 4.0f, 0.0f   // Bottom Left
+        // };
+
+        vertexBuffer.clear();
+        vertexBuffer.put(-viewWidth / 4.0f).put( viewHeight / 4.0f).put(0.0f);  // Top Left
+        vertexBuffer.put( viewWidth / 4.0f).put( viewHeight / 4.0f).put(0.0f);  // Top Right
+        vertexBuffer.put(-viewWidth / 4.0f).put(-viewHeight / 4.0f).put(0.0f);
+
     }
 
     // Open shader files, compile, and link them
@@ -60,13 +59,13 @@ public class RenderDebugger extends Renderer {
     }
 
     public void drawRect(float x, float y, float width, float height, Vector4f color) {
-        // // Rectangle outline as line loop
-        // float[] vertices = {
-        //         x, y,
-        //         x + width, y,
-        //         x + width, y + height,
-        //         x, y + height
-        // };
+        // Rectangle outline as line loop
+        float[] vertices = {
+                x, y,
+                x + width, y,
+                x + width, y + height,
+                x, y + height
+        };
 
         // this.indexBuffer[] = 0;
 

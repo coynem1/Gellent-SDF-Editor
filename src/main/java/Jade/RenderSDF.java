@@ -49,13 +49,19 @@ public class RenderSDF extends Renderer {
         float viewHeight = camera.getViewHeight();
         float viewWidth = camera.getViewWidth();
 
-        this.vertices = new float[] {
-                // Pos
-                -viewWidth  / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Left
-                viewWidth   / 2.0f, viewHeight  / 2.0f, 0.0f,   // Top Right
-                -viewWidth  / 2.0f, -viewHeight / 2.0f, 0.0f,   // Bottom Left
-                viewWidth   / 2.0f, -viewHeight / 2.0f, 0.0f    // Bottom Right
-        };
+        vertexBuffer.clear();
+        vertexBuffer.put(-viewWidth / 2.0f).put( viewHeight / 2.0f).put(0.0f);  // Top Left
+        vertexBuffer.put( viewWidth / 2.0f).put( viewHeight / 2.0f).put(0.0f);  // Top Right
+        vertexBuffer.put(-viewWidth / 2.0f).put(-viewHeight / 2.0f).put(0.0f);  // Bottom Left
+        vertexBuffer.put( viewWidth / 2.0f).put(-viewHeight / 2.0f).put(0.0f);  // Bottom Right
+
+        // this.vertices = new float[] {
+        //         // Pos
+        //         -viewWidth  / 2.0f, viewHeight  / 2.0f, 0.0f,
+        //         viewWidth   / 2.0f, viewHeight  / 2.0f, 0.0f,
+        //         -viewWidth  / 2.0f, -viewHeight / 2.0f, 0.0f,
+        //         viewWidth   / 2.0f, -viewHeight / 2.0f, 0.0f
+        // };
     }
 
     // Open shader files, compile, and link them
