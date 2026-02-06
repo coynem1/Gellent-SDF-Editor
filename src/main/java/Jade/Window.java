@@ -143,9 +143,4 @@ public class Window {
     public int getHeight() {
         return height;
     }
-
-    // flips Y for shader co-ordinate conversion
-    public Vector2i toScreenSpace(Vector2i v) {
-        return new Vector2i(v.x, abs(v.y - getHeight() - 1));
-    }
 }

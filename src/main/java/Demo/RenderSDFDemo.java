@@ -142,7 +142,6 @@ public class RenderSDFDemo {
         currentShader.uploadFloat("uTime", Time.getTime());
         currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadInt("uToggleRender", toggleRender);
-        currentShader.uploadVec2i("uMouse", Window.get().toScreenSpace(MouseListener.getXY()));
         // IO.println(MouseListener.get().getXY().x);
 //        IO.println("demoScene: " + Window.get().toScreenSpace(MouseListener.getXY()).x);
 

@@ -101,8 +101,6 @@ float smoothingScene() {
 
 // Renders SDFs with animated isolines
 void render(float dist, float zoom, int uDemoScene) {
-    vec2 p = gl_FragCoord.xy;
-    vec2 m = vec2(0.0f, 0.0f);
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0f : -2.0f;
 
@@ -125,46 +123,36 @@ void render(float dist, float zoom, int uDemoScene) {
     col *= 0.8 + 0.2 * cos(zoom * dist + uTime * direction);    // Isolines
     col = mix( col, vec3(1.0), 1.0-smoothstep(0.0, 2.0, abs(dist)));    // White outline
 
-    m = vec2(float(uMouse.x), float(uMouse.y));
-    //  interactivity
-    if(m.x>0)
-    {
-        float d;
-        switch (uDemoScene) {
-            case 0:
-                d = sdCircle(vec2(m.x -1300.0f, m.y-700.0f), 300.0f);
-                break;
-            case 1:
-                d = sdBox(vec2(m.x-1300.0f, m.y-700.0f), vec2(300.0f, 300.0f));
-                break;
-            case 2:
-                d = smoothingScene();
-                break;
-            case 3:
-                d = shapesScene();
-                break;
-            case 4:
-                d = hiDemo();
-                break;
-            default:
-                break;
-        }
-        col = mix(col, vec3(1.0,1.0,0.0), 1.0 - smoothstep(0.0, 1.5, abs(length(p - m) - abs(d)) - 0.25));
-    }
-
 
     FragColor = vec4(col, 1.0f); //vec4(mod(float(2500f) * 0.0001f, 1.0f), mod(float(m.y) *0.0001f, 1.0f), 0.0f, 1.0f);
 }
 
 
+
+// uniforms you set from Java each frame
+uniform ivec2 uResolution;   // window size in pixels
+uniform vec2 uCamPos;       // camera position in "world units"
+uniform float uZoom;        // >1 zoom in, <1 zoom out (choose convention)
+
+float safeZoom(float z) { return max(abs(z), 1e-6); }
+
+vec2 screenToWorld(vec2 fragCoord) {
+    vec2 p = fragCoord - 0.5 * uResolution;
+    float z = safeZoom(uZoom);
+    return p / z + uCamPos;
+}
+
 void main()
 {
     float dist = 0.0f;
+    vec2 world = screenToWorld(gl_FragCoord.xy);
 
     switch (uDemoScene) {
         case 0:
-            dist = sdCircle(vec2(gl_FragCoord.x-1300.0f, gl_FragCoord.y-700.0f), 300.0f);
-            break;
+//            vec2 world = (gl_FragCoord.xy + uCamPos * 20) / uResolution;
+            FragColor = vec4(world, 0.0, 1.0);
+
+            return;
         case 1:
             dist = sdBox(vec2(gl_FragCoord.x-1300.0f, gl_FragCoord.y-700.0f), vec2(300.0f, 300.0f));
             break;

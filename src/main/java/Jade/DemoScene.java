@@ -1,10 +1,15 @@
 package Jade;
 
 import Rendering.RenderDebugger;
+import org.joml.Vector2f;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
 import util.Time;
 
 import java.nio.file.Paths;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glUseProgram;
 
 // Scene filled with different tweakable shapes
 public class DemoScene extends Scene {
@@ -44,11 +49,20 @@ public class DemoScene extends Scene {
 
     // Sends variables to shader
     private void uploadShader() {
+        // glUseProgram(programId);
+
         shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getProjectionMat());
         shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat());
 
+        shaders.get(RENDER_SDF).uploadVec2i("uResolution", new Vector2i(Window.get().getWidth(), Window.get().getHeight()));
+        shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
+        shaders.get(RENDER_SDF).uploadFloat("uZoom", 1.0f);
+
         shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
         shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
+
+
+
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
         shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
@@ -79,11 +93,13 @@ public class DemoScene extends Scene {
         if (KeyListener.isKeyPressed(GLFW_KEY_UP)) {
             if (!blendPressed) {
                 blend += 4.0f;
+                camera.setPosition(new Vector2f(blend, 0f));
             }
             blendPressed = true;
         } else if (KeyListener.isKeyPressed(GLFW_KEY_DOWN)) {
             if (!blendPressed) {
                 blend -= 4.0f;
+                camera.setPosition(new Vector2f(blend, 0f));
             }
             blendPressed = true;
         } else {
@@ -104,13 +120,15 @@ public class DemoScene extends Scene {
             toggleRender = 3;
         }
 
-        uploadShader();
+
 
         shaders.get(RENDER_SDF).run();
         render.process(delta);
 
         shaders.get(RENDER_DEBUG).run();
         renderDebugger.process(delta);
+
+        uploadShader();
     }
 
 }
