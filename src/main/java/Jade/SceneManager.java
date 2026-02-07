@@ -2,12 +2,13 @@ package Jade;
 
 import Input.InputHandler;
 
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
+
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
-    private InputHandler inputHandler;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
@@ -15,7 +16,23 @@ public class SceneManager {
         setScene(new DemoScene("DemoScene"));
 
         // setScene(new SceneBase("World"));
-        this.inputHandler = InputHandler.get();
+        bindInputs();
+    }
+
+    // Bind editor buttons
+    private void bindInputs() {
+        MouseListener.onBtnPressed((button, mods) -> {
+            // Change Scene
+            if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+                IO.println("Middle Mouse Pressed");
+            }
+        });
+        MouseListener.onBtnReleased((button, mods) -> {
+            // Change Scene
+            if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+                IO.println("Middle Mouse Released");
+            }
+        });
     }
 
     // Singleton

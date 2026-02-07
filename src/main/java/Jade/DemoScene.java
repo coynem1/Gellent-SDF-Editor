@@ -1,16 +1,12 @@
 package Jade;
 
-import Input.InputEvents;
 import Rendering.RenderDebugger;
-import org.joml.Vector2f;
 import org.joml.Vector2i;
-import org.joml.Vector3f;
 import util.Time;
 
 import java.nio.file.Paths;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glUseProgram;
 
 // Scene filled with different tweakable shapes
 public class DemoScene extends Scene {
@@ -47,29 +43,55 @@ public class DemoScene extends Scene {
         this.renderDebugger.createRect(102f, 52f, 60f, 23f);
         this.renderDebugger.render();
 
-        // inputs
         bindInputs();
     }
 
     // Single binding when key changes
     private void bindInputs() {
         KeyListener.onKeyPressed((key, scancode, mods) -> {
-            if (key == GLFW_KEY_0) {
-                currentDemo = 0;
-            }
-            else if (key == GLFW_KEY_1) {
-                currentDemo = 1;
-            }
-            else if (key == GLFW_KEY_2) {
-                currentDemo = 2;
-            }
-            else if (key == GLFW_KEY_3) {
-                currentDemo = 3;
-            }
-            else if (key == GLFW_KEY_4) {
-                currentDemo = 4;
+            switch (key) {
+                // Change Scene
+                case GLFW_KEY_0:
+                    currentDemo = 0;
+                    break;
+                case GLFW_KEY_1:
+                    currentDemo = 1;
+                    break;
+                case GLFW_KEY_2:
+                    currentDemo = 2;
+                    break;
+                case GLFW_KEY_3:
+                    currentDemo = 3;
+                    break;
+                case GLFW_KEY_4:
+                    currentDemo = 4;
+                    break;
+
+                // Change Blend
+                case GLFW_KEY_UP:
+                    blend += 0.4f;
+                    break;
+                case GLFW_KEY_DOWN:
+                    blend -= 0.4f;
+                    break;
+
+                // Change render mode
+                case GLFW_KEY_LEFT:
+                    toggleRender = 0;
+                    break;
+                case GLFW_KEY_RIGHT:
+                    toggleRender = 1;
+                    break;
+                case GLFW_KEY_SPACE:
+                    toggleRender = 2;
+                    break;
+                case GLFW_KEY_F:
+                    toggleRender = 3;
+                    break;
             }
         });
+
+
     }
 
     // Sends variables to shader
@@ -97,56 +119,6 @@ public class DemoScene extends Scene {
 
     @Override
     public void process(float delta) {
-        // changes render to use
-        if (KeyListener.isKeyPressed(GLFW_KEY_0)) {
-            currentDemo = 0;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_1)) {
-            currentDemo = 1;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_2)) {
-            currentDemo = 2;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_3)) {
-            currentDemo = 3;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_4)) {
-            currentDemo = 4;
-        }
-
-        // Change Blend
-        if (KeyListener.isKeyPressed(GLFW_KEY_UP)) {
-            if (!blendPressed) {
-                blend += 4.0f;
-                camera.setPosition(new Vector2f(blend, 0f));
-            }
-            blendPressed = true;
-        } else if (KeyListener.isKeyPressed(GLFW_KEY_DOWN)) {
-            if (!blendPressed) {
-                blend -= 4.0f;
-                camera.setPosition(new Vector2f(blend, 0f));
-            }
-            blendPressed = true;
-        } else {
-            blendPressed = false;
-        }
-
-        // Change render mode
-        if (KeyListener.isKeyPressed(GLFW_KEY_LEFT)) {
-            toggleRender = 0;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_RIGHT)) {
-            toggleRender = 1;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            toggleRender = 2;
-        }
-        if (KeyListener.isKeyPressed(GLFW_KEY_F)) {
-            toggleRender = 3;
-        }
-
-
-
         shaders.get(RENDER_SDF).run();
         render.process(delta);
 

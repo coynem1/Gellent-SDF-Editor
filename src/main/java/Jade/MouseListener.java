@@ -1,17 +1,19 @@
 package Jade;
 
-import org.joml.Vector2f;
+import Input.InputKeyEvents;
+import Input.InputMouseEvents;
 import org.joml.Vector2i;
-import org.lwjgl.glfw.GLFW;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class MouseListener {
+import static org.lwjgl.glfw.GLFW.*;
+
+public class MouseListener extends InputMouseEvents {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double mouseX, mouseY, lastMouseX, lastMouseY;
-    private boolean mouseBtnPressed[] = new boolean[3];
+    private boolean mouseBtnPressed[] = new boolean[GLFW_MOUSE_BUTTON_LAST + 1];
     private boolean dragging = false;
 
     private MouseListener(){

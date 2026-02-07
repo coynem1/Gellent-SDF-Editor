@@ -2,6 +2,8 @@ package Input;
 
 import Jade.Camera;
 
+
+// TODO: Delete
 // Singleton that handles inputs that change the editor
 public class InputHandler {
     private static InputHandler instance;

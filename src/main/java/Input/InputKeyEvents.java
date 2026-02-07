@@ -5,10 +5,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-
-// TODO Delete
 // Signals for input events
-public final class InputEvents {
+public class InputKeyEvents {
     @FunctionalInterface    // Single method interface
     public interface KeyHandler {
         void handle(int key, int scancode, int mods);
@@ -18,8 +16,6 @@ public final class InputEvents {
     private static final List<KeyHandler> onKeyPressed = new CopyOnWriteArrayList<>();
     private static final List<KeyHandler> onKeyReleased = new CopyOnWriteArrayList<>();
 
-    private InputEvents() {}
-
     public static void onKeyPressed(KeyHandler handler) {
         onKeyPressed.add(handler);
     }
@@ -28,13 +24,20 @@ public final class InputEvents {
         onKeyReleased.add(handler);
     }
 
-    // Call this from your GLFW key callback
-    public static void dispatchKey(int key, int scancode, int action, int mods) {
+    // Binds keys to a function call
+    public static void keyCallback(long window, int key, int scancode, int action, int mods) {
         // Evoke if inputs pressed or released
-        if (action == GLFW_PRESS) {
-            for (var h : onKeyPressed) h.handle(key, scancode, mods);
-        } else if (action == GLFW_RELEASE) {
-            for (var h : onKeyReleased) h.handle(key, scancode, mods);
+        switch (action) {
+            case GLFW_PRESS:
+                for (var h : onKeyPressed) {
+                    h.handle(key, scancode, mods);
+                }
+                break;
+            case GLFW_RELEASE:
+                for (var h : onKeyReleased) {
+                    h.handle(key, scancode, mods);
+                }
+                break;
         }
     }
 }
