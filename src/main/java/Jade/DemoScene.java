@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputKeyEvents;
 import Rendering.RenderDebugger;
 import org.joml.Vector2i;
 import util.Time;
@@ -48,7 +49,7 @@ public class DemoScene extends Scene {
 
     // Single binding when key changes
     private void bindInputs() {
-        KeyListener.onKeyPressed((key, scancode, mods) -> {
+        InputKeyEvents.onKeyPressed((key, scancode, mods) -> {
             switch (key) {
                 // Change Scene
                 case GLFW_KEY_0:
@@ -119,6 +120,8 @@ public class DemoScene extends Scene {
 
     @Override
     public void process(float delta) {
+        camera.process();
+
         shaders.get(RENDER_SDF).run();
         render.process(delta);
 

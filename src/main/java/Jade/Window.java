@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputKeyEvents;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.Version;
@@ -81,7 +82,7 @@ public class Window {
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);  // Lambda bind
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::btnCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
-        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+        glfwSetKeyCallback(glfwWindow, InputKeyEvents::keyCallback);
 
 
         // Make OpenGL current context

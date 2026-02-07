@@ -1,8 +1,11 @@
 package Jade;
 
+import Input.InputCamera;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
 public class Camera {
     private Matrix4f projectionMat, viewMat;
@@ -20,12 +23,22 @@ public class Camera {
     private final float viewHeight = TILE_SIZE * VIEW_TILES_Y;
     private float viewWidth;
 
+    // Input
+    private InputCamera inputCamera;
+
 
     public Camera(Vector2f position) {
         this.projectionMat = new Matrix4f();
         this.viewMat = new Matrix4f();
         this.position = position;
+        this.inputCamera = new InputCamera(this);
+
+        this.inputCamera.bindInputs();
         adjustProjection();
+    }
+
+    public void process() {
+        this.inputCamera.process();
     }
 
     // Used for scaling screen
