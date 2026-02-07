@@ -1,13 +1,13 @@
 package Jade;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import Input.InputHandler;
 
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
+    private InputHandler inputHandler;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
@@ -15,6 +15,7 @@ public class SceneManager {
         setScene(new DemoScene("DemoScene"));
 
         // setScene(new SceneBase("World"));
+        this.inputHandler = InputHandler.get();
     }
 
     // Singleton
@@ -25,9 +26,9 @@ public class SceneManager {
         return instance;
     }
 
-    // Pass Frame update to the current scene
+    // Pass Frame process to the current scene
     public void process(float delta) {
-        get().currentScene.process(delta);
+        currentScene.process(delta);
     }
 
     public void setScene(Scene scene) {

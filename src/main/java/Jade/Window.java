@@ -125,7 +125,7 @@ public class Window {
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            // Send frame update to SceneManager
+            // Send frame process to SceneManager
             SceneManager.get().process(deltaTime);
 
             // Display

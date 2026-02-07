@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputEvents;
 import Rendering.RenderDebugger;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -45,6 +46,30 @@ public class DemoScene extends Scene {
         this.renderDebugger.createRect(0f, 1f, 100f, 100f);
         this.renderDebugger.createRect(102f, 52f, 60f, 23f);
         this.renderDebugger.render();
+
+        // inputs
+        bindInputs();
+    }
+
+    // Single binding when key changes
+    private void bindInputs() {
+        KeyListener.onKeyPressed((key, scancode, mods) -> {
+            if (key == GLFW_KEY_0) {
+                currentDemo = 0;
+            }
+            else if (key == GLFW_KEY_1) {
+                currentDemo = 1;
+            }
+            else if (key == GLFW_KEY_2) {
+                currentDemo = 2;
+            }
+            else if (key == GLFW_KEY_3) {
+                currentDemo = 3;
+            }
+            else if (key == GLFW_KEY_4) {
+                currentDemo = 4;
+            }
+        });
     }
 
     // Sends variables to shader

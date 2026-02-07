@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputCamera;
 import Rendering.RenderDebugger;
 import Rendering.Shader;
 import org.joml.Vector2f;
@@ -22,12 +23,18 @@ public class Scene {
     protected HashMap<String, Path> vShaderPath;
     protected HashMap<String, Path> fShaderPath;
 
+    // Inputs
+    protected InputCamera inputCamera;
+
     public Scene(String name) {
         this.name = name;
         this.vShaderPath = new HashMap<String, Path>();
         this.fShaderPath = new HashMap<String, Path>();
         this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
+
+        // Inputs
+        this.inputCamera = new InputCamera(this.camera);
     }
 
     public String getName() {
