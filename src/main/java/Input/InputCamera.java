@@ -6,10 +6,14 @@ import Jade.Window;
 import org.joml.Vector2f;
 
 import static java.lang.Double.min;
+import static java.lang.Math.clamp;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
 // Camera movement inputs
 public class InputCamera {
+    private static final float MIN_ZOOM = 0.05f;
+    private static final float MAX_ZOOM = 10.0f;
+
     private Camera camera;
     private Window window;
 
@@ -28,27 +32,25 @@ public class InputCamera {
 
     // Bind editor buttons
     public void bindInputs() {
-        final double SCROLL_SCALAR = 0.1f;
+        final double SCROLL_SCALAR = 1.1f;
 
         MouseListener.onBtnPressed((button, mods) -> {
-            // Change Scene
+            // Start moving
             if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
-                IO.println("Middle Mouse Pressed");
                 cameraAnchor();
             }
         });
         MouseListener.onBtnReleased((button, mods) -> {
-            // Change Scene
+            // Stop moving
             if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
-                IO.println("Middle Mouse Released");
                 middleMouseHeld = false;
             }
         });
 
         MouseListener.onScroll((xOffset, yOffset) -> {
-            // Change zoom level
-            zoom = Math.max(zoom + (float) (yOffset * SCROLL_SCALAR), 0.0f);
-            IO.println("Zoom: " + zoom);
+            // Change the zoom level by scroll scalar
+            zoom *= (float) Math.pow(SCROLL_SCALAR, yOffset);
+            zoom = clamp(zoom, MIN_ZOOM, MAX_ZOOM);
             camera.setZoom(zoom);
 
         });
@@ -73,8 +75,8 @@ public class InputCamera {
         Vector2f distPixels = currentMouse.sub(screenAnchor, currentMouse);   // Distance between anchor and current mouse
 
         // Convert pixel distance to world distance
-        float unitsX = camera.getViewWidth() / (float) window.getWidth();
-        float unitsY = camera.getViewHeight() / (float) window.getHeight();
+        float unitsX = camera.getViewWidth() / zoom / (float) window.getWidth();
+        float unitsY = camera.getViewHeight() / zoom / (float) window.getHeight();
 
         Vector2f distWorld = new Vector2f(
             distPixels.x * unitsX,
