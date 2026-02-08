@@ -2,6 +2,7 @@ package Input;
 
 import Jade.Camera;
 import Jade.MouseListener;
+import Jade.Window;
 import org.joml.Vector2f;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
@@ -12,11 +13,13 @@ public class InputCamera {
     private Vector2f startCameraPos;
     private Vector2f screenAnchor;
     private Camera camera;
+    private Window window;
 
     public InputCamera(Camera camera){
         this.camera = camera;
         this.middleMouseHeld = false;
         this.screenAnchor = null;
+        this.window = Window.get();
     }
 
     // Bind editor buttons
@@ -53,10 +56,20 @@ public class InputCamera {
     }
 
     private void cameraMove(){
+        Vector2f currentMouse = new Vector2f(MouseListener.getXY());
+        Vector2f distPixels = currentMouse.sub(screenAnchor, currentMouse);   // Distance between anchor and current mouse
 
-        Vector2f sum = (startCameraPos).sub(new Vector2f(MouseListener.getXY()));
-        // IO.println("Camera position: " + screenAnchor);
-        camera.setPosition(sum.mul(0.04f));
+        // Convert pixel distance to world distance
+        float unitsX = camera.getViewWidth() / (float) window.getWidth();
+        float unitsY = camera.getViewHeight() / (float) window.getHeight();
+
+        Vector2f distWorld = new Vector2f(
+            distPixels.x * unitsX,
+            -distPixels.y * unitsY   // flip Y
+        );
+
+        // Dragging right should move the camera left (so the world appears to follow your hand)
+        camera.setPosition(new Vector2f(startCameraPos).sub(distWorld));
     }
 
 
