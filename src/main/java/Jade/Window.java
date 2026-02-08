@@ -1,15 +1,13 @@
 package Jade;
 
 import Input.InputKeyEvents;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
+import Input.InputMouseEvents;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import util.Time;
 
-import java.awt.*;
 import java.nio.IntBuffer;
 
 import static java.lang.Math.abs;
@@ -17,7 +15,6 @@ import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.glfw.GLFWWindowSizeCallback.get;
 
 // Entire program, looping until closed
 public class Window {
@@ -79,9 +76,9 @@ public class Window {
         }
 
         // Bind inputs
-        glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);  // Lambda bind
-        glfwSetMouseButtonCallback(glfwWindow, MouseListener::btnCallback);
-        glfwSetScrollCallback(glfwWindow, MouseListener::scrollCallback);
+        glfwSetCursorPosCallback(glfwWindow, InputMouseEvents::moveMouseCallback);  // Lambda bind
+        glfwSetMouseButtonCallback(glfwWindow, InputMouseEvents::btnMouseCallback);
+        glfwSetScrollCallback(glfwWindow, InputMouseEvents::scrollMouseCallback);
         glfwSetKeyCallback(glfwWindow, InputKeyEvents::keyCallback);
 
 

@@ -1,8 +1,6 @@
 package Demo;
 
 import Jade.Camera;
-import Jade.MouseListener;
-import Jade.Window;
 import Rendering.Shader;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;

@@ -1,11 +1,9 @@
 package Input;
 
 import Jade.Camera;
-import Jade.MouseListener;
 import Jade.Window;
 import org.joml.Vector2f;
 
-import static java.lang.Double.min;
 import static java.lang.Math.clamp;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
@@ -21,6 +19,7 @@ public class InputCamera {
     private Vector2f startCameraPos;
     private Vector2f screenAnchor;
     private float zoom;
+    private int xPos, yPos;
 
     public InputCamera(Camera camera){
         this.camera = camera;
@@ -34,25 +33,31 @@ public class InputCamera {
     public void bindInputs() {
         final double SCROLL_SCALAR = 1.1f;
 
-        MouseListener.onBtnPressed((button, mods) -> {
+        InputMouseEvents.onBtnPressed((button, mods) -> {
             // Start moving
             if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
                 cameraAnchor();
             }
         });
-        MouseListener.onBtnReleased((button, mods) -> {
+        InputMouseEvents.onBtnReleased((button, mods) -> {
             // Stop moving
             if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
                 middleMouseHeld = false;
             }
         });
 
-        MouseListener.onScroll((xOffset, yOffset) -> {
+        InputMouseEvents.onScroll((xOffset, yOffset) -> {
             // Change the zoom level by scroll scalar
             zoom *= (float) Math.pow(SCROLL_SCALAR, yOffset);
             zoom = clamp(zoom, MIN_ZOOM, MAX_ZOOM);
             camera.setZoom(zoom);
 
+        });
+
+        InputMouseEvents.onMove((xPos, yPos, lastXPos, lastYPos) -> {
+            // Cache mouse position
+            this.xPos = xPos;
+            this.yPos = yPos;
         });
     }
 
@@ -65,13 +70,12 @@ public class InputCamera {
     // When the move button is first pressed, set the anchor point
     private void cameraAnchor(){
         startCameraPos = camera.getPosition();
-        screenAnchor = new Vector2f(MouseListener.getXY());
-        IO.println("Middle Mouse Co-ords: " + screenAnchor);
+        screenAnchor = new Vector2f(xPos, yPos);
         middleMouseHeld = true;
     }
 
     private void cameraMove(){
-        Vector2f currentMouse = new Vector2f(MouseListener.getXY());
+        Vector2f currentMouse = new Vector2f(xPos, yPos);
         Vector2f distPixels = currentMouse.sub(screenAnchor, currentMouse);   // Distance between anchor and current mouse
 
         // Convert pixel distance to world distance
