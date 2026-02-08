@@ -149,10 +149,8 @@ void main()
 
     switch (uDemoScene) {
         case 0:
-//            vec2 world = (gl_FragCoord.xy + uCamPos * 20) / uResolution;
-            FragColor = vec4(world, 0.0, 1.0);
-
-            return;
+            dist = sdCircle(vec2(world.x, world.y),300.0f);
+            break;
         case 1:
             dist = sdBox(vec2(gl_FragCoord.x-1300.0f, gl_FragCoord.y-700.0f), vec2(300.0f, 300.0f));
             break;
