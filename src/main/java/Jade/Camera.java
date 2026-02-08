@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import static java.lang.Float.max;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
 public class Camera {
@@ -22,6 +23,7 @@ public class Camera {
 
     private final float viewHeight = TILE_SIZE * VIEW_TILES_Y;
     private float viewWidth;
+    private float zoom = 1.0f;
 
     // Input
     private InputCamera inputCamera;
@@ -43,16 +45,24 @@ public class Camera {
 
     // Used for scaling screen
     public void adjustProjection() {
+        final float ZOOM_MIN = 0.001f;
+        float safeZoom = Math.max(zoom, ZOOM_MIN);
+        float halfWidth, halfHeight;
+
         Window window = Window.get();
         float aspectRatio = (float) window.getWidth() / (float) window.getHeight();
 
         viewWidth  = viewHeight * aspectRatio;
 
+        // Centered and scaled for zoom
+        halfWidth = (viewWidth / 2.0f) / safeZoom;
+        halfHeight = (viewHeight / 2.0f) / safeZoom;
+
         projectionMat.identity();
         projectionMat.ortho(
-                -viewWidth  / 2.0f, viewWidth  / 2.0f,
-                -viewHeight / 2.0f, viewHeight / 2.0f,
-                NEAR_PLANE, FAR_PLANE
+            -halfWidth, halfWidth,
+            -halfHeight, halfHeight,
+            NEAR_PLANE, FAR_PLANE
         );
     }
 
@@ -84,6 +94,12 @@ public class Camera {
 
     public float getViewWidth() {return this.viewWidth;}
     public float getViewHeight() {return this.viewHeight;}
+
+    public void setZoom(float zoom) {
+        final float MIN_ZOOM = 0.001f;
+        this.zoom = max(zoom, MIN_ZOOM);
+        adjustProjection();
+    }
 
 
 }

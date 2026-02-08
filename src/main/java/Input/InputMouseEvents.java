@@ -1,5 +1,6 @@
 package Input;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -11,10 +12,15 @@ public class InputMouseEvents {
     public interface MouseBtnHandler {
         void handle(int button, int mods);
     }
+    @FunctionalInterface    // Single method interface
+    public interface MouseScrollHandler {
+        void handle(double xOffset, double yOffset);
+    }
 
     // List of key handlers
     private static final List<MouseBtnHandler> onMouseBtnPressed = new CopyOnWriteArrayList<>();
     private static final List<MouseBtnHandler> onMouseBtnReleased = new CopyOnWriteArrayList<>();
+    private static final List<MouseScrollHandler> onMouseScrolled = new ArrayList<>();
 
     public static void onBtnPressed(MouseBtnHandler handler) {
         onMouseBtnPressed.add(handler);
@@ -24,7 +30,11 @@ public class InputMouseEvents {
         onMouseBtnReleased.add(handler);
     }
 
-    // Binds mouse buttons to a function call
+    public static void onScroll(MouseScrollHandler handler) {
+        onMouseScrolled.add(handler);
+    }
+
+    // Callback for mouse buttons is directed to function calls
     public static void btnCallback(long window, int button, int action, int mods) {
         // Evoke if inputs pressed or released
         switch (action) {
@@ -38,6 +48,13 @@ public class InputMouseEvents {
                     h.handle(button, mods);
                 }
                 break;
+        }
+    }
+
+    // Callback for mouse scrolling is directed to function calls
+    public static void scrollCallback(long window, double xOffset, double yOffset) {
+        for (var h : onMouseScrolled) {
+            h.handle(xOffset, yOffset);
         }
     }
 }

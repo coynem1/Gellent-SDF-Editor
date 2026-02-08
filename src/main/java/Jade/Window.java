@@ -81,7 +81,7 @@ public class Window {
         // Bind inputs
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);  // Lambda bind
         glfwSetMouseButtonCallback(glfwWindow, MouseListener::btnCallback);
-        glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
+        glfwSetScrollCallback(glfwWindow, MouseListener::scrollCallback);
         glfwSetKeyCallback(glfwWindow, InputKeyEvents::keyCallback);
 
 
