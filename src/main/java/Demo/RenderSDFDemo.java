@@ -136,7 +136,7 @@ public class RenderSDFDemo {
 
         // Upload matrices for camera
         currentShader.uploadMat4("uProjection", camera.getProjectionMat());
-        currentShader.uploadMat4("uView", camera.getViewMat());
+        currentShader.uploadMat4("uView", camera.getViewMat(false));
         currentShader.uploadFloat("uTime", Time.getTime());
         currentShader.uploadInt("uDemoScene", demoScene);
         currentShader.uploadInt("uToggleRender", toggleRender);

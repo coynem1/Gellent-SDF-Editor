@@ -99,18 +99,15 @@ public class DemoScene extends Scene {
     private void uploadShader() {
         // glUseProgram(programId);
 
-        shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getProjectionMat());
-        shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat());
+        shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getStaticProjectionMat());
+        shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat(true));
 
         shaders.get(RENDER_SDF).uploadVec2i("uResolution", new Vector2i(Window.get().getWidth(), Window.get().getHeight()));
         shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
         shaders.get(RENDER_SDF).uploadFloat("uZoom", 1.0f);
 
         shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
-        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat());
-
-
-
+        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
         shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
