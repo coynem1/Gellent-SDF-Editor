@@ -1,6 +1,7 @@
 package Jade;
 
 import Input.InputCamera;
+import Input.InputWindowEvents;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -11,16 +12,17 @@ public class Camera {
     private Matrix4f projectionMat, staticProjectionMat, viewMat, staticViewMat;
     private Vector2f position;
 
+    // TODO: Make these dynamic to changing aspect ratio
     // Rendering
     public static final float TILE_SIZE = 10.0f;
-    public static final int VIEW_TILES_Y = 21;  // Width calculated with aspect ratio
+    public static int viewTilesY = 21;  // Width calculated with aspect ratio
 
     // Camera
     public static final float CAMERA_Z = 50.0f;     // In focus plane
     public static final float NEAR_PLANE = 0.0f;
     public static final float FAR_PLANE  = 100.0f;
 
-    private final float viewHeight = TILE_SIZE * VIEW_TILES_Y;
+    private float viewHeight = TILE_SIZE * viewTilesY;
     private float viewWidth;
     private float zoom = 1.0f;
 
@@ -37,6 +39,10 @@ public class Camera {
         this.inputCamera = new InputCamera(this);
 
         this.inputCamera.bindInputs();
+        InputWindowEvents.onWindowResized((w, h) -> {
+
+        })
+
         adjustProjection(projectionMat, false);
         adjustProjection(staticProjectionMat, true);
     }

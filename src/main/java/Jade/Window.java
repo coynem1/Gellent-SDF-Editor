@@ -137,8 +137,6 @@ public class Window {
         }
     }
 
-    public final static void getWindow() {return;}
-
     public int getWidth() {
         return width;
     }
