@@ -1,7 +1,6 @@
 package Jade;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 
 public class SceneManager {
     private static SceneManager instance;
@@ -25,9 +24,9 @@ public class SceneManager {
         return instance;
     }
 
-    // Pass Frame update to the current scene
+    // Pass Frame process to the current scene
     public void process(float delta) {
-        get().currentScene.process(delta);
+        currentScene.process(delta);
     }
 
     public void setScene(Scene scene) {

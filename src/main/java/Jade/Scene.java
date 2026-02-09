@@ -30,11 +30,13 @@ public class Scene {
         this.camera = new Camera(new Vector2f());
     }
 
+    public void process(float delta) {
+        camera.process();
+    }
+
     public String getName() {
         return name;
     }
 
-    public void process(float delta) {}
-
-
+    public Camera getCamera() {return this.camera;}
 }

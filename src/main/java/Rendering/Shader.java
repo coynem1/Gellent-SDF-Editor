@@ -135,7 +135,7 @@ public class Shader {
         glUniform2f(varLocation, vec.x, vec.y);
     }
 
-    public void uploadVec2i(String varName, @NotNull Vector2i vec) {
+    public void uploadVec2i(String varName, Vector2i vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform2i(varLocation, vec.x, vec.y);

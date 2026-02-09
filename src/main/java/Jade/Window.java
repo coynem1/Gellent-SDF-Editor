@@ -1,14 +1,13 @@
 package Jade;
 
-import org.joml.Vector2f;
-import org.joml.Vector2i;
+import Input.InputKeyEvents;
+import Input.InputMouseEvents;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import util.Time;
 
-import java.awt.*;
 import java.nio.IntBuffer;
 
 import static java.lang.Math.abs;
@@ -16,7 +15,6 @@ import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.glfw.GLFWWindowSizeCallback.get;
 
 // Entire program, looping until closed
 public class Window {
@@ -78,10 +76,10 @@ public class Window {
         }
 
         // Bind inputs
-        glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);  // Lambda bind
-        glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
-        glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
-        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+        glfwSetCursorPosCallback(glfwWindow, InputMouseEvents::moveMouseCallback);  // Lambda bind
+        glfwSetMouseButtonCallback(glfwWindow, InputMouseEvents::btnMouseCallback);
+        glfwSetScrollCallback(glfwWindow, InputMouseEvents::scrollMouseCallback);
+        glfwSetKeyCallback(glfwWindow, InputKeyEvents::keyCallback);
 
 
         // Make OpenGL current context
@@ -125,7 +123,7 @@ public class Window {
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            // Send frame update to SceneManager
+            // Send frame process to SceneManager
             SceneManager.get().process(deltaTime);
 
             // Display
@@ -142,10 +140,5 @@ public class Window {
     }
     public int getHeight() {
         return height;
-    }
-
-    // flips Y for shader co-ordinate conversion
-    public Vector2i toScreenSpace(Vector2i v) {
-        return new Vector2i(v.x, abs(v.y - getHeight() - 1));
     }
 }
