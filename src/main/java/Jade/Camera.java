@@ -15,16 +15,20 @@ public class Camera {
     // TODO: Make these dynamic to changing aspect ratio
     // Rendering
     public static final float TILE_SIZE = 10.0f;
-    public static int viewTilesY = 21;  // Width calculated with aspect ratio
+    public static final int TILE_COUNT_Y = 21;  // Not resolution based, always This many tiles
 
     // Camera
     public static final float CAMERA_Z = 50.0f;     // In focus plane
     public static final float NEAR_PLANE = 0.0f;
     public static final float FAR_PLANE  = 100.0f;
 
-    private float viewHeight = TILE_SIZE * viewTilesY;
+    private float viewHeight = TILE_SIZE * TILE_COUNT_Y;
     private float viewWidth;
     private float zoom = 1.0f;
+
+    private int windowWidth = 1;
+    private int windowHeight = 1;
+    // private float initialAspectRatio = 1.0f;
 
     // Input
     private InputCamera inputCamera;
@@ -37,14 +41,25 @@ public class Camera {
         this.staticViewMat = new Matrix4f();
         this.position = position;
         this.inputCamera = new InputCamera(this);
+        this.windowWidth = Window.get().getWidth();
+        this.windowHeight = Window.get().getHeight();
+        // this.initialAspectRatio = (float) windowWidth / (float) windowHeight;
 
         this.inputCamera.bindInputs();
-        InputWindowEvents.onWindowResized((w, h) -> {
-
-        })
+        // calculateTile();
 
         adjustProjection(projectionMat, false);
         adjustProjection(staticProjectionMat, true);
+
+        // // Auto update if windows resized
+        // InputWindowEvents.onWindowResized((newW, newH) -> {
+        //     windowWidth = newW;
+        //     windowHeight = newH;
+        // });
+    }
+
+    private void calculateTile() {
+        // windowHeight /
     }
 
 
@@ -56,9 +71,7 @@ public class Camera {
     public void adjustProjection(Matrix4f projectionMatrix, boolean isStatic) {
         final float ZOOM_MIN = 0.001f;
         float safeZoom = Math.max(zoom, ZOOM_MIN);
-
-        Window window = Window.get();
-        float aspectRatio = (float) window.getWidth() / (float) window.getHeight();
+        float aspectRatio = (float) windowWidth / (float) windowHeight;
 
         viewWidth  = viewHeight * aspectRatio;
 
