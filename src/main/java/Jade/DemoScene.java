@@ -2,6 +2,7 @@ package Jade;
 
 import Input.InputKeyEvents;
 import Rendering.RenderDebugger;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import util.Time;
 
@@ -40,7 +41,7 @@ public class DemoScene extends Scene {
         this.shaders.put(RENDER_DEBUG, this.renderDebugger.getShader());
 
         // Drawing shapes
-        this.renderDebugger.createRect(0f, 1f, 100f, 100f);
+        this.renderDebugger.createRect(-50f, -50f, 100f, 100f);
         this.renderDebugger.createRect(102f, 52f, 60f, 23f);
         this.renderDebugger.render();
 
@@ -104,7 +105,8 @@ public class DemoScene extends Scene {
 
         shaders.get(RENDER_SDF).uploadVec2i("uResolution", new Vector2i(Window.get().getWidth(), Window.get().getHeight()));
         shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
-        shaders.get(RENDER_SDF).uploadFloat("uZoom", 1.0f);
+        shaders.get(RENDER_SDF).uploadFloat("uZoom", camera.getZoom());
+        shaders.get(RENDER_SDF).uploadFloat("uViewHeight", camera.getViewHeight());
 
         shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
         shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
@@ -119,13 +121,13 @@ public class DemoScene extends Scene {
     public void process(float delta) {
         camera.process();
 
+        uploadShader();
+
         shaders.get(RENDER_SDF).run();
         render.process(delta);
 
         shaders.get(RENDER_DEBUG).run();
         renderDebugger.process(delta);
-
-        uploadShader();
     }
 
 }

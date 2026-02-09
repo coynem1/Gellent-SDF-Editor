@@ -1,6 +1,11 @@
 #version 330 core
 uniform mat4 uProjection;
 uniform mat4 uView;
+uniform ivec2 uResolution;
+uniform vec2 uCamPos;   // World units
+uniform float uZoom;
+uniform float uViewHeight;
+
 uniform float uTime;
 uniform int uDemoScene;
 uniform float uBlend;
@@ -8,6 +13,23 @@ uniform int uToggleRender;
 uniform vec2 uMouse;
 
 out vec4 FragColor;
+
+// Calculates where the camera is
+vec2 screenToWorld(vec2 fragCoord) {
+    // Convert to Normalised Device Co-ordinates
+    vec2 ndc = (fragCoord / vec2(uResolution)) * 2.0 - 1.0;
+
+    float aspectRatio = float(uResolution.x) / float(uResolution.y);
+    float viewWidth = uViewHeight * aspectRatio;
+
+    float halfWidth = (viewWidth / 2.0) / uZoom;
+    float halfHeight = (uViewHeight / 2.0) / uZoom;
+
+    // Scale NDC to world space and offset by camera position
+    vec2 worldPos = ndc * vec2(halfWidth, halfHeight) + uCamPos;
+
+    return worldPos;
+}
 
 // sigmoid smoothing
 float smin( float a, float b, float k )
@@ -129,18 +151,7 @@ void render(float dist, float zoom, int uDemoScene) {
 
 
 
-// uniforms you set from Java each frame
-uniform ivec2 uResolution;   // window size in pixels
-uniform vec2 uCamPos;       // camera position in "world units"
-uniform float uZoom;        // >1 zoom in, <1 zoom out (choose convention)
 
-float safeZoom(float z) { return max(abs(z), 1e-6); }
-
-vec2 screenToWorld(vec2 fragCoord) {
-    vec2 p = fragCoord - 0.5 * uResolution;
-    float z = safeZoom(uZoom);
-    return p / z + uCamPos;
-}
 
 void main()
 {
@@ -149,10 +160,10 @@ void main()
 
     switch (uDemoScene) {
         case 0:
-            dist = sdCircle(vec2(world.x, world.y),300.0f);
+            dist = sdCircle(vec2(world.x, world.y),100.0f);
             break;
         case 1:
-            dist = sdBox(vec2(gl_FragCoord.x-1300.0f, gl_FragCoord.y-700.0f), vec2(300.0f, 300.0f));
+            dist = sdBox(vec2(world.x, world.y), vec2(100.0f, 100.0f));
             break;
         case 2:
             dist = smoothingScene();
@@ -166,7 +177,7 @@ void main()
         default:
             break;
     }
-    render(dist, 0.2f, uDemoScene);
+    render(dist, 1f, uDemoScene);
 }
 
 

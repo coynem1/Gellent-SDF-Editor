@@ -32,6 +32,7 @@ public class Camera {
         this.projectionMat = new Matrix4f();
         this.staticProjectionMat = new Matrix4f();
         this.viewMat = new Matrix4f();
+        this.staticViewMat = new Matrix4f();
         this.position = position;
         this.inputCamera = new InputCamera(this);
 
@@ -114,6 +115,8 @@ public class Camera {
         this.zoom = max(zoom, MIN_ZOOM);
         adjustProjection(projectionMat, false);
     }
+
+    public float getZoom() { return this.zoom;}
 
 
 }
