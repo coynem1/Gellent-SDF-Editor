@@ -2,6 +2,7 @@ package Jade;
 
 import Input.InputKeyEvents;
 import Input.InputMouseEvents;
+import Input.InputWindowEvents;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -80,6 +81,7 @@ public class Window {
         glfwSetMouseButtonCallback(glfwWindow, InputMouseEvents::btnMouseCallback);
         glfwSetScrollCallback(glfwWindow, InputMouseEvents::scrollMouseCallback);
         glfwSetKeyCallback(glfwWindow, InputKeyEvents::keyCallback);
+        glfwSetWindowSizeCallback(glfwWindow, InputWindowEvents::windowResizeCallback);
 
 
         // Make OpenGL current context
@@ -95,9 +97,9 @@ public class Window {
         GL.createCapabilities();
 
         // Update screen size variables automatically
-        glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
-            width = newW;
-            height = newH;
+        InputWindowEvents.onWindowResized((newW, newH) -> {
+            this.width = newW;
+            this.height = newH;
         });
 
         // Attempt to set screen size at start, attempts fullscreen
@@ -106,8 +108,8 @@ public class Window {
             IntBuffer h = stack.mallocInt(1);
 
             glfwGetWindowSize(glfwWindow, w, h);
-            width = w.get(0);
-            height = h.get(0);
+            this.width = w.get(0);
+            this.height = h.get(0);
         }
     }
 
@@ -134,6 +136,8 @@ public class Window {
             Time.get().beginFrame();
         }
     }
+
+    public final static void getWindow() {return;}
 
     public int getWidth() {
         return width;

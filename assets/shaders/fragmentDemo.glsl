@@ -165,7 +165,7 @@ void main()
     switch (uDemoScene) {
         case 0:
             world = screenToWorld(gl_FragCoord.xy);
-            dist = sdCircle(vec2(world.x, world.y),100.0f);
+            dist = sdCircle(vec2(world.x, world.y),50.0f);
             break;
         case 1:
             world = screenToWorld(gl_FragCoord.xy);
