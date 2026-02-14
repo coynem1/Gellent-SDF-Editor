@@ -75,51 +75,10 @@ public class Window {
     public void run() {
         IO.println("Hello LWJGL " + Version.getVersion() + "!");
 
-        // init(); // Run screen initializations
-        initNew();
-        loop();
-
-        // loop(); // Refresh loop until windows closed
+        init(); // Run screen initializations
+        loop(); // Refresh loop until windows closed
 
         destroy();
-    }
-
-    public void initNew() {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!org.lwjgl.glfw.GLFW.glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
-
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
-
-        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-        glfwWindow = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
-
-        if (glfwWindow == MemoryUtil.NULL) {
-            throw new RuntimeException("Failed to create the GLFW window");
-        }
-
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            final IntBuffer pWidth = stack.mallocInt(1); // int*
-            final IntBuffer pHeight = stack.mallocInt(1); // int*
-
-            GLFW.glfwGetWindowSize(glfwWindow, pWidth, pHeight);
-            final GLFWVidMode vidmode = Objects.requireNonNull(GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor()));
-            GLFW.glfwSetWindowPos(glfwWindow, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
-        }
-
-        GLFW.glfwMakeContextCurrent(glfwWindow);
-
-        GL.createCapabilities();
-
-        GLFW.glfwSwapInterval(GLFW.GLFW_TRUE);
-
-        GLFW.glfwShowWindow(glfwWindow);
-
-        imguiWindow.clearBuffer();
-        renderBuffer();
     }
 
     // Render OpenGL buffer and poll events
@@ -171,9 +130,9 @@ public class Window {
         // Make OpenGL bindings available
         GL.createCapabilities();
 
-        org.lwjgl.opengl.GLUtil.setupDebugMessageCallback();
-        glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT);
-        glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        // org.lwjgl.opengl.GLUtil.setupDebugMessageCallback();
+        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT);
+        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
         // Update screen size variables automatically
         glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
@@ -191,8 +150,8 @@ public class Window {
             height = h.get(0);
         }
 
-        // Init ImGui
-        imguiWindow.init();
+        imguiWindow.clearBuffer();
+        renderBuffer();
     }
 
     public void loop() {
@@ -208,8 +167,8 @@ public class Window {
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // // Send frame process to SceneManager
-            // SceneManager.get().process(deltaTime);
+            // Send frame process to SceneManager
+            SceneManager.get().process(deltaTime);
 
             // ImGui
             imguiWindow.render();
