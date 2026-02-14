@@ -4,12 +4,17 @@ import Input.InputKeyEvents;
 import Input.InputMouseEvents;
 import Rendering.ImGui.ImGuiWindow;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import util.Time;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -30,7 +35,7 @@ public class Window {
         // Default window size
         this.width = 1920;
         this.height = 1080;
-        this.imguiWindow = new ImGuiWindow();
+        imguiWindow = new ImGuiWindow();
 
         this.title = "SDF Editor";
     }
@@ -69,12 +74,67 @@ public class Window {
     public void run() {
         IO.println("Hello LWJGL " + Version.getVersion() + "!");
 
-        init(); // Run screen initializations
-        loop(); // Refresh loop until windows closed
+        // init(); // Run screen initializations
+        initNew();
+        loopNew();
+
+        // loop(); // Refresh loop until windows closed
 
         destroy();
     }
 
+    public void initNew() {
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        if (!org.lwjgl.glfw.GLFW.glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW");
+        }
+
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+
+        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
+        glfwWindow = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
+
+        if (glfwWindow == MemoryUtil.NULL) {
+            throw new RuntimeException("Failed to create the GLFW window");
+        }
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            final IntBuffer pWidth = stack.mallocInt(1); // int*
+            final IntBuffer pHeight = stack.mallocInt(1); // int*
+
+            GLFW.glfwGetWindowSize(glfwWindow, pWidth, pHeight);
+            final GLFWVidMode vidmode = Objects.requireNonNull(GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor()));
+            GLFW.glfwSetWindowPos(glfwWindow, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
+        }
+
+        GLFW.glfwMakeContextCurrent(glfwWindow);
+
+        GL.createCapabilities();
+
+        GLFW.glfwSwapInterval(GLFW.GLFW_TRUE);
+
+        GLFW.glfwShowWindow(glfwWindow);
+
+        imguiWindow.clearBuffer();
+        renderBuffer();
+    }
+
+    // Render OpenGL buffer and poll events
+    private void renderBuffer() {
+        GLFW.glfwSwapBuffers(glfwWindow);
+        GLFW.glfwPollEvents();
+    }
+
+    public void loopNew() {
+        imguiWindow.init();
+        while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
+            imguiWindow.render();
+            // GLFW.glfwPollEvents();
+            // imguiWindow.renderBuffer();
+        }
+    }
     public void init() {
         // Error Callback
         GLFWErrorCallback.createPrint(System.err).set();
@@ -89,6 +149,9 @@ public class Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+
+        // Set GLFW version for shaders before windows created
+        setGLFWVersion(GLFW_VERSION);
 
         // Creates Window
         glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
@@ -107,13 +170,17 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
 
         // Enable VSync
-        glfwSwapInterval(1);
+        glfwSwapInterval(GLFW_TRUE);
 
         // Make window visible
         glfwShowWindow(glfwWindow);
 
         // Make OpenGL bindings available
         GL.createCapabilities();
+
+        org.lwjgl.opengl.GLUtil.setupDebugMessageCallback();
+        glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT);
+        glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
         // Update screen size variables automatically
         glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
@@ -131,8 +198,8 @@ public class Window {
             height = h.get(0);
         }
 
-        // Set GLFW version for shaders
-        setGLFWVersion(GLFW_VERSION);
+        // Init ImGui
+        imguiWindow.init();
     }
 
     public void loop() {
@@ -147,8 +214,11 @@ public class Window {
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            // Send frame process to SceneManager
-            SceneManager.get().process(deltaTime);
+            // // Send frame process to SceneManager
+            // SceneManager.get().process(deltaTime);
+
+            // ImGui
+            imguiWindow.render();
 
             // Display
             glfwSwapBuffers(glfwWindow);
@@ -156,11 +226,16 @@ public class Window {
             // Calculates elapsed frame time
             deltaTime = Time.get().endFrame();
             Time.get().beginFrame();
+
+
         }
     }
 
     // Free memory and terminate GLFW
     private void destroy() {
+        // Destroy ImGui
+        imguiWindow.destroy();
+
         // Free memory
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
