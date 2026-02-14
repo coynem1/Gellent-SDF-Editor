@@ -1,21 +1,15 @@
 package Rendering.ImGui;
 
 import Jade.Window;
-import imgui.ImFontAtlas;
-import imgui.ImFontConfig;
-import imgui.ImGui;
-import imgui.ImGuiIO;
+import imgui.*;
 import imgui.app.Color;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
-import imgui.type.ImInt;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GLCapabilities;
 
 import static imgui.ImGui.getIO;
+import static org.lwjgl.opengl.GL11.*;
 
 public class ImGuiWindow {
     protected ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
@@ -26,11 +20,9 @@ public class ImGuiWindow {
 
     private ImGuiEditor editor;
     private final Color colorBg = new Color(.5f, .5f, .5f, 1);
-    // private GLCapabilities glCapabilities;
 
 
     public ImGuiWindow() {
-        // IO.println("ImGuiWindow created " + Window.GLFW_VERSION);
         this.glslVersion = Window.GLFW_VERSION;
         this.editor = new ImGuiEditor();
     }
@@ -41,21 +33,17 @@ public class ImGuiWindow {
             throw new IllegalStateException("GLFW window handle is 0. Did you create the window before ImGui init?");
         }
 
-        // GLFW.glfwMakeContextCurrent(glfwWindow);
-
         if (this.glslVersion == null || this.glslVersion.isBlank()) {
             throw new IllegalStateException("glslVersion is not set. Expected something like \"#version 330\".");
         }
         if (this.editor == null) {
             throw new IllegalStateException("ImGuiEditor was not created (editor == null).");
         }
-        // this.glCapabilities = GL.getCapabilities();
-
 
         // init
         ImGui.createContext();
         final ImGuiIO io = ImGui.getIO();
-        io.setIniFilename(null);                                // We don't want to save .ini file
+        io.setIniFilename(null);                                // Don't save .ini file
         io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);  // Enable Keyboard Controls
         io.addConfigFlags(ImGuiConfigFlags.DockingEnable);      // Enable Docking
         io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);    // Enable Multi-Viewport / Platform Windows
@@ -63,45 +51,48 @@ public class ImGuiWindow {
 
         setupFont(io);
 
-
-
         imGuiGlfw.init(glfwWindow, true);
         imGuiGl3.init(glslVersion);
-
-        // setupFont();
-
-
-
-        // // Setup IO
-        // final ImGuiIO io = ImGui.getIO();
-        // io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
-        // io.addConfigFlags(ImGuiConfigFlags.DockingEnable);
-        // io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
     }
 
+    // Creates font atlas and merges it with the default font
     private void setupFont(final ImGuiIO io) {
-        // Sprite sheet atlas
-        final ImFontAtlas fontAtlas = io.getFonts();
-        final ImFontConfig fontConfig = new ImFontConfig(); // Natively allocated. Should be explicitly destroyed
+        final ImFontAtlas atlas = io.getFonts();    // Sprite sheet atlas
+        final ImFontConfig baseConfig = new ImFontConfig(), iconConfig= new ImFontConfig(); // Character/icon types
+        final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder(); // Glyphs ranges provide
+        final ImFont defaultFont;
 
-        // Character type
-        fontConfig.setGlyphRanges(fontAtlas.getGlyphRangesDefault());
+        // Enable FreeType font renderer
+        atlas.setFreeTypeRenderer(true);
 
-        // fontAtlas.addFontDefault();
+        // Load new default font
+        baseConfig.setMergeMode(false);
+        baseConfig.setPixelSnapH(true);
+        baseConfig.setGlyphRanges(atlas.getGlyphRangesDefault());
 
-        // Merge font
-        fontConfig.setPixelSnapH(true);
-        fontAtlas.addFontFromFileTTF("assets/fonts/calibri.ttf", 32, fontConfig);
+        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", 25, baseConfig);
+        baseConfig.destroy();
 
-        fontAtlas.build();
-        fontConfig.destroy();
+        // Add default font
+        io.setFontDefault(defaultFont);
+
+        // Icons ranges
+        rangesBuilder.addRanges(FontAwesomeIcons._IconRange);
+        final short[] glyphRanges = rangesBuilder.buildRanges();
+
+        iconConfig.setMergeMode(true);  // Enable merge for icons with the default font
+        iconConfig.setPixelSnapH(true);
+
+        // Add icons and compile
+        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", 25, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", 25, iconConfig, glyphRanges); // font awesome
+        atlas.build();
+
+        iconConfig.destroy();
     }
 
     // Render new frame
     public void render() {
-        // GL32.glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
-        // GL32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
-
         imGuiGl3.newFrame();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
@@ -123,8 +114,6 @@ public class ImGuiWindow {
             ImGui.renderPlatformWindowsDefault();
             GLFW.glfwMakeContextCurrent(backupCurrentContext);
         }
-
-        // renderBuffer();
     }
 
     // Render OpenGL buffer and poll events
@@ -135,15 +124,9 @@ public class ImGuiWindow {
 
     // Clear OpenGL buffer
     public void clearBuffer() {
-        GL32.glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
-        GL32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
+        glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
-
-    // // Render OpenGL buffer and poll events
-    // public void renderBuffer() {
-    //     GLFW.glfwSwapBuffers(glfwWindow);
-    //     GLFW.glfwPollEvents();
-    // }
 
     public void destroy() {
         imGuiGl3.shutdown();
