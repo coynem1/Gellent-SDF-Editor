@@ -9,6 +9,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import util.Time;
@@ -76,7 +77,7 @@ public class Window {
 
         // init(); // Run screen initializations
         initNew();
-        loopNew();
+        loop();
 
         // loop(); // Refresh loop until windows closed
 
@@ -127,14 +128,6 @@ public class Window {
         GLFW.glfwPollEvents();
     }
 
-    public void loopNew() {
-        imguiWindow.init();
-        while (!GLFW.glfwWindowShouldClose(glfwWindow)) {
-            imguiWindow.render();
-            // GLFW.glfwPollEvents();
-            // imguiWindow.renderBuffer();
-        }
-    }
     public void init() {
         // Error Callback
         GLFWErrorCallback.createPrint(System.err).set();
@@ -205,6 +198,7 @@ public class Window {
     public void loop() {
         float deltaTime = 0;
         Time.get().beginFrame();
+        imguiWindow.init();
 
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll Events
@@ -212,7 +206,7 @@ public class Window {
 
             // Base colour
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // // Send frame process to SceneManager
             // SceneManager.get().process(deltaTime);
@@ -221,7 +215,7 @@ public class Window {
             imguiWindow.render();
 
             // Display
-            glfwSwapBuffers(glfwWindow);
+            renderBuffer();
 
             // Calculates elapsed frame time
             deltaTime = Time.get().endFrame();

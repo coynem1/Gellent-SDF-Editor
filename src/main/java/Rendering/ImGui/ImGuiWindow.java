@@ -99,8 +99,8 @@ public class ImGuiWindow {
 
     // Render new frame
     public void render() {
-        GL32.glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
-        GL32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
+        // GL32.glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
+        // GL32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
 
         imGuiGl3.newFrame();
         imGuiGlfw.newFrame();
@@ -124,7 +124,7 @@ public class ImGuiWindow {
             GLFW.glfwMakeContextCurrent(backupCurrentContext);
         }
 
-        renderBuffer();
+        // renderBuffer();
     }
 
     // Render OpenGL buffer and poll events
