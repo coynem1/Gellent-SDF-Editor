@@ -12,6 +12,9 @@ import static imgui.ImGui.getIO;
 import static org.lwjgl.opengl.GL11.*;
 
 public class ImGuiWindow {
+    private static final int FONT_SIZE = 25;
+    private static final int ICON_SIZE = 19;
+
     protected ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     protected ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
@@ -70,7 +73,7 @@ public class ImGuiWindow {
         baseConfig.setPixelSnapH(true);
         baseConfig.setGlyphRanges(atlas.getGlyphRangesDefault());
 
-        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", 25, baseConfig);
+        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", FONT_SIZE, baseConfig);
         baseConfig.destroy();
 
         // Add default font
@@ -84,8 +87,8 @@ public class ImGuiWindow {
         iconConfig.setPixelSnapH(true);
 
         // Add icons and compile
-        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", 25, iconConfig, glyphRanges); // font awesome
-        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", 25, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
         atlas.build();
 
         iconConfig.destroy();

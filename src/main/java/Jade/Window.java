@@ -185,7 +185,7 @@ public class Window {
     }
 
     // Free memory and terminate GLFW
-    private void destroy() {
+    public void destroy() {
         // Destroy ImGui
         imguiWindow.destroy();
 
@@ -193,9 +193,10 @@ public class Window {
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
-        // Terminate GLFW and free the error callback
-        glfwTerminate();
+        // Terminate GLFW, stop the program and free the error callback
         glfwSetErrorCallback(null).free();
+        glfwTerminate();
+        System.exit(0);
     }
 
     public int getWidth() {
