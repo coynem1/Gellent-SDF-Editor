@@ -2,15 +2,21 @@ package Jade;
 
 import Input.InputKeyEvents;
 import Input.InputMouseEvents;
+import Rendering.ImGui.ImGuiWindow;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import util.Time;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 
-import static java.lang.Math.abs;
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,15 +27,42 @@ public class Window {
     private int width, height;
     private String title;
     private long glfwWindow;
+    private ImGuiWindow imguiWindow;
 
     private static Window window;
+    public static final String GLFW_VERSION = "#version 330";
 
     private Window() {
         // Default window size
         this.width = 1920;
         this.height = 1080;
+        imguiWindow = new ImGuiWindow();
 
         this.title = "SDF Editor";
+    }
+
+    // Set shader version
+    private void setGLFWVersion(String version) {
+        String regex = "[,\\.\\s]"; // split by spaces
+        String[] split;
+        String major, minor;
+
+        if (!version.contains("#version ") || version.length() < 12) {
+            assert false : "GLFW version does not follow correct format";
+        }
+        split = version.split(regex);
+
+        major = String.valueOf(split[1].charAt(0));
+        minor = String.valueOf(split[1].charAt(1));
+
+        try {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Integer.parseInt(major));
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, Integer.parseInt(minor));
+            // IO.println("GLFW version set to " + major + "." + minor);
+        }
+        catch (NumberFormatException e) {
+            assert false : "GLFW version is non-numeric: " + split[1];
+        }
     }
 
     public static Window get() {
@@ -45,13 +78,13 @@ public class Window {
         init(); // Run screen initializations
         loop(); // Refresh loop until windows closed
 
-        // Free memory
-        glfwFreeCallbacks(glfwWindow);
-        glfwDestroyWindow(glfwWindow);
+        destroy();
+    }
 
-        // Terminate GLFW and free the error callback
-        glfwTerminate();
-        glfwSetErrorCallback(null).free();
+    // Render OpenGL buffer and poll events
+    private void renderBuffer() {
+        GLFW.glfwSwapBuffers(glfwWindow);
+        GLFW.glfwPollEvents();
     }
 
     public void init() {
@@ -68,6 +101,9 @@ public class Window {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+
+        // Set GLFW version for shaders before windows created
+        setGLFWVersion(GLFW_VERSION);
 
         // Creates Window
         glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
@@ -86,13 +122,17 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
 
         // Enable VSync
-        glfwSwapInterval(1);
+        glfwSwapInterval(GLFW_TRUE);
 
         // Make window visible
         glfwShowWindow(glfwWindow);
 
         // Make OpenGL bindings available
         GL.createCapabilities();
+
+        // org.lwjgl.opengl.GLUtil.setupDebugMessageCallback();
+        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT);
+        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
         // Update screen size variables automatically
         glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
@@ -109,11 +149,15 @@ public class Window {
             width = w.get(0);
             height = h.get(0);
         }
+
+        imguiWindow.clearBuffer();
+        renderBuffer();
     }
 
     public void loop() {
         float deltaTime = 0;
         Time.get().beginFrame();
+        imguiWindow.init();
 
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll Events
@@ -121,18 +165,38 @@ public class Window {
 
             // Base colour
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Send frame process to SceneManager
             SceneManager.get().process(deltaTime);
 
+            // ImGui
+            imguiWindow.render();
+
             // Display
-            glfwSwapBuffers(glfwWindow);
+            renderBuffer();
 
             // Calculates elapsed frame time
             deltaTime = Time.get().endFrame();
             Time.get().beginFrame();
+
+
         }
+    }
+
+    // Free memory and terminate GLFW
+    public void destroy() {
+        // Destroy ImGui
+        imguiWindow.destroy();
+
+        // Free memory
+        glfwFreeCallbacks(glfwWindow);
+        glfwDestroyWindow(glfwWindow);
+
+        // Terminate GLFW, stop the program and free the error callback
+        glfwSetErrorCallback(null).free();
+        glfwTerminate();
+        System.exit(0);
     }
 
     public int getWidth() {
@@ -141,4 +205,5 @@ public class Window {
     public int getHeight() {
         return height;
     }
+    public long getWindow() {return glfwWindow;}
 }
