@@ -1,6 +1,7 @@
 package Jade;
 
-import java.nio.file.Path;
+import Rendering.RenderSDF;
+
 import java.nio.file.Paths;
 
 public class SceneBase extends Scene {

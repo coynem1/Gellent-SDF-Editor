@@ -1,6 +1,6 @@
 package Jade;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
+import Demo.DemoScene;
 
 public class SceneManager {
     private static SceneManager instance;

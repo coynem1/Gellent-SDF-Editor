@@ -1,7 +1,8 @@
 package Jade;
 
 import Rendering.RenderDebugger;
-import Rendering.Shader;
+import Rendering.RenderSDF;
+import Rendering.Shaders.Shader;
 import org.joml.Vector2f;
 
 import java.nio.file.Path;

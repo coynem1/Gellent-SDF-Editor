@@ -1,4 +1,4 @@
-package Rendering;
+package Rendering.Shaders;
 
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
@@ -7,7 +7,6 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;

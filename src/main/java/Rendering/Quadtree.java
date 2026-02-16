@@ -1,7 +1,6 @@
 package Rendering;
 
-import org.lwjgl.BufferUtils;
-import org.w3c.dom.Node;
+import Rendering.Shaders.ComputeShader;
 
 import java.nio.FloatBuffer;
 

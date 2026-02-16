@@ -1,8 +1,10 @@
-package Jade;
+package Demo;
 
 import Input.InputKeyEvents;
+import Jade.Scene;
+import Jade.Window;
 import Rendering.RenderDebugger;
-import org.joml.Vector2f;
+import Rendering.RenderSDF;
 import org.joml.Vector2i;
 import util.GameClock;
 import util.Time;

@@ -1,4 +1,4 @@
-package Rendering;
+package Rendering.Shaders;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
