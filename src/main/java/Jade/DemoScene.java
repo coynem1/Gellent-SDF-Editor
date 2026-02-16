@@ -4,6 +4,7 @@ import Input.InputKeyEvents;
 import Rendering.RenderDebugger;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
+import util.GameClock;
 import util.Time;
 
 import java.nio.file.Paths;
@@ -19,6 +20,7 @@ public class DemoScene extends Scene {
     private float blend = 0.5f;
     private int toggleRender = 0;
     private boolean blendPressed = false;
+    private boolean awaitUploadShader = false;
 
     public DemoScene(String name) {
         super(name);
@@ -46,6 +48,14 @@ public class DemoScene extends Scene {
         this.renderDebugger.render();
 
         bindInputs();
+        uploadShader();
+
+        // Upload shaders in fixed intervals
+        GameClock.get().addObserver(delta -> {
+            // Cannot change glfw not on the main thread
+            awaitUploadShader = true;
+        });
+
     }
 
     // Single binding when key changes
@@ -96,20 +106,16 @@ public class DemoScene extends Scene {
 
     }
 
-    // Sends variables to shader
+    // Sends variables to shader at fixed intervals
     private void uploadShader() {
-        // glUseProgram(programId);
+        if (!awaitUploadShader) return;
+        awaitUploadShader = false;
 
         shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getStaticProjectionMat());
         shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat(true));
 
         shaders.get(RENDER_SDF).uploadVec2i("uResolution", new Vector2i(Window.get().getWidth(), Window.get().getHeight()));
-        shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
-        shaders.get(RENDER_SDF).uploadFloat("uZoom", camera.getZoom());
         shaders.get(RENDER_SDF).uploadFloat("uViewHeight", camera.getViewHeight());
-
-        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
-        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
         shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
@@ -117,11 +123,21 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
+    // Sends variables to shader every frame
+    private void uploadShaderImmediate() {
+        shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
+        shaders.get(RENDER_SDF).uploadFloat("uZoom", camera.getZoom());
+
+        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
+    }
+
     @Override
     public void process(float delta) {
         camera.process();
 
         uploadShader();
+        uploadShaderImmediate();
 
         shaders.get(RENDER_SDF).run();
         render.process(delta);
