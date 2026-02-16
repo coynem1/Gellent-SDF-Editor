@@ -33,8 +33,6 @@ public class RenderSDF extends Renderer {
 
         this.indexBuffer.put(0).put(1).put(2);  // Top Left
         this.indexBuffer.put(2).put(3).put(1);  // Bottom Right
-        IO.println(indexBuffer.toString());
-        // this.indexBuffer.flip();
 
         updateVertices();
         loadBuffers(false);  // VBO, VAO, EBO used for rendering
@@ -54,14 +52,6 @@ public class RenderSDF extends Renderer {
         vertexBuffer.put( viewWidth / 2.0f).put( viewHeight / 2.0f).put(0.0f);  // Top Right
         vertexBuffer.put(-viewWidth / 2.0f).put(-viewHeight / 2.0f).put(0.0f);  // Bottom Left
         vertexBuffer.put( viewWidth / 2.0f).put(-viewHeight / 2.0f).put(0.0f);  // Bottom Right
-
-        // this.vertices = new float[] {
-        //         // Pos
-        //         -viewWidth  / 2.0f, viewHeight  / 2.0f, 0.0f,
-        //         viewWidth   / 2.0f, viewHeight  / 2.0f, 0.0f,
-        //         -viewWidth  / 2.0f, -viewHeight / 2.0f, 0.0f,
-        //         viewWidth   / 2.0f, -viewHeight / 2.0f, 0.0f
-        // };
     }
 
     // Open shader files, compile, and link them

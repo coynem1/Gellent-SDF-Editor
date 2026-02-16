@@ -6,16 +6,12 @@ import Rendering.ImGui.ImGuiWindow;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
+import util.GameClock;
 import util.Time;
 
 import java.nio.IntBuffer;
-import java.util.Objects;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -28,6 +24,7 @@ public class Window {
     private String title;
     private long glfwWindow;
     private ImGuiWindow imguiWindow;
+    private GameClock physicsClock = GameClock.get();
 
     private static Window window;
     public static final String GLFW_VERSION = "#version 330";
@@ -124,7 +121,7 @@ public class Window {
         // Enable VSync
         glfwSwapInterval(GLFW_TRUE);
 
-        // Make window visible
+        // Make the window visible
         glfwShowWindow(glfwWindow);
 
         // Make OpenGL bindings available
@@ -140,7 +137,7 @@ public class Window {
             height = newH;
         });
 
-        // Attempt to set screen size at start, attempts fullscreen
+        // Attempt to set screen size at the start, attempts fullscreen
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
@@ -156,8 +153,11 @@ public class Window {
 
     public void loop() {
         float deltaTime = 0;
+        SceneManager sceneManager = SceneManager.get();
+
         Time.get().beginFrame();
         imguiWindow.init();
+        physicsClock.startThread();
 
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll Events
@@ -167,8 +167,8 @@ public class Window {
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // Send frame process to SceneManager
-            SceneManager.get().process(deltaTime);
+            // Send a frame process to SceneManager
+            sceneManager.process(deltaTime);
 
             // ImGui
             imguiWindow.render();
@@ -179,8 +179,6 @@ public class Window {
             // Calculates elapsed frame time
             deltaTime = Time.get().endFrame();
             Time.get().beginFrame();
-
-
         }
     }
 
@@ -188,6 +186,7 @@ public class Window {
     public void destroy() {
         // Destroy ImGui
         imguiWindow.destroy();
+        physicsClock.stopThread();
 
         // Free memory
         glfwFreeCallbacks(glfwWindow);
@@ -199,9 +198,7 @@ public class Window {
         System.exit(0);
     }
 
-    public int getWidth() {
-        return width;
-    }
+    public int getWidth() { return width; }
     public int getHeight() {
         return height;
     }
