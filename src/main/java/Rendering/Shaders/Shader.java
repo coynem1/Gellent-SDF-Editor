@@ -61,11 +61,6 @@ public class Shader {
         glShaderSource(fragmentID, fragmentShaderSource);
         glCompileShader(fragmentID);
 
-        IO.println("Vendor: " + glGetString(GL_VENDOR));
-        IO.println("Renderer: " + glGetString(GL_RENDERER));
-        IO.println("Version: " + glGetString(GL_VERSION));
-        IO.println("Shading Language Version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
-
         // Check for errors
         compileShader(fragmentID, "Fragment");
 

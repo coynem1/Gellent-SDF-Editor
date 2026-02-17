@@ -40,10 +40,8 @@ public class SceneManager {
 
     // Adds new scene to dict
     public Scene createScene(String name) {
-        Scene scene = new Scene(name);
+        Scene scene = new SceneBase(name);
         setScene(scene);
         return scene;
     }
-
-    // Add function for deleting scene
 }
