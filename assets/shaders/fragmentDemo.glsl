@@ -81,15 +81,15 @@ float sdStar(vec2 p, float r )
 // SDFs for Hi text
 float hiDemo() {
     vec2 world = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(0.0f, 0.0f);
+    vec2 offset = vec2(0.0, 0.0);
     float xMid = world.x-offset.x;
     float yMid = world.y-offset.y;
 
-    float dCircle1 = sdCircle(vec2(xMid, yMid), 10.0f);
-    float dBox1 = sdBox(vec2(xMid, yMid + 50.0f), vec2(8.0f - uBlend, 33.0f - uBlend)) - uBlend;
-    float dBox2 = sdBox(vec2(xMid+24, yMid + 33.0f), vec2(8.0f - uBlend, 50.0f - uBlend)) - uBlend;
-    float dBox3 = sdBox(vec2(xMid+60, yMid + 33.0f), vec2(8.0f - uBlend, 50.0f - uBlend)) - uBlend;
-    float dBox4 = sdBox(vec2(xMid+42, yMid + 33.0f), vec2(20.0f- uBlend, 8.0f -uBlend)) - uBlend;
+    float dCircle1 = sdCircle(vec2(xMid, yMid), 10.0);
+    float dBox1 = sdBox(vec2(xMid, yMid + 50.0), vec2(8.0 - uBlend, 33.0 - uBlend)) - uBlend;
+    float dBox2 = sdBox(vec2(xMid+24, yMid + 33.0), vec2(8.0 - uBlend, 50.0 - uBlend)) - uBlend;
+    float dBox3 = sdBox(vec2(xMid+60, yMid + 33.0), vec2(8.0 - uBlend, 50.0 - uBlend)) - uBlend;
+    float dBox4 = sdBox(vec2(xMid+42, yMid + 33.0), vec2(20.0- uBlend, 8.0 -uBlend)) - uBlend;
 
     return min(min(min(min(dCircle1, dBox1), dBox2), dBox3), dBox4);
 }
@@ -97,38 +97,38 @@ float hiDemo() {
 // Demo of multiple types of shapes
 float shapesScene() {
     vec2 world = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(0.0f, 0.0f);
-    float scalar = 0.1f;
+    vec2 offset = vec2(0.0, 0.0);
+    float scalar = 0.1;
     float xMid = world.x-offset.x;
     float yMid = world.y-offset.y;
 
-    float dCircle1 = sdCircle(vec2(xMid, yMid), 25.0f);
-    float dBox1 = sdBox(vec2(xMid-20, yMid + 40.0f), vec2(10.0f, 10.0f));
-    float dBox2 = sdBox(vec2(xMid-60, yMid + 8.0f), vec2(25.0f, 10.0f));
-    float dTriangle = sdEquilateralTriangle(vec2(xMid+24, yMid + 70.0f), 40.0f);
-    float dStar = sdStar(vec2(xMid+60, yMid), 20.0f + sin(uTime) * 5.0f);
+    float dCircle1 = sdCircle(vec2(xMid, yMid), 25.0);
+    float dBox1 = sdBox(vec2(xMid-20, yMid + 40.0), vec2(10.0, 10.0));
+    float dBox2 = sdBox(vec2(xMid-60, yMid + 8.0), vec2(25.0, 10.0));
+    float dTriangle = sdEquilateralTriangle(vec2(xMid+24, yMid + 70.0), 40.0);
+    float dStar = sdStar(vec2(xMid+60, yMid), 20.0 + sin(uTime) * 5.0);
 
 
-    return min(min(min(smin(dCircle1, dTriangle, 10.0f * uBlend), dBox1), dBox2), dStar);
+    return min(min(min(smin(dCircle1, dTriangle, 10.0 * uBlend), dBox1), dBox2), dStar);
 }
 
 // smooth blend between shapes
 float smoothingScene() {
-    vec2 world = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(-5f, 0f);
-    float xMid = world.x-offset.x;
-    float yMid = world.y-offset.y;
+    vec2 worldCoords = screenToWorld(gl_FragCoord.xy);
+    vec2 offset = vec2(-5, 0);
+    float xMid = worldCoords.x-offset.x;
+    float yMid = worldCoords.y-offset.y;
 
-    float dCircle1 = sdCircle(vec2(xMid+20, yMid), 40.0f);
-    float dBox1 = sdBox(vec2(xMid-50, yMid + 30.0f), vec2(30.0f, 40.0f));
+    float dCircle1 = sdCircle(vec2(xMid+20, yMid), 40.0);
+    float dBox1 = sdBox(vec2(xMid-50, yMid + 30.0), vec2(30.0, 40.0));
 
-    return smin(dCircle1, dBox1, 5.0f * uBlend);
+    return smin(dCircle1, dBox1, 5.0 * uBlend);
 }
 
 // Renders SDFs with animated isolines
 void render(float dist, float zoom, int uDemoScene) {
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
-    float direction = (dist > 0) ? 2.0f : -2.0f;
+    float direction = (dist > 0) ? 2.0 : -2.0;
 
     // Black and white
     if (uToggleRender == 0) {
@@ -136,11 +136,11 @@ void render(float dist, float zoom, int uDemoScene) {
         return;
     }
     else if (uToggleRender == 2) {
-        direction = 0.0f;
+        direction = 0.0;
     }
     else if (uToggleRender == 3) {
-        float feathering = 9.0f;
-        FragColor = vec4(1.0-max(dist /feathering, 0.0f), 1.0-max(dist /feathering, 0.0f), 1.0-max(dist /feathering, 0.0f), 1.0);
+        float feathering = 9.0;
+        FragColor = vec4(1.0-max(dist /feathering, 0.0), 1.0-max(dist /feathering, 0.0), 1.0-max(dist /feathering, 0.0), 1.0);
 
         return;
     }
@@ -150,26 +150,23 @@ void render(float dist, float zoom, int uDemoScene) {
     col = mix( col, vec3(1.0), 1.0 - smoothstep(0.0, 0.60, abs(dist)));    // White outline
 
 
-    FragColor = vec4(col, 1.0f); //vec4(mod(float(2500f) * 0.0001f, 1.0f), mod(float(m.y) *0.0001f, 1.0f), 0.0f, 1.0f);
+    FragColor = vec4(col, 1.0); //vec4(mod(float(2500) * 0.0001, 1.0), mod(float(m.y) *0.0001, 1.0), 0.0, 1.0);
 }
-
-
-
 
 
 void main()
 {
-    float dist = 0.0f;
+    float dist = 0.0;
     vec2 world;
 
     switch (uDemoScene) {
         case 0:
             world = screenToWorld(gl_FragCoord.xy);
-            dist = sdCircle(vec2(world.x, world.y),100.0f);
+            dist = sdCircle(vec2(world.x, world.y),100.0);
             break;
         case 1:
             world = screenToWorld(gl_FragCoord.xy);
-            dist = sdBox(vec2(world.x, world.y), vec2(100.0f, 100.0f));
+            dist = sdBox(vec2(world.x, world.y), vec2(100.0, 100.0));
             break;
         case 2:
             dist = smoothingScene();
@@ -183,7 +180,7 @@ void main()
         default:
             break;
     }
-    render(dist, 1.4f, uDemoScene);
+    render(dist, 1.4, uDemoScene);
 }
 
 

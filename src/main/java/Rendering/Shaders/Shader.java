@@ -61,6 +61,11 @@ public class Shader {
         glShaderSource(fragmentID, fragmentShaderSource);
         glCompileShader(fragmentID);
 
+        IO.println("Vendor: " + glGetString(GL_VENDOR));
+        IO.println("Renderer: " + glGetString(GL_RENDERER));
+        IO.println("Version: " + glGetString(GL_VERSION));
+        IO.println("Shading Language Version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
+
         // Check for errors
         compileShader(fragmentID, "Fragment");
 
@@ -77,16 +82,14 @@ public class Shader {
     // Stops program if there's a shader compiling error
     protected void compileShader(int shader, String type) {
         if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Error compiling " + type + " : " + glGetShaderInfoLog(shader, GL_FALSE));
-            assert false : "";
+            throw new RuntimeException("Error compiling " + type + " : " + glGetShaderInfoLog(shader, GL_FALSE));
         }
     }
 
     // Stops program if there's a shader link compiling error
     protected void compileShaderLink(int program, String type) {
         if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Error compiling " + type + " shader: " + glGetShaderInfoLog(shaderProgramID, GL_FALSE));
-            assert false : "";
+            throw new RuntimeException("Error linking " + type + " : " + glGetShaderInfoLog(shaderProgramID, GL_FALSE));
         }
     }
 
