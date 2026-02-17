@@ -8,6 +8,8 @@ import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
+
 import static imgui.ImGui.getIO;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -60,10 +62,14 @@ public class ImGuiWindow {
 
     // Creates font atlas and merges it with the default font
     private void setupFont(final ImGuiIO io) {
+        final float DPI_STANDARD = 96f;
+        final float DPI_SCALAR = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
         final ImFontAtlas atlas = io.getFonts();    // Sprite sheet atlas
         final ImFontConfig baseConfig = new ImFontConfig(), iconConfig= new ImFontConfig(); // Character/icon types
         final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder(); // Glyphs ranges provide
         final ImFont defaultFont;
+
+        IO.println("DPI: " + DPI_SCALAR);
 
         // Enable FreeType font renderer
         atlas.setFreeTypeRenderer(true);
@@ -73,7 +79,7 @@ public class ImGuiWindow {
         baseConfig.setPixelSnapH(true);
         baseConfig.setGlyphRanges(atlas.getGlyphRangesDefault());
 
-        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", FONT_SIZE, baseConfig);
+        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", (int) FONT_SIZE * DPI_SCALAR, baseConfig);
         baseConfig.destroy();
 
         // Add default font
@@ -87,8 +93,8 @@ public class ImGuiWindow {
         iconConfig.setPixelSnapH(true);
 
         // Add icons and compile
-        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
-        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
         atlas.build();
 
         iconConfig.destroy();
