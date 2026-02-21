@@ -23,7 +23,7 @@ public class Shader {
     // Opens a shader file
     public Shader() {}
 
-    // General init for inherit overriding
+    // General start for inherit overriding
     public void init(Path vertexPath, Path fragPath) {
         Path currentShader = vertexPath;
         this.vertexPath = vertexPath;

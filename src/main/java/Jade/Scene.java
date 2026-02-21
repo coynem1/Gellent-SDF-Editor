@@ -39,7 +39,7 @@ public abstract class Scene {
     }
 
     // Start all objects in the scene
-    public void init() {
+    public void start() {
         if (isRunning) {return;}
         isRunning = true;
 

@@ -12,6 +12,7 @@ public class SceneManager {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
         currentMode = 0;
         setScene(new DemoScene("DemoScene"));
+        currentScene.start();
 
         // setScene(new SceneBase("World"));
     }

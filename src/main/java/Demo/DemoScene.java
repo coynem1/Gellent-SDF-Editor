@@ -3,6 +3,7 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
+import Rendering.Objects.GameObject;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
 import org.joml.Vector2i;
@@ -23,6 +24,8 @@ public class DemoScene extends Scene {
     private int toggleRender = 0;
     private boolean blendPressed = false;
     private boolean awaitUploadShader = false;
+
+    private GameObject testObject;
 
     public DemoScene(String name) {
         super(name);

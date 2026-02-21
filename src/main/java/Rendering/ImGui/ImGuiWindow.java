@@ -35,7 +35,7 @@ public class ImGuiWindow {
     public void init() {
         this.glfwWindow = Window.get().getWindow();
         if (this.glfwWindow == 0L) {
-            throw new IllegalStateException("GLFW window handle is 0. Did you create the window before ImGui init?");
+            throw new IllegalStateException("GLFW window handle is 0. Did you create the window before ImGui start?");
         }
 
         if (this.glslVersion == null || this.glslVersion.isBlank()) {
@@ -45,7 +45,7 @@ public class ImGuiWindow {
             throw new IllegalStateException("ImGuiEditor was not created (editor == null).");
         }
 
-        // init
+        // start
         ImGui.createContext();
         final ImGuiIO io = ImGui.getIO();
         io.setIniFilename(null);                                // Don't save .ini file
