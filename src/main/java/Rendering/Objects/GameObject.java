@@ -1,12 +1,14 @@
 package Rendering.Objects;
 
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
     private String name;
     private Vector3f position;
-    private List<Component> components;
+    private List<Component> components = new ArrayList<>();
 
 
     public GameObject(String name) {

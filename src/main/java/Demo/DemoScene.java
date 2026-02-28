@@ -3,6 +3,7 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
+import Rendering.Objects.Components.Sculpt;
 import Rendering.Objects.GameObject;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
@@ -25,7 +26,8 @@ public class DemoScene extends Scene {
     private boolean blendPressed = false;
     private boolean awaitUploadShader = false;
 
-    private GameObject testObject;
+    private GameObject testObject = new GameObject("Test Object");
+    private GameObject testObject2 = new GameObject("Test Object 2");
 
     public DemoScene(String name) {
         super(name);
@@ -60,6 +62,11 @@ public class DemoScene extends Scene {
             // Cannot change glfw not on the main thread
             awaitUploadShader = true;
         });
+
+        testObject.addComponent(new Sculpt());
+        testObject2.addComponent(new Sculpt());
+        this.addObjectToScene(testObject);
+        this.addObjectToScene(testObject2);
 
     }
 
@@ -149,6 +156,10 @@ public class DemoScene extends Scene {
 
         shaders.get(RENDER_DEBUG).run();
         renderDebugger.process(delta);
+
+        for (GameObject obj : objects) {
+            obj.update(delta);
+        }
     }
 
 }
