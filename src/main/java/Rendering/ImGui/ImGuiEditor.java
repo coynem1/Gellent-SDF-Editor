@@ -1,11 +1,13 @@
 package Rendering.ImGui;
 
+import Input.InputImGui;
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImBoolean;
+import org.joml.Vector3f;
 
 public class ImGuiEditor {
-    private static final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
+    private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
 
     private boolean showText = true;
     private final float flt[] = new float[1];
@@ -77,6 +79,7 @@ public class ImGuiEditor {
             this.colour[0] = colourImGui[0];
             this.colour[1] = colourImGui[1];
             this.colour[2] = colourImGui[2];
+            InputImGui.setColourCallback(getColour());
         }
     }
 
@@ -84,8 +87,8 @@ public class ImGuiEditor {
         ImGui.showDemoWindow(SHOW_DEMO_WINDOW);
     }
 
-    static void helpMarker(String desc)
-    {
+    // Tips when hovered
+    static void helpMarker(String desc) {
         ImGui.textDisabled("(?)");
         if (ImGui.beginItemTooltip())
         {
@@ -95,5 +98,7 @@ public class ImGuiEditor {
             ImGui.endTooltip();
         }
     }
+
+    public Vector3f getColour() { return new Vector3f(this.colour[0], this.colour[1], this.colour[2]);}
 
 }

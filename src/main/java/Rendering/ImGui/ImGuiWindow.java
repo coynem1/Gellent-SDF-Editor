@@ -24,7 +24,7 @@ public class ImGuiWindow {
     private long glfwWindow;
 
     private ImGuiEditor editor;
-    private final Color colorBg = new Color(.5f, .5f, .5f, 1);
+    private final Color colorBg = new Color(.5f, .5f, .5f, 1);  // TODO: Remove
 
 
     public ImGuiWindow() {

@@ -48,6 +48,13 @@ public abstract class Scene {
         }
     }
 
+    // Update all objects in the scene
+    public void updateAllObjects(float delta) {
+        for (GameObject obj : objects) {
+            obj.update(delta);
+        }
+    }
+
     public void addObjectToScene(GameObject object) {
         objects.add(object);
 

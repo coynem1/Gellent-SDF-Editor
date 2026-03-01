@@ -3,7 +3,7 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
-import Rendering.Objects.Components.Sculpt;
+import Rendering.Objects.ShapeCircle;
 import Rendering.Objects.GameObject;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
@@ -25,9 +25,6 @@ public class DemoScene extends Scene {
     private int toggleRender = 0;
     private boolean blendPressed = false;
     private boolean awaitUploadShader = false;
-
-    private GameObject testObject = new GameObject("Test Object");
-    private GameObject testObject2 = new GameObject("Test Object 2");
 
     public DemoScene(String name) {
         super(name);
@@ -63,11 +60,16 @@ public class DemoScene extends Scene {
             awaitUploadShader = true;
         });
 
-        testObject.addComponent(new Sculpt());
-        testObject2.addComponent(new Sculpt());
+        // Draw shapes
+        testSculpt();
+    }
+
+    private void testSculpt() {
+        GameObject testObject = new ShapeCircle(ShapeCircle.DEFAULT_NAME);
+        GameObject testObject2 = new ShapeCircle(ShapeCircle.DEFAULT_NAME);
+
         this.addObjectToScene(testObject);
         this.addObjectToScene(testObject2);
-
     }
 
     // Single binding when key changes
@@ -156,10 +158,6 @@ public class DemoScene extends Scene {
 
         shaders.get(RENDER_DEBUG).run();
         renderDebugger.process(delta);
-
-        for (GameObject obj : objects) {
-            obj.update(delta);
-        }
     }
 
 }
