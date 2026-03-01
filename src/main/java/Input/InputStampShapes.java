@@ -1,12 +1,13 @@
 package Input;
 
+import Rendering.ImGui.ImGuiEditor;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_0;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class InputStampShapes {
-    public static Vector3f SELECTED_COLOUR = new Vector3f(1.0f, 0.6f, 0.3f);    // Default colour
+    private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     private boolean editMode = false;
 
 
@@ -15,6 +16,10 @@ public class InputStampShapes {
     }
 
     private void bindInputs() {
+        InputImGui.onColourChanged((colour) -> {
+            colourSelected = colour;
+        });
+
         InputKeyEvents.onKeyPressed((key, _, _) -> {
             switch (key) {
                 // Test
@@ -33,4 +38,6 @@ public class InputStampShapes {
             }
         });
     }
+
+    public static Vector3f getColourSelected() { return colourSelected; }
 }

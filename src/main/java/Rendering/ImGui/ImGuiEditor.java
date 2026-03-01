@@ -8,18 +8,21 @@ import org.joml.Vector3f;
 
 public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
+    private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
     private boolean showText = true;
     private final float flt[] = new float[1];
     private int count = 0;
-    private float[] colour = new float[3];
+    private static float[] colour = DEFAULT_COLOUR;
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private String[] shapeItems = {"Circle", "Square", "Triangle"};
     private int shapeSelected = 0;
 
 
     public ImGuiEditor() {
-
+        InputImGui.onColourChanged((colourSelected) -> {
+            colour = new float[]{colourSelected.x, colourSelected.y, colourSelected.z};
+        });
     }
 
     public void render() {
@@ -76,10 +79,10 @@ public class ImGuiEditor {
         ImGui.text("Colour");
         ImGui.sameLine(); helpMarker("Click on the colour square to open the colour picker");
         if (ImGui.colorEdit3("Colour", colourImGui)) {
-            this.colour[0] = colourImGui[0];
-            this.colour[1] = colourImGui[1];
-            this.colour[2] = colourImGui[2];
-            InputImGui.setColourCallback(getColour());
+            colour[0] = colourImGui[0];
+            colour[1] = colourImGui[1];
+            colour[2] = colourImGui[2];
+            InputImGui.setColourCallback(getColourSelected());
         }
     }
 
@@ -99,6 +102,5 @@ public class ImGuiEditor {
         }
     }
 
-    public Vector3f getColour() { return new Vector3f(this.colour[0], this.colour[1], this.colour[2]);}
-
+    public static Vector3f getColourSelected() { return new Vector3f(colour[0], colour[1], colour[2]);}
 }
