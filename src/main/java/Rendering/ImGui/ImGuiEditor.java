@@ -1,6 +1,7 @@
 package Rendering.ImGui;
 
 import Input.InputImGui;
+import Input.InputStampShapes;
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImBoolean;
@@ -9,6 +10,8 @@ import org.joml.Vector3f;
 public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
+
+    private InputStampShapes inputStampShapes = new InputStampShapes();
 
     private boolean showText = true;
     private final float flt[] = new float[1];

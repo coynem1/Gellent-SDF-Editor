@@ -1,6 +1,7 @@
 package Rendering.Objects;
 
 import Input.InputStampShapes;
+import Rendering.Objects.Components.ComponentShapeTransform;
 import Rendering.Objects.Components.ComponentTransform;
 import org.joml.Vector3f;
 
@@ -13,7 +14,7 @@ public abstract class Shape extends GameObject {
         super(name);
 
         // Add components
-        addComponent(new ComponentTransform());
+        addComponent(new ComponentShapeTransform());
     }
 
     // Setters for tweaking

@@ -27,8 +27,8 @@ public class InputMouseEvents {
     // List of key handlers
     private static final List<MouseBtnHandler> onMouseBtnPressed = new CopyOnWriteArrayList<>();
     private static final List<MouseBtnHandler> onMouseBtnReleased = new CopyOnWriteArrayList<>();
-    private static final List<MouseScrollHandler> onMouseScrolled = new ArrayList<>();
-    private static final List<MouseMoveHandler> onMouseMoved = new ArrayList<>();
+    private static final List<MouseScrollHandler> onMouseScrolled = new CopyOnWriteArrayList<>();
+    private static final List<MouseMoveHandler> onMouseMoved = new CopyOnWriteArrayList<>();
 
     public static void onBtnPressed(MouseBtnHandler handler) {
         onMouseBtnPressed.add(handler);
@@ -42,9 +42,7 @@ public class InputMouseEvents {
         onMouseScrolled.add(handler);
     }
 
-    public static void onMove(MouseMoveHandler handler) {
-        onMouseMoved.add(handler);
-    }
+    public static void onMove(MouseMoveHandler handler) { onMouseMoved.add(handler); }
 
     // Callback for mouse buttons is directed to function calls
     public static void btnMouseCallback(long window, int button, int action, int mods) {
