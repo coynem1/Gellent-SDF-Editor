@@ -1,23 +1,49 @@
 package Rendering.Objects;
 
 import Input.InputStampShapes;
-import Rendering.Objects.Components.ComponentShapeTransform;
-import Rendering.Objects.Components.ComponentTransform;
+import Rendering.Objects.Components.ComponentBox;
+import Rendering.Objects.Components.ComponentCircle;
+import Rendering.Objects.Components.MouseFollow;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
+import util.Transform2D;
 
-public abstract class Shape extends GameObject {
+import static Input.InputStampShapes.shapes.*;
+
+public class Shape extends GameObject {
     public static final String DEFAULT_NAME = "Shape";
+
     protected SculptObject sculptObject;
     protected Vector3f colour = InputStampShapes.getColourSelected();
+    protected final Transform2D transform = new Transform2D();
 
-    public Shape(String name) {
+    public Shape(String name, InputStampShapes.shapes shape) {
         super(name);
 
-        // Add components
-        addComponent(new ComponentShapeTransform());
+        IO.println("Creating shape: " + shape);
+
+        // TODO: Add other shapes
+        switch (shape) {
+            case CIRCLE:
+                addComponent(new ComponentCircle());
+                break;
+            case BOX:
+                addComponent(new ComponentBox());
+                break;
+            default:
+                addComponent(new ComponentCircle());
+                IO.println("WARNING: Unrecognised shape type. Defaulting to circle");
+                break;
+        }
     }
 
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
+    public void setPosition(Vector2i position) {this.transform.setPosition(position);}
+    public void setRotation(float rotation) {this.transform.setRotation(rotation);}
+    public void setScale(float scale) {this.transform.setScale(scale);}
 
+    // Getters
+    public Vector3f getColour() {return this.colour;}
+    public Transform2D getTransform() {return this.transform;}
 }

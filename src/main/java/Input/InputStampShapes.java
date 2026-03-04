@@ -1,23 +1,23 @@
 package Input;
 
 import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.GameObject;
+import Rendering.Objects.Components.ComponentBox;
 import Rendering.Objects.Shape;
-import Rendering.Objects.ShapeCircle;
-import org.joml.Vector2f;
+import Rendering.Objects.Components.ComponentCircle;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_0;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
-    private static Vector2i mousePos = new Vector2i();
+    private float rotation = 0f;
+    private float scale = 1.0f;
+    private Vector2i mousePos = new Vector2i();
 
-    private enum shapes { CIRCLE, BOX, TRIANGLE, HEXAGON};
+    public enum shapes { CIRCLE, BOX, TRIANGLE, HEXAGON};
     private shapes selectedShape = shapes.CIRCLE;
 
     private ArrayList<Shape> shapeList = new ArrayList<>();
@@ -58,10 +58,20 @@ public class InputStampShapes {
     }
 
     private void stampShape() {
-        Shape object = new ShapeCircle(Shape.DEFAULT_NAME);
-        object.setColour(colourSelected);
-        object.start();
+        Shape object = new Shape(Shape.DEFAULT_NAME, shapes.CIRCLE);
+        Vector2i worldPos = new Vector2i(mousePos);
 
+        object.setPosition(worldPos);
+        object.setRotation(rotation);
+        object.setScale(scale);
+        object.setColour(colourSelected);
+
+        // Debugging output
+        IO.println("Pos: "+ object.getTransform().getPosition() + "\n");
+        IO.println("Rot: "+ object.getTransform().getRotation() + "\n");
+        IO.println("Scale: "+ object.getTransform().getScale() + "\n");
+
+        object.start();
         shapeList.add(object);
     }
 

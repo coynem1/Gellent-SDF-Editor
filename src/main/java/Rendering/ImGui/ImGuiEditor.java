@@ -11,8 +11,6 @@ public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
-    private InputStampShapes inputStampShapes = new InputStampShapes();
-
     private boolean showText = true;
     private final float flt[] = new float[1];
     private int count = 0;
@@ -23,6 +21,12 @@ public class ImGuiEditor {
 
 
     public ImGuiEditor() {
+        bindInputs();
+    }
+
+    private void bindInputs() {
+        InputStampShapes inputStamper = new InputStampShapes();
+
         InputImGui.onColourChanged((colourSelected) -> {
             colour = new float[]{colourSelected.x, colourSelected.y, colourSelected.z};
         });

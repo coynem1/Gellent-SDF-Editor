@@ -1,5 +1,7 @@
 package Input;
 
+import org.joml.Vector2i;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -78,5 +80,9 @@ public class InputMouseEvents {
         }
         lastMouseX = xPosi;
         lastMouseY = yPosi;
+    }
+
+    public static Vector2i getMousePos() {
+        return new Vector2i(lastMouseX, lastMouseY);
     }
 }

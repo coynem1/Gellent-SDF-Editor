@@ -3,8 +3,9 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
-import Rendering.Objects.ShapeCircle;
+import Rendering.Objects.Components.ComponentCircle;
 import Rendering.Objects.GameObject;
+import Rendering.Objects.Shape;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
 import org.joml.Vector2i;
@@ -12,6 +13,8 @@ import util.GameClock;
 import util.Time;
 
 import java.nio.file.Paths;
+
+import static Input.InputStampShapes.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
@@ -65,8 +68,8 @@ public class DemoScene extends Scene {
     }
 
     private void testSculpt() {
-        GameObject testObject = new ShapeCircle(ShapeCircle.DEFAULT_NAME);
-        GameObject testObject2 = new ShapeCircle(ShapeCircle.DEFAULT_NAME);
+        GameObject testObject = new Shape(ComponentCircle.DEFAULT_NAME, shapes.CIRCLE);
+        GameObject testObject2 = new Shape(ComponentCircle.DEFAULT_NAME, shapes.CIRCLE);
 
         this.addObjectToScene(testObject);
         this.addObjectToScene(testObject2);
