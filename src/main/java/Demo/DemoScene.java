@@ -68,8 +68,8 @@ public class DemoScene extends Scene {
     }
 
     private void testSculpt() {
-        GameObject testObject = new Shape(ComponentCircle.DEFAULT_NAME, shapes.CIRCLE);
-        GameObject testObject2 = new Shape(ComponentCircle.DEFAULT_NAME, shapes.CIRCLE);
+        GameObject testObject = new Shape(ComponentCircle.DEFAULT_NAME, SHAPES.CIRCLE);
+        GameObject testObject2 = new Shape(ComponentCircle.DEFAULT_NAME, SHAPES.CIRCLE);
 
         this.addObjectToScene(testObject);
         this.addObjectToScene(testObject2);

@@ -8,16 +8,17 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import util.Transform2D;
 
-import static Input.InputStampShapes.shapes.*;
+import static Input.InputStampShapes.SHAPES.*;
 
 public class Shape extends GameObject {
     public static final String DEFAULT_NAME = "Shape";
+    public static final float MINIMUM_SCALE = 0.001f;   // Cannot scale to zero
 
     protected SculptObject sculptObject;
     protected Vector3f colour = InputStampShapes.getColourSelected();
-    protected final Transform2D transform = new Transform2D();
+    protected Transform2D transform = new Transform2D();
 
-    public Shape(String name, InputStampShapes.shapes shape) {
+    public Shape(String name, InputStampShapes.SHAPES shape) {
         super(name);
 
         IO.println("Creating shape: " + shape);
@@ -39,6 +40,7 @@ public class Shape extends GameObject {
 
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
+    public void setTransform(Transform2D transform) {this.transform = transform;}
     public void setPosition(Vector2i position) {this.transform.setPosition(position);}
     public void setRotation(float rotation) {this.transform.setRotation(rotation);}
     public void setScale(float scale) {this.transform.setScale(scale);}
