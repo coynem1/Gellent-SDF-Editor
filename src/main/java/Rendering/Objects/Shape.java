@@ -18,10 +18,10 @@ public class Shape extends GameObject {
     protected Vector3f colour = InputStampShapes.getColourSelected();
     protected Transform2D transform = new Transform2D();
 
-    public Shape(String name, InputStampShapes.SHAPES shape) {
-        super(name);
-
+    public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
+        super();
         IO.println("Creating shape: " + shape);
+        sculptObject = sculpt;
 
         // TODO: Add other shapes
         switch (shape) {

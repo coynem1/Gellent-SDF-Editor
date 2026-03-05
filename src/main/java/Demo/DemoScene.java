@@ -5,6 +5,7 @@ import Jade.Scene;
 import Jade.Window;
 import Rendering.Objects.Components.ComponentCircle;
 import Rendering.Objects.GameObject;
+import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
@@ -68,8 +69,9 @@ public class DemoScene extends Scene {
     }
 
     private void testSculpt() {
-        GameObject testObject = new Shape(ComponentCircle.DEFAULT_NAME, SHAPES.CIRCLE);
-        GameObject testObject2 = new Shape(ComponentCircle.DEFAULT_NAME, SHAPES.CIRCLE);
+        SculptObject sculpt = new SculptObject();
+        GameObject testObject = new Shape(SHAPES.CIRCLE, sculpt);
+        GameObject testObject2 = new Shape(SHAPES.CIRCLE, sculpt);
 
         this.addObjectToScene(testObject);
         this.addObjectToScene(testObject2);

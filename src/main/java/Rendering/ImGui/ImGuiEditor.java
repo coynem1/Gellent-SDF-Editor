@@ -24,10 +24,7 @@ public class ImGuiEditor {
     private int count = 0;
 
     private static float[] colour = DEFAULT_COLOUR;
-    // private float rotation = 0f;
-
     private ImGuiMenubar menubar = new ImGuiMenubar();
-    // private String[] shapeItems = {"Circle", "Square", "Triangle"};
     private int shapeSelected = 0;
 
 

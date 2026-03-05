@@ -2,6 +2,7 @@ package Input;
 
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.ComponentBox;
+import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import Rendering.Objects.Components.ComponentCircle;
 import org.joml.Vector2i;
@@ -25,6 +26,7 @@ public class InputStampShapes {
     }};
 
     private Transform2D transform = new Transform2D();
+    private SculptObject currentSculpt = new SculptObject();
     private Vector2i mousePos = new Vector2i();
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
@@ -67,7 +69,7 @@ public class InputStampShapes {
     }
 
     private void stampShape() {
-        Shape object = new Shape(Shape.DEFAULT_NAME, selectedShape);
+        Shape object = new Shape(selectedShape, currentSculpt);
 
         object.setTransform(transform);
         object.setColour(colourSelected);

@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
-    private String name;
+    public static final String DEFAULT_NAME = "Object";
+    private String name = DEFAULT_NAME;
     private Vector3f position;
     private List<Component> components = new ArrayList<>();
 
 
-    public GameObject(String name) {
-        this.name = name;
+    public GameObject() {
+        name = DEFAULT_NAME;
     }
 
     public <T extends Component> T getComponent(Class<T> componentClass) {
