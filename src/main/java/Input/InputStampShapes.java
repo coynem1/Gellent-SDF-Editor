@@ -83,9 +83,10 @@ public class InputStampShapes {
     }
 
     private void stampShape() {
+        Transform2D<Vector2f> copyTransform = transform.copy(); // Shouldn't be a reference
         Shape object = new Shape(selectedShape, currentSculpt);
 
-        object.setTransform(transform);
+        object.setTransform(copyTransform);
         object.setColour(colourSelected);
 
         // Debugging output
@@ -93,7 +94,6 @@ public class InputStampShapes {
         // IO.println("Rot: "+ object.getTransform().getRotation());
         // IO.println("Scale: "+ object.getTransform().getScale() + "\n");
 
-        object.start();
         shapeList.add(object);
         currentScene.addObjectToScene(object);
     }

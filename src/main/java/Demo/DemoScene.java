@@ -79,6 +79,11 @@ public class DemoScene extends Scene {
 
         this.addObjectToScene(testObject);
         // this.addObjectToScene(testObject2);
+
+        Transform2D<Vector2f> transform = testObject.getTransform();
+        transform.setScale(2f);
+        transform.setPosition(new Vector2f(0, 0));
+        testObject.setTransform(transform);
     }
 
     // Single binding when key changes
@@ -149,7 +154,7 @@ public class DemoScene extends Scene {
     }
 
     private void uploadShapes() {
-        int MAX_SHAPES = 10;
+        int MAX_SHAPES = 100;
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
         int[] uShapeTypes = new int[MAX_SHAPES];        // 0=circle, 1=box, 2=triangle, 3=star
@@ -191,11 +196,6 @@ public class DemoScene extends Scene {
 
     @Override
     public void process(float delta) {
-        Transform2D<Vector2f> transform = testObject.getTransform();
-        transform.setScale(2f);
-        transform.setPosition(new Vector2f(0, 0));
-        testObject.setTransform(transform);
-
         uploadShader();
         uploadShaderImmediate();
 

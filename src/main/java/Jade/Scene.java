@@ -2,6 +2,7 @@ package Jade;
 
 import Input.InputStampShapes;
 import Rendering.Objects.GameObject;
+import Rendering.Objects.Shape;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
 import Rendering.Shaders.Shader;
@@ -58,6 +59,12 @@ public abstract class Scene {
 
     public void addObjectToScene(GameObject object) {
         objects.add(object);
+
+        for (var obj: objects) {
+            if (!(obj instanceof Shape)) continue;
+            IO.println("Shape: "+ obj +"\nTransform "+ ((Shape) obj).getTransform().getPosition());
+        }
+        IO.println("----------------------------------------");
 
         if (isRunning) { object.start(); }
     }

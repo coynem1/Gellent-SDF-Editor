@@ -153,7 +153,7 @@ void render(float dist, float zoom, int uDemoScene) {
     FragColor = vec4(col, 1.0); //vec4(mod(float(2500) * 0.0001, 1.0), mod(float(m.y) *0.0001, 1.0), 0.0, 1.0);
 }
 
-#define MAX_SHAPES 10
+#define MAX_SHAPES 100
 
 uniform int uShapeCount;
 uniform vec2 uShapePos[MAX_SHAPES];   // xy = position, z = radius/size

@@ -20,6 +20,20 @@ public class Transform2D <T>{
         return new Transform2D<>();
     }
 
+    public Transform2D<T> copy() {
+        Transform2D<T> copy = new Transform2D<>();
+        copy.rotation = this.rotation;
+        copy.scale    = this.scale;
+
+        if (this.position instanceof Vector2f v) {
+            copy.position = (T) new Vector2f(v);
+        } else if (this.position instanceof Vector2i v) {
+            copy.position = (T) new Vector2i(v);
+        }
+
+        return copy;
+    }
+
     // Setters for tweaking
     public void setPosition(T position) {this.position = position;}
     public void setRotation(float rotation) {this.rotation = rotation;}
