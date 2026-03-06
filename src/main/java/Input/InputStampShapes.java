@@ -1,16 +1,19 @@
 package Input;
 
+import Jade.Camera;
+import Jade.Scene;
+import Jade.SceneManager;
+import Jade.Window;
 import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.Components.ComponentBox;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
-import Rendering.Objects.Components.ComponentCircle;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import util.Transform2D;
+import util.WorldCoords;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
@@ -25,34 +28,44 @@ public class InputStampShapes {
         put(SHAPES.HEXAGON, "Hexagon");
     }};
 
-    private Transform2D transform = new Transform2D();
+    private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private SculptObject currentSculpt = new SculptObject();
-    private Vector2i mousePos = new Vector2i();
+    private Scene currentScene;
+    private Vector2f mousePos = new Vector2f();
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
     private ArrayList<Shape> shapeList = new ArrayList<>();
-    private boolean editMode = false;
+    private boolean editMode = true;
+    private Camera camera;
 
 
-    public InputStampShapes() {
+    public InputStampShapes(Scene scene) {
+        this.currentScene = scene;
+        this.camera = scene.getCamera();
+
         bindInputs();
     }
 
     private void bindInputs() {
         InputImGui.onColourChanged((colour) -> {
+            if (!editMode) { return; }
             colourSelected = colour;
         });
         InputImGui.onScaleChanged((scale) -> {
+            if (!editMode) { return; }
             transform.setScale(scale);
         });
         InputImGui.onRotationChanged((rotation) -> {
+            if (!editMode) { return; }
             transform.setRotation(rotation);
         });
         InputImGui.onShapeChanged((shape) -> {
+            if (!editMode) { return; }
             selectedShape = shape;
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
+            if (!editMode) { return; }
             switch (button) {
                 // Change Scene
                 case GLFW_MOUSE_BUTTON_LEFT:
@@ -62,9 +75,10 @@ public class InputStampShapes {
         });
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
-            mousePos = new Vector2i(xPos, yPos);
-            Vector2i worldPos = new Vector2i(mousePos);
-            transform.setPosition(mousePos);
+            if (!editMode) { return; }
+            mousePos = new Vector2f(xPos, yPos);
+            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+            transform.setPosition(worldPos);
         });
     }
 
@@ -81,6 +95,7 @@ public class InputStampShapes {
 
         object.start();
         shapeList.add(object);
+        currentScene.addObjectToScene(object);
     }
 
     public static Vector3f getColourSelected() { return colourSelected; }

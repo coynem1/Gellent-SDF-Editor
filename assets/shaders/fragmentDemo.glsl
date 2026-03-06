@@ -153,6 +153,36 @@ void render(float dist, float zoom, int uDemoScene) {
     FragColor = vec4(col, 1.0); //vec4(mod(float(2500) * 0.0001, 1.0), mod(float(m.y) *0.0001, 1.0), 0.0, 1.0);
 }
 
+#define MAX_SHAPES 10
+
+uniform int uShapeCount;
+uniform vec2 uShapePos[MAX_SHAPES];   // xy = position, z = radius/size
+uniform int uShapeTypes[MAX_SHAPES]; // 0=circle, 1=box, 2=triangle, 3=star
+uniform float uShapeSizes[MAX_SHAPES]; // second size param for box (y extent)
+
+
+float userScene() {
+    vec2 world = screenToWorld(gl_FragCoord.xy);
+    float dist = 0; // Start with huge distance
+
+    for (int i = 0; i < MAX_SHAPES; i++) {
+        if (i >= uShapeCount) break;
+
+        vec2 pos   = uShapePos[i].xy;
+        float size = uShapeSizes[i];
+        vec2 p     = world - pos;
+
+        float d;
+        if      (uShapeTypes[i] == 0) d = sdCircle(p, size);
+        else if (uShapeTypes[i] == 1) d = sdBox(p, vec2(size, uShapeSizes[i]));
+        else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(p, size);
+        else if (uShapeTypes[i] == 3) d = sdStar(p, size);
+
+        dist = d;
+    }
+
+    return dist;
+}
 
 void main()
 {
@@ -162,7 +192,8 @@ void main()
     switch (uDemoScene) {
         case 0:
             world = screenToWorld(gl_FragCoord.xy);
-            dist = sdCircle(vec2(world.x, world.y),100.0);
+            dist = userScene();
+//            dist = sdCircle(vec2(world.x, world.y),100.0);
             break;
         case 1:
             world = screenToWorld(gl_FragCoord.xy);

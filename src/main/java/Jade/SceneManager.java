@@ -1,10 +1,12 @@
 package Jade;
 
 import Demo.DemoScene;
+import Input.InputStampShapes;
 
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
+    private enum SceneMode {EDITING, PLAYING, DEBUGGING}
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
 
@@ -13,6 +15,9 @@ public class SceneManager {
         currentMode = 0;
         setScene(new DemoScene("DemoScene"));
         currentScene.start();
+
+        // Input
+        InputStampShapes inputStamper = new InputStampShapes(currentScene);
 
         // setScene(new SceneBase("World"));
     }

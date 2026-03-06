@@ -23,7 +23,7 @@ public class Shader {
     // Opens a shader file
     public Shader() {}
 
-    // General start for inherit overriding
+    // General start for inherited overriding
     public void init(Path vertexPath, Path fragPath) {
         Path currentShader = vertexPath;
         this.vertexPath = vertexPath;
@@ -125,11 +125,38 @@ public class Shader {
         run();
         glUniform3f(varLocation, vec.x, vec.y, vec.z);
     }
+    public void uploadVec3f(String varName, @NotNull Vector3f[] vecs) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+
+        // Flatten into a float[] buffer
+        float[] flat = new float[vecs.length * 3];
+        for (int i = 0; i < vecs.length; i++) {
+            flat[i * 3]     = vecs[i].x;
+            flat[i * 3 + 1] = vecs[i].y;
+            flat[i * 3 + 2] = vecs[i].z;
+        }
+
+        glUniform2fv(varLocation, flat);
+    }
 
     public void uploadVec2f(String varName, @NotNull Vector2f vec) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform2f(varLocation, vec.x, vec.y);
+    }
+    public void uploadVec2f(String varName, @NotNull Vector2f[] vecs, int count) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+
+        // Flatten into a float[] buffer
+        float[] flat = new float[count * 2];
+        for (int i = 0; i < count; i++) {
+            flat[i * 2]     = vecs[i].x;
+            flat[i * 2 + 1] = vecs[i].y;
+        }
+
+        glUniform2fv(varLocation, flat);
     }
 
     public void uploadVec2i(String varName, Vector2i vec) {
@@ -143,11 +170,21 @@ public class Shader {
         run();
         glUniform1f(varLocation, val);
     }
+    public void uploadFloat(String varName, float[] vals) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform1fv(varLocation, vals);
+    }
 
     public void uploadInt(String varName, int val) {
         int varLocation = glGetUniformLocation(shaderProgramID, varName);
         run();
         glUniform1i(varLocation, val);
+    }
+    public void uploadInt(String varName, int[] vals) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        run();
+        glUniform1iv(varLocation, vals);
     }
 
 

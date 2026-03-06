@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputStampShapes;
 import Rendering.Objects.GameObject;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
@@ -61,10 +62,9 @@ public abstract class Scene {
         if (isRunning) { object.start(); }
     }
 
-    public void process(float delta) {
-        camera.process();
-    }
+    protected void removeObjectFromScene(GameObject object) {}
 
-    // public String getName() { return this.name; }
-    // public Camera getCamera() {return this.camera;}
+    public void process(float delta) {}
+
+    public Camera getCamera() {return camera;}
 }

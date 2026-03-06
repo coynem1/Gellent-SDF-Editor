@@ -9,9 +9,11 @@ import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import util.GameClock;
 import util.Time;
+import util.Transform2D;
 
 import java.nio.file.Paths;
 
@@ -29,6 +31,8 @@ public class DemoScene extends Scene {
     private int toggleRender = 0;
     private boolean blendPressed = false;
     private boolean awaitUploadShader = false;
+
+    private Shape testObject;
 
     public DemoScene(String name) {
         super(name);
@@ -70,11 +74,11 @@ public class DemoScene extends Scene {
 
     private void testSculpt() {
         SculptObject sculpt = new SculptObject();
-        GameObject testObject = new Shape(SHAPES.CIRCLE, sculpt);
-        GameObject testObject2 = new Shape(SHAPES.CIRCLE, sculpt);
+        testObject = new Shape(SHAPES.CIRCLE, sculpt);
+        // GameObject testObject2 = new Shape(SHAPES.CIRCLE, sculpt);
 
         this.addObjectToScene(testObject);
-        this.addObjectToScene(testObject2);
+        // this.addObjectToScene(testObject2);
     }
 
     // Single binding when key changes
@@ -130,6 +134,8 @@ public class DemoScene extends Scene {
         if (!awaitUploadShader) return;
         awaitUploadShader = false;
 
+        uploadShapes();
+
         shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getStaticProjectionMat());
         shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat(true));
 
@@ -142,6 +148,38 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
+    private void uploadShapes() {
+        int MAX_SHAPES = 10;
+        int uShapeCount = 0;
+        Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
+        int[] uShapeTypes = new int[MAX_SHAPES];        // 0=circle, 1=box, 2=triangle, 3=star
+        float[] uShapeSizes = new float[MAX_SHAPES];    // second size param for box (y extent)
+
+
+        for (int i = 0; i < objects.size(); i++) {
+            GameObject obj = objects.get(i);
+            if (!(obj instanceof Shape)) return;
+
+            Shape shape = (Shape) obj;
+            Transform2D<Vector2f> transform = shape.getTransform();
+
+            uShapeCount ++;
+            uShapePos[i] = transform.getPosition();
+            uShapeTypes[i] = shape.getShapeType().ordinal();
+            uShapeSizes[i] = transform.getScale();
+
+        }
+
+        if (uShapeCount == 0) return;
+
+        shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
+        shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
+        shaders.get(RENDER_SDF).uploadInt("uShapeTypes", uShapeTypes);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
+
+    }
+
+
     // Sends variables to shader every frame
     private void uploadShaderImmediate() {
         shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
@@ -153,7 +191,10 @@ public class DemoScene extends Scene {
 
     @Override
     public void process(float delta) {
-        camera.process();
+        Transform2D<Vector2f> transform = testObject.getTransform();
+        transform.setScale(2f);
+        transform.setPosition(new Vector2f(0, 0));
+        testObject.setTransform(transform);
 
         uploadShader();
         uploadShaderImmediate();

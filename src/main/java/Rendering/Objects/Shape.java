@@ -1,14 +1,10 @@
 package Rendering.Objects;
 
 import Input.InputStampShapes;
-import Rendering.Objects.Components.ComponentBox;
-import Rendering.Objects.Components.ComponentCircle;
-import Rendering.Objects.Components.MouseFollow;
-import org.joml.Vector2i;
+import Rendering.Objects.Components.*;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import util.Transform2D;
-
-import static Input.InputStampShapes.SHAPES.*;
 
 public class Shape extends GameObject {
     public static final String DEFAULT_NAME = "Shape";
@@ -16,12 +12,18 @@ public class Shape extends GameObject {
 
     protected SculptObject sculptObject;
     protected Vector3f colour = InputStampShapes.getColourSelected();
-    protected Transform2D transform = new Transform2D();
+    protected Transform2D<Vector2f> transform = Transform2D.createFloat();
+    protected Blending blending = new Blending();
+    protected InputStampShapes.SHAPES shapeType = null;
 
     public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
         super();
-        IO.println("Creating shape: " + shape);
+        // IO.println("Creating shape: " + shape);
         sculptObject = sculpt;
+        shapeType = shape;
+        transform.setPosition(new Vector2f(0f, 0f));
+
+        addComponent(blending);
 
         // TODO: Add other shapes
         switch (shape) {
@@ -41,11 +43,10 @@ public class Shape extends GameObject {
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D transform) {this.transform = transform;}
-    public void setPosition(Vector2i position) {this.transform.setPosition(position);}
-    public void setRotation(float rotation) {this.transform.setRotation(rotation);}
-    public void setScale(float scale) {this.transform.setScale(scale);}
+    public void setBlend(float blend) {this.blending.setBlend(blend);}
 
     // Getters
     public Vector3f getColour() {return this.colour;}
     public Transform2D getTransform() {return this.transform;}
+    public InputStampShapes.SHAPES getShapeType() {return this.shapeType;}
 }

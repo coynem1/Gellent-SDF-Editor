@@ -27,15 +27,7 @@ public class ImGuiEditor {
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private int shapeSelected = 0;
 
-
-    public ImGuiEditor() {
-        bindInputs();
-    }
-
-    private void bindInputs() {
-        InputStampShapes inputStamper = new InputStampShapes();
-
-    }
+    public ImGuiEditor() {}
 
     public void render() {
         menubar.render();

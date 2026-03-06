@@ -58,14 +58,14 @@ public class InputCamera {
             // Cache mouse position
             this.xPos = xPos;
             this.yPos = yPos;
+
+            if (middleMouseHeld){
+                cameraMove();
+            }
         });
     }
 
-    public void process(){
-        if (middleMouseHeld){
-            cameraMove();
-        }
-    }
+    public void process(){}
 
     // When the move button is first pressed, set the anchor point
     private void cameraAnchor(){

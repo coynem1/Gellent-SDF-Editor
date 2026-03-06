@@ -1,5 +1,6 @@
 package Rendering.ImGui;
 
+import Input.InputStampShapes;
 import Jade.Window;
 import imgui.*;
 import imgui.app.Color;

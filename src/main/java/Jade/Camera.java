@@ -42,9 +42,7 @@ public class Camera {
     }
 
 
-    public void process() {
-        this.inputCamera.process();
-    }
+    public void process() {}
 
     // Calculates projection matrix screen from the camera or for
     public void adjustProjection(Matrix4f projectionMatrix, boolean isStatic) {
