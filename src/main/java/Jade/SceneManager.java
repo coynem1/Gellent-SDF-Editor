@@ -9,17 +9,21 @@ public class SceneManager {
     private enum SceneMode {EDITING, PLAYING, DEBUGGING}
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
+    private InputStampShapes inputStamper;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
         currentMode = 0;
+
+        // setScene(new SceneBase("World"));
+    }
+
+    public void init() {
         setScene(new DemoScene("DemoScene"));
         currentScene.start();
 
         // Input
-        InputStampShapes inputStamper = new InputStampShapes(currentScene);
-
-        // setScene(new SceneBase("World"));
+        inputStamper = new InputStampShapes(currentScene);
     }
 
     // Singleton
@@ -43,6 +47,7 @@ public class SceneManager {
     public Scene getScene() {
         return get().currentScene;
     }
+    public InputStampShapes getInputStamper() {return inputStamper;}
 
     // Adds new scene to dict
     public Scene createScene(String name) {

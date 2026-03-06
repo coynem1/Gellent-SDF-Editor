@@ -59,6 +59,8 @@ public class ImGuiWindow {
 
         imGuiGlfw.init(glfwWindow, true);
         imGuiGl3.init(glslVersion);
+
+        this.editor.init();
     }
 
     // Creates font atlas and merges it with the default font

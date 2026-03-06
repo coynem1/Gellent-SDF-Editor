@@ -59,13 +59,6 @@ public abstract class Scene {
 
     public void addObjectToScene(GameObject object) {
         objects.add(object);
-
-        for (var obj: objects) {
-            if (!(obj instanceof Shape)) continue;
-            IO.println("Shape: "+ obj +"\nTransform "+ ((Shape) obj).getTransform().getPosition());
-        }
-        IO.println("----------------------------------------");
-
         if (isRunning) { object.start(); }
     }
 

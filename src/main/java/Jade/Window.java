@@ -155,6 +155,7 @@ public class Window {
     public void loop() {
         float deltaTime = 0;
         SceneManager sceneManager = SceneManager.get();
+        sceneManager.init();
 
         Time.get().beginFrame();
         imguiWindow.init();

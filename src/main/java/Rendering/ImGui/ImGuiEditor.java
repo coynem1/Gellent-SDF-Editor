@@ -2,12 +2,14 @@ package Rendering.ImGui;
 
 import Input.InputImGui;
 import Input.InputStampShapes;
+import Jade.SceneManager;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import imgui.flag.ImGuiSliderFlags;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImBoolean;
 import imgui.type.ImFloat;
+import imgui.type.ImInt;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -17,17 +19,25 @@ public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
-    private boolean showText = true;
+    // private boolean showText = true;
+    private ImInt toolSelected = new ImInt(InputStampShapes.TOOLS.SELECT.ordinal());
     private ImFloat scale = new ImFloat(1.0f);
     private float[] rotation = new float[1];
     private float[] position = new float[3];
     private int count = 0;
 
+    private InputStampShapes inputStamper;
     private static float[] colour = DEFAULT_COLOUR;
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private int shapeSelected = 0;
 
-    public ImGuiEditor() {}
+    public ImGuiEditor() {
+        // inputStamper = SceneManager.get().getInputStamper();
+    }
+
+    public void init() {
+        inputStamper = SceneManager.get().getInputStamper();
+    }
 
     public void render() {
         menubar.render();
@@ -68,9 +78,25 @@ public class ImGuiEditor {
         }
         ImGui.separator();
 
+        showTools();
         colourPicker();
         showShape();
+        ImGui.separator();
 
+    }
+
+    // Tool Radio Buttons
+    private void showTools() {
+        for (InputStampShapes.TOOLS tool : InputStampShapes.TOOLS.values()) {
+            if (ImGui.radioButton(InputStampShapes.TOOL_NAMES.get(tool), toolSelected, tool.ordinal())) {
+                inputStamper.setToolsMode(tool);
+            }
+
+            // End of radios
+            if (tool.ordinal() < InputStampShapes.TOOLS.values().length - 1) {
+                ImGui.sameLine();
+            }
+        }
     }
 
     // Shape Combo Box

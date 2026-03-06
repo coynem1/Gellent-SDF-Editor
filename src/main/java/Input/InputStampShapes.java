@@ -20,7 +20,13 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
+    public enum TOOLS { SELECT, STAMP, SMEAR};
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, HEXAGON};
+    public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
+        put(TOOLS.SELECT, "Select");
+        put(TOOLS.STAMP, "Stamp");
+        put(TOOLS.SMEAR, "Smear");
+    }};
     public static final HashMap<SHAPES, String> SHAPE_NAMES = new HashMap<>() {{
         put(SHAPES.CIRCLE, "Circle");
         put(SHAPES.BOX, "Box");
@@ -35,7 +41,7 @@ public class InputStampShapes {
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
     private ArrayList<Shape> shapeList = new ArrayList<>();
-    private boolean editMode = true;
+    private TOOLS toolsMode = TOOLS.SELECT;
     private Camera camera;
 
 
@@ -48,34 +54,28 @@ public class InputStampShapes {
 
     private void bindInputs() {
         InputImGui.onColourChanged((colour) -> {
-            if (!editMode) { return; }
             colourSelected = colour;
         });
         InputImGui.onScaleChanged((scale) -> {
-            if (!editMode) { return; }
             transform.setScale(scale);
         });
         InputImGui.onRotationChanged((rotation) -> {
-            if (!editMode) { return; }
             transform.setRotation(rotation);
         });
         InputImGui.onShapeChanged((shape) -> {
-            if (!editMode) { return; }
             selectedShape = shape;
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
-            if (!editMode) { return; }
             switch (button) {
                 // Change Scene
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    stampShape();
+                    if (toolsMode == TOOLS.STAMP) { stampShape(); }
                     break;
             }
         });
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
-            if (!editMode) { return; }
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
             transform.setPosition(worldPos);
@@ -99,4 +99,6 @@ public class InputStampShapes {
     }
 
     public static Vector3f getColourSelected() { return colourSelected; }
+
+    public void setToolsMode(TOOLS mode) { this.toolsMode = mode; }
 }
