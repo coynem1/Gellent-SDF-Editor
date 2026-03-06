@@ -163,7 +163,7 @@ uniform float uShapeSizes[MAX_SHAPES]; // second size param for box (y extent)
 
 float userScene() {
     vec2 world = screenToWorld(gl_FragCoord.xy);
-    float dist = 0; // Start with huge distance
+    float dist = 1e10; // Start with huge distance
 
     for (int i = 0; i < MAX_SHAPES; i++) {
         if (i >= uShapeCount) break;
@@ -178,7 +178,7 @@ float userScene() {
         else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(p, size);
         else if (uShapeTypes[i] == 3) d = sdStar(p, size);
 
-        dist = d;
+        dist = min(dist, d);
     }
 
     return dist;
