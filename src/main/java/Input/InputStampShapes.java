@@ -7,6 +7,7 @@ import Jade.Window;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
+import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -60,6 +61,8 @@ public class InputStampShapes {
             transform.setScale(scale);
         });
         InputImGui.onRotationChanged((rotation) -> {
+            // Convert to radians
+            rotation *= (float) Math.PI / 180;
             transform.setRotation(rotation);
         });
         InputImGui.onShapeChanged((shape) -> {
@@ -67,6 +70,9 @@ public class InputStampShapes {
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
+            // If clicking on UI, ignore
+            if (ImGui.getIO().getWantCaptureMouse()) { return; }
+
             switch (button) {
                 // Change Scene
                 case GLFW_MOUSE_BUTTON_LEFT:

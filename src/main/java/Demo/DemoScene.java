@@ -74,14 +74,15 @@ public class DemoScene extends Scene {
 
     private void testSculpt() {
         SculptObject sculpt = new SculptObject();
-        testObject = new Shape(SHAPES.CIRCLE, sculpt);
+        testObject = new Shape(SHAPES.BOX, sculpt);
         // GameObject testObject2 = new Shape(SHAPES.CIRCLE, sculpt);
 
         this.addObjectToScene(testObject);
         // this.addObjectToScene(testObject2);
 
         Transform2D<Vector2f> transform = testObject.getTransform();
-        transform.setScale(2f);
+        transform.setScale(10f);
+        transform.setRotation(45f);
         transform.setPosition(new Vector2f(0, 0));
         testObject.setTransform(transform);
     }
@@ -157,8 +158,9 @@ public class DemoScene extends Scene {
         int MAX_SHAPES = 100;
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
-        int[] uShapeTypes = new int[MAX_SHAPES];        // 0=circle, 1=box, 2=triangle, 3=star
-        float[] uShapeSizes = new float[MAX_SHAPES];    // second size param for box (y extent)
+        int[] uShapeTypes = new int[MAX_SHAPES];
+        float[] uShapeSizes = new float[MAX_SHAPES];
+        float[] uShapeAngles = new float[MAX_SHAPES];
 
 
         for (int i = 0; i < objects.size(); i++) {
@@ -172,6 +174,7 @@ public class DemoScene extends Scene {
             uShapePos[i] = transform.getPosition();
             uShapeTypes[i] = shape.getShapeType().ordinal();
             uShapeSizes[i] = transform.getScale();
+            uShapeAngles[i] = transform.getRotation();
 
         }
 
@@ -181,6 +184,7 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
         shaders.get(RENDER_SDF).uploadInt("uShapeTypes", uShapeTypes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeAngles", uShapeAngles);
 
     }
 

@@ -156,10 +156,17 @@ void render(float dist, float zoom, int uDemoScene) {
 #define MAX_SHAPES 100
 
 uniform int uShapeCount;
-uniform vec2 uShapePos[MAX_SHAPES];   // xy = position, z = radius/size
-uniform int uShapeTypes[MAX_SHAPES]; // 0=circle, 1=box, 2=triangle, 3=star
-uniform float uShapeSizes[MAX_SHAPES]; // second size param for box (y extent)
+uniform int uShapeTypes[MAX_SHAPES];
+uniform vec2 uShapePos[MAX_SHAPES];
+uniform float uShapeSizes[MAX_SHAPES];
+uniform float uShapeAngles[MAX_SHAPES];
 
+// Rotation function for SDF
+vec2 rotate(vec2 p, float angle) {
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+    return mat2(cosA, -sinA, sinA, cosA) * p; // Rotate `p` by `angle`
+}
 
 float userScene() {
     vec2 world = screenToWorld(gl_FragCoord.xy);
@@ -168,15 +175,18 @@ float userScene() {
     for (int i = 0; i < MAX_SHAPES; i++) {
         if (i >= uShapeCount) break;
 
-        vec2 pos   = uShapePos[i].xy;
-        float size = uShapeSizes[i];
-        vec2 p     = world - pos;
+        vec2 pos    = uShapePos[i].xy;
+        float size  = uShapeSizes[i];
+        vec2 p      = world - pos;
+        vec2 pRotated = p;
+
+        if (uShapeAngles[i] != 0.0) pRotated = rotate(p, uShapeAngles[i]);
 
         float d;
-        if      (uShapeTypes[i] == 0) d = sdCircle(p, size);
-        else if (uShapeTypes[i] == 1) d = sdBox(p, vec2(size, uShapeSizes[i]));
-        else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(p, size);
-        else if (uShapeTypes[i] == 3) d = sdStar(p, size);
+        if      (uShapeTypes[i] == 0) d = sdCircle(pRotated, size);
+        else if (uShapeTypes[i] == 1) d = sdBox(pRotated, vec2(size, uShapeSizes[i]));
+        else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(pRotated, size);
+        else if (uShapeTypes[i] == 3) d = sdStar(pRotated, size);
 
         dist = min(dist, d);
     }

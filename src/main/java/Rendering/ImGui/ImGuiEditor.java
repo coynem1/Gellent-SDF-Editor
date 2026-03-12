@@ -31,9 +31,7 @@ public class ImGuiEditor {
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private int shapeSelected = 0;
 
-    public ImGuiEditor() {
-        // inputStamper = SceneManager.get().getInputStamper();
-    }
+    public ImGuiEditor() {}
 
     public void init() {
         inputStamper = SceneManager.get().getInputStamper();
@@ -52,7 +50,7 @@ public class ImGuiEditor {
             ImGui.text("Sliders");
 
 
-            if (ImGui.inputFloat("Scale", scale, 0.1f, 1f, ImGuiSliderFlags.AlwaysClamp)){
+            if (ImGui.inputFloat("Scale", scale, 1.1f, 3.1f, ImGuiSliderFlags.AlwaysClamp)){
                 scale.set(Math.max(Shape.MINIMUM_SCALE, scale.get()));
                 InputImGui.setScaleCallback(scale.get());
             }
