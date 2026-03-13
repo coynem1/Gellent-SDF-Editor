@@ -7,8 +7,8 @@ import org.joml.Vector3f;
 import util.Transform2D;
 
 public class Shape extends GameObject {
-    public static final String DEFAULT_NAME = "Shape";
-    public static final float MINIMUM_SCALE = 0.001f;   // Cannot scale to zero
+    public transient static final String DEFAULT_NAME = "Shape";
+    public transient static final float MINIMUM_SCALE = 0.001f;   // Cannot scale to zero
 
     protected SculptObject sculptObject;
     protected Vector3f colour = InputStampShapes.getColourSelected();
@@ -18,7 +18,6 @@ public class Shape extends GameObject {
 
     public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
         super();
-        // IO.println("Creating shape: " + shape);
         sculptObject = sculpt;
         shapeType = shape;
         transform.setPosition(new Vector2f(0f, 0f));

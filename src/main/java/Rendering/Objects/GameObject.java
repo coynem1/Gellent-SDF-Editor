@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
-    public static final String DEFAULT_NAME = "Object";
+    public transient static final String DEFAULT_NAME = "Object";
     private String name = DEFAULT_NAME;
-    private Vector3f position;
     private List<Component> components = new ArrayList<>();
-
 
     public GameObject() {
         name = DEFAULT_NAME;
@@ -55,7 +53,6 @@ public class GameObject {
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).start();
         }
-
     }
 
 

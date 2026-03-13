@@ -1,5 +1,7 @@
 package Input;
 
+import Input.Actions.ActionHandler;
+import Input.Actions.ActionStamp;
 import Jade.Camera;
 import Jade.Scene;
 import Jade.SceneManager;
@@ -17,7 +19,7 @@ import util.WorldCoords;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
@@ -38,18 +40,23 @@ public class InputStampShapes {
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private SculptObject currentSculpt = new SculptObject();
     private Scene currentScene;
+    private SceneManager sceneManager;
+    private ActionHandler actionHandler;
     private Vector2f mousePos = new Vector2f();
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
-    private ArrayList<Shape> shapeList = new ArrayList<>();
     private TOOLS toolsMode = TOOLS.SELECT;
     private Camera camera;
 
 
-    public InputStampShapes(Scene scene) {
-        this.currentScene = scene;
-        this.camera = scene.getCamera();
+    public InputStampShapes(SceneManager sceneManager) {
+        this.sceneManager = sceneManager;
+        this.currentScene = sceneManager.getScene();
+        this.camera = this.currentScene.getCamera();
+    }
 
+    public void init() {
+        this.actionHandler = sceneManager.getActionHandler();
         bindInputs();
     }
 
@@ -86,22 +93,38 @@ public class InputStampShapes {
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
             transform.setPosition(worldPos);
         });
+
+        // Shortcuts
+        InputKeyEvents.onKeyPressed((key, _, mods) -> {
+            boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
+            boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+
+            if (ctrl && shift) {
+                switch (key) {
+                    case GLFW_KEY_Z:
+                        actionHandler.redo();
+                        break;
+                }
+            }
+            else if (ctrl) {
+                switch (key) {
+                    case GLFW_KEY_Z:
+                        actionHandler.undo();
+                        break;
+                }
+            }
+        });
     }
 
     private void stampShape() {
         Transform2D<Vector2f> copyTransform = transform.copy(); // Shouldn't be a reference
-        Shape object = new Shape(selectedShape, currentSculpt);
+        Shape shape = new Shape(selectedShape, currentSculpt);
 
-        object.setTransform(copyTransform);
-        object.setColour(colourSelected);
+        shape.setTransform(copyTransform);
+        shape.setColour(colourSelected);
 
-        // Debugging output
-        // IO.println("Pos: "+ object.getTransform().getPosition());
-        // IO.println("Rot: "+ object.getTransform().getRotation());
-        // IO.println("Scale: "+ object.getTransform().getScale() + "\n");
-
-        shapeList.add(object);
-        currentScene.addObjectToScene(object);
+        actionHandler.perform(new ActionStamp(currentScene, shape));
+        // currentScene.addObjectToScene(shape);
     }
 
     public static Vector3f getColourSelected() { return colourSelected; }

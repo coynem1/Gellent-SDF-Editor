@@ -35,6 +35,7 @@ public class ImGuiEditor {
 
     public void init() {
         inputStamper = SceneManager.get().getInputStamper();
+        menubar.init();
     }
 
     public void render() {

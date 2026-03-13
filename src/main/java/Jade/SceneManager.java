@@ -1,7 +1,9 @@
 package Jade;
 
 import Demo.DemoScene;
+import Input.Actions.ActionHandler;
 import Input.InputStampShapes;
+import Rendering.Objects.GsonSaver;
 
 public class SceneManager {
     private static SceneManager instance;
@@ -9,7 +11,9 @@ public class SceneManager {
     private enum SceneMode {EDITING, PLAYING, DEBUGGING}
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
-    private InputStampShapes inputStamper;
+
+    // private InputStampShapes inputStamper;
+    private ActionHandler actionHandler;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
@@ -23,7 +27,13 @@ public class SceneManager {
         currentScene.start();
 
         // Input
-        inputStamper = new InputStampShapes(currentScene);
+        // inputStamper = new InputStampShapes(this);
+        actionHandler = new ActionHandler(this);
+        actionHandler.init();
+
+        // GSON
+        GsonSaver gsonSaver = new GsonSaver(currentScene);
+        gsonSaver.save();
     }
 
     // Singleton
@@ -47,7 +57,8 @@ public class SceneManager {
     public Scene getScene() {
         return get().currentScene;
     }
-    public InputStampShapes getInputStamper() {return inputStamper;}
+    public InputStampShapes getInputStamper() {return actionHandler.getInputStamper();}
+    public ActionHandler getActionHandler() {return actionHandler;}
 
     // Adds new scene to dict
     public Scene createScene(String name) {

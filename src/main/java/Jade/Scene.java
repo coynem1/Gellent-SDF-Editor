@@ -62,9 +62,12 @@ public abstract class Scene {
         if (isRunning) { object.start(); }
     }
 
-    protected void removeObjectFromScene(GameObject object) {}
+    public void removeObjectFromScene(GameObject object) {
+        objects.remove(object);
+    }
 
     public void process(float delta) {}
 
     public Camera getCamera() {return camera;}
+    public ArrayList<GameObject> getObjects() {return objects;}
 }

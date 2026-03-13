@@ -10,8 +10,10 @@ repositories {
 }
 
 dependencies {
-    // ImGUI
-//    implementation fileTree('libs') { include '*.jar'}
+    // GSON
+    implementation 'com.google.code.gson:gson:2.13.2'
+
+    // ImGui
     implementation fileTree(dir: 'libs', include: [
             'imgui-binding-*.jar',
             'imgui-lwjgl3-*.jar',
