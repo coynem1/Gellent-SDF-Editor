@@ -12,7 +12,7 @@ public class SceneManager {
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
 
-    // private InputStampShapes inputStamper;
+    private GsonSaver gsonSaver;
     private ActionHandler actionHandler;
 
     public SceneManager() {
@@ -27,13 +27,10 @@ public class SceneManager {
         currentScene.start();
 
         // Input
-        // inputStamper = new InputStampShapes(this);
         actionHandler = new ActionHandler(this);
-        actionHandler.init();
+        gsonSaver = new GsonSaver(currentScene);
 
-        // GSON
-        GsonSaver gsonSaver = new GsonSaver(currentScene);
-        gsonSaver.save();
+        actionHandler.init();
     }
 
     // Singleton
@@ -59,6 +56,7 @@ public class SceneManager {
     }
     public InputStampShapes getInputStamper() {return actionHandler.getInputStamper();}
     public ActionHandler getActionHandler() {return actionHandler;}
+    public GsonSaver getGsonSaver() {return gsonSaver;}
 
     // Adds new scene to dict
     public Scene createScene(String name) {

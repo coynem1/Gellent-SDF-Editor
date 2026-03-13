@@ -32,6 +32,12 @@ public class Shape extends GameObject {
             case BOX:
                 addComponent(new ComponentBox());
                 break;
+            case TRIANGLE:
+                addComponent(new ComponentTriangle());
+                break;
+            case STAR:
+                addComponent(new ComponentStar());
+                break;
             default:
                 addComponent(new ComponentCircle());
                 IO.println("WARNING: Unrecognised shape type. Defaulting to circle");

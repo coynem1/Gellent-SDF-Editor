@@ -3,6 +3,7 @@ package Rendering.ImGui;
 import Input.Actions.ActionHandler;
 import Jade.SceneManager;
 import Jade.Window;
+import Rendering.Objects.GsonSaver;
 import imgui.ImGui;
 
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
@@ -10,13 +11,17 @@ import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 public class ImGuiMenubar {
     private static String[] recentFiles = new String[10];
     private ActionHandler actionHandler;
+    private GsonSaver gsonSaver;
 
     public ImGuiMenubar() {
         // actionHandler = SceneManager.get().getActionHandler();
     }
 
     public void init() {
-        actionHandler = SceneManager.get().getActionHandler();
+        SceneManager sceneManager = SceneManager.get();
+
+        actionHandler = sceneManager.getActionHandler();
+        gsonSaver = sceneManager.getGsonSaver();
     }
 
     public void render() {
@@ -33,8 +38,8 @@ public class ImGuiMenubar {
                 ImGui.menuItem("File 2", null, false, true);
                 ImGui.endMenu();
             }
-            ImGui.menuItem("Save", "Ctrl+S", false, true);
-            ImGui.menuItem("Save As...", null, false, true);
+            if (ImGui.menuItem("Save", "Ctrl+S", false, true)) { gsonSaver.save(); }
+            if (ImGui.menuItem("Save As...", null, false, true)) { gsonSaver.save(); }
             ImGui.separator();
 
             if (ImGui.menuItem("Quit", "Alt+F4", false, true)) { Window.get().destroy();}

@@ -8,6 +8,7 @@ import Jade.SceneManager;
 import Jade.Window;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.Blending;
+import Rendering.Objects.GsonSaver;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
@@ -25,7 +26,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     public enum TOOLS { SELECT, STAMP, SMEAR};
-    public enum SHAPES { CIRCLE, BOX, TRIANGLE, HEXAGON};
+    public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -35,15 +36,18 @@ public class InputStampShapes {
         put(SHAPES.CIRCLE, "Circle");
         put(SHAPES.BOX, "Box");
         put(SHAPES.TRIANGLE, "Triangle");
-        put(SHAPES.HEXAGON, "Hexagon");
+        put(SHAPES.STAR, "Star");
     }};
 
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private Blending blending = new Blending();
     private SculptObject currentSculpt = new SculptObject();
+
     private Scene currentScene;
     private SceneManager sceneManager;
     private ActionHandler actionHandler;
+    private GsonSaver gsonSaver;
+
     private Vector2f mousePos = new Vector2f();
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
@@ -55,10 +59,12 @@ public class InputStampShapes {
         this.sceneManager = sceneManager;
         this.currentScene = sceneManager.getScene();
         this.camera = this.currentScene.getCamera();
+
     }
 
     public void init() {
         this.actionHandler = sceneManager.getActionHandler();
+        this.gsonSaver = sceneManager.getGsonSaver();
         bindInputs();
     }
 
@@ -115,6 +121,9 @@ public class InputStampShapes {
                 switch (key) {
                     case GLFW_KEY_Z:
                         actionHandler.undo();
+                        break;
+                    case GLFW_KEY_S:
+                        gsonSaver.save();
                         break;
                 }
             }

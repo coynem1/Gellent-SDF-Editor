@@ -20,16 +20,14 @@ public class GsonSaver {
     }
 
     public void save() {
-        ArrayList<GameObject> objects = currentScene.getObjects();
-        String serealized = gson.toJson(objects);
+        String serialised = gson.toJson(currentScene.getObjects());
 
-        IO.println(gson.toJson(objects));
+        IO.println(serialised);
     }
 
     public void load() {
-        ArrayList<GameObject> objects = currentScene.getObjects();
-        String serealized = gson.toJson(objects);
+        String serialised = gson.toJson(currentScene.getObjects());
 
-        IO.println(gson.toJson(objects));
+        IO.println(serialised);
     }
 }
