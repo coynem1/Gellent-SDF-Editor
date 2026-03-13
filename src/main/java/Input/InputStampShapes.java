@@ -27,6 +27,7 @@ public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     public enum TOOLS { SELECT, STAMP, SMEAR};
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
+    public enum MODES { UNION, DIFFERENCE, INTERSECTION };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -52,6 +53,7 @@ public class InputStampShapes {
     private SHAPES selectedShape = SHAPES.CIRCLE;
 
     private TOOLS toolsMode = TOOLS.SELECT;
+    private MODES stampMode = MODES.UNION;
     private Camera camera;
 
 
@@ -127,7 +129,23 @@ public class InputStampShapes {
                         break;
                 }
             }
+            switch (key) {
+                case GLFW_KEY_BACKSPACE:
+                    toggleMode();
+                    break;
+            }
         });
+    }
+
+    // Change stamp mode
+    private void toggleMode() {
+        // Intersect switches to difference too
+        if (stampMode == MODES.DIFFERENCE) {
+            stampMode = MODES.UNION;
+        }
+        else {
+            stampMode = MODES.DIFFERENCE;
+        }
     }
 
     private void stampShape() {
@@ -137,6 +155,7 @@ public class InputStampShapes {
         shape.setTransform(copyTransform);
         shape.setBlend(blending.getBlend());
         shape.setColour(colourSelected);
+        shape.setShapeMode(stampMode);
 
         actionHandler.perform(new ActionStamp(currentScene, shape));
         // currentScene.addObjectToScene(shape);

@@ -3,7 +3,6 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
-import Rendering.Objects.Components.ComponentCircle;
 import Rendering.Objects.GameObject;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
@@ -159,6 +158,7 @@ public class DemoScene extends Scene {
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
         int[] uShapeTypes = new int[MAX_SHAPES];
+        int[] uShapeModes = new int[MAX_SHAPES];
         float[] uShapeSizes = new float[MAX_SHAPES];
         float[] uShapeAngles = new float[MAX_SHAPES];
         float[] uShapeBlends = new float[MAX_SHAPES];
@@ -174,6 +174,7 @@ public class DemoScene extends Scene {
             uShapeCount ++;
             uShapePos[i] = transform.getPosition();
             uShapeTypes[i] = shape.getShapeType().ordinal();
+            uShapeModes[i] = shape.getShapeMode();
             uShapeSizes[i] = transform.getScale();
             uShapeAngles[i] = transform.getRotation();
             uShapeBlends[i] = shape.getBlend();

@@ -15,7 +15,9 @@ public class Shape extends GameObject {
     protected Transform2D<Vector2f> transform = Transform2D.createFloat();
     protected Blending blending = new Blending();
     protected InputStampShapes.SHAPES shapeType = null;
+    protected InputStampShapes.MODES shapeModes = InputStampShapes.MODES.UNION;
 
+    // Default shape constructor
     public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
         super();
         sculptObject = sculpt;
@@ -24,7 +26,6 @@ public class Shape extends GameObject {
 
         addComponent(blending);
 
-        // TODO: Add other shapes
         switch (shape) {
             case CIRCLE:
                 addComponent(new ComponentCircle());
@@ -49,10 +50,14 @@ public class Shape extends GameObject {
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D transform) {this.transform = transform;}
     public void setBlend(float blend) {this.blending.setBlend(blend);}
+    // public void setShapeMode(int shapeMode) {this.shapeModes = InputStampShapes.MODES.values()[shapeMode];}
+    public void setShapeMode(InputStampShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
 
     // Getters
     public Vector3f getColour() {return this.colour;}
     public Transform2D getTransform() {return this.transform;}
     public InputStampShapes.SHAPES getShapeType() {return this.shapeType;}
     public float getBlend() { return this.blending.getBlend(); }
+    public int getShapeMode() {return shapeModes.ordinal();}
+
 }
