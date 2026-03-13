@@ -38,7 +38,7 @@ public class DemoScene extends Scene {
 
         // File paths
         this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
-        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentDemo.glsl"));
+        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentEditor.glsl"));
         this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
         this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
 
@@ -90,31 +90,6 @@ public class DemoScene extends Scene {
     private void bindInputs() {
         InputKeyEvents.onKeyPressed((key, scancode, mods) -> {
             switch (key) {
-                // Change Scene
-                case GLFW_KEY_0:
-                    currentDemo = 0;
-                    break;
-                case GLFW_KEY_1:
-                    currentDemo = 1;
-                    break;
-                case GLFW_KEY_2:
-                    currentDemo = 2;
-                    break;
-                case GLFW_KEY_3:
-                    currentDemo = 3;
-                    break;
-                case GLFW_KEY_4:
-                    currentDemo = 4;
-                    break;
-
-                // Change Blend
-                case GLFW_KEY_UP:
-                    blend += 0.4f;
-                    break;
-                case GLFW_KEY_DOWN:
-                    blend -= 0.4f;
-                    break;
-
                 // Change render mode
                 case GLFW_KEY_LEFT:
                     toggleRender = 0;
@@ -148,8 +123,6 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadFloat("uViewHeight", camera.getViewHeight());
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
-        shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
-        shaders.get(RENDER_SDF).uploadInt("uDemoScene", currentDemo);
         shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
@@ -186,6 +159,7 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
         shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
         shaders.get(RENDER_SDF).uploadInt("uShapeTypes", uShapeTypes);
+        shaders.get(RENDER_SDF).uploadInt("uShapeModes", uShapeModes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeAngles", uShapeAngles);
         shaders.get(RENDER_SDF).uploadFloat("uShapeBlends", uShapeBlends);
