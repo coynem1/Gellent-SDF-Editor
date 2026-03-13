@@ -48,4 +48,5 @@ public class Shape extends GameObject {
     public Vector3f getColour() {return this.colour;}
     public Transform2D getTransform() {return this.transform;}
     public InputStampShapes.SHAPES getShapeType() {return this.shapeType;}
+    public float getBlend() { return this.blending.getBlend(); }
 }

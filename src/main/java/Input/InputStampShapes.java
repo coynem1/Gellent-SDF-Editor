@@ -7,6 +7,7 @@ import Jade.Scene;
 import Jade.SceneManager;
 import Jade.Window;
 import Rendering.ImGui.ImGuiEditor;
+import Rendering.Objects.Components.Blending;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
@@ -38,6 +39,7 @@ public class InputStampShapes {
     }};
 
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
+    private Blending blending = new Blending();
     private SculptObject currentSculpt = new SculptObject();
     private Scene currentScene;
     private SceneManager sceneManager;
@@ -66,6 +68,9 @@ public class InputStampShapes {
         });
         InputImGui.onScaleChanged((scale) -> {
             transform.setScale(scale);
+        });
+        InputImGui.onBlendChanged((blend) -> {
+            blending.setBlend(blend);
         });
         InputImGui.onRotationChanged((rotation) -> {
             // Convert to radians
@@ -121,6 +126,7 @@ public class InputStampShapes {
         Shape shape = new Shape(selectedShape, currentSculpt);
 
         shape.setTransform(copyTransform);
+        shape.setBlend(blending.getBlend());
         shape.setColour(colourSelected);
 
         actionHandler.perform(new ActionStamp(currentScene, shape));

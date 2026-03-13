@@ -21,7 +21,8 @@ public class ImGuiEditor {
 
     // private boolean showText = true;
     private ImInt toolSelected = new ImInt(InputStampShapes.TOOLS.SELECT.ordinal());
-    private ImFloat scale = new ImFloat(1.0f);
+    private ImFloat scale = new ImFloat(10.0f);
+    private float[] blend = new float[1];
     private float[] rotation = new float[1];
     private float[] position = new float[3];
     private int count = 0;
@@ -36,6 +37,8 @@ public class ImGuiEditor {
     public void init() {
         inputStamper = SceneManager.get().getInputStamper();
         menubar.init();
+
+        InputImGui.setScaleCallback(scale.get());
     }
 
     public void render() {
@@ -63,6 +66,9 @@ public class ImGuiEditor {
             if (ImGui.dragFloat3("Position", position, 0.1f, 1f)) { InputImGui.setPosCallback(new Vector3f(position[0], position[1], position[2])); }
 
             ImGui.separator();
+            if (ImGui.dragFloat("Blend", blend, 0.1f, 0f, 100f, ImGuiSliderFlags.AlwaysClamp)) {
+                InputImGui.setBlendCallback(blend[0]);
+            }
             showExtras();
         }
         ImGui.end();

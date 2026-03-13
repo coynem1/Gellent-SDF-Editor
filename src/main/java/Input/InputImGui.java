@@ -24,12 +24,14 @@ public class InputImGui {
     private static final List<Vec3fHandler> onPosChanged = new CopyOnWriteArrayList<>();
     private static final List<FloatHandler> onRotationChanged = new CopyOnWriteArrayList<>();
     private static final List<FloatHandler> onScaleChanged = new CopyOnWriteArrayList<>();
+    private static final List<FloatHandler> onBlendChanged = new CopyOnWriteArrayList<>();
     private static final List<ShapeHandler> onShapeChanged = new CopyOnWriteArrayList<>();
 
     public static void onColourChanged(Vec3fHandler handler) { onColourChanged.add(handler); }
     public static void onPosChanged(Vec3fHandler handler) { onPosChanged.add(handler); }
     public static void onRotationChanged(FloatHandler handler) { onRotationChanged.add(handler); }
     public static void onScaleChanged(FloatHandler handler) { onScaleChanged.add(handler); }
+    public static void onBlendChanged(FloatHandler handler) { onBlendChanged.add(handler); }
     public static void onShapeChanged(ShapeHandler handler) { onShapeChanged.add(handler); }
 
     // Update all colour change observers
@@ -45,5 +47,6 @@ public class InputImGui {
     public static void setScaleCallback(float scale) {
         for (var h : onScaleChanged) { h.handle(scale); }
     }
+    public static void setBlendCallback(float blend) { for (var h : onBlendChanged) { h.handle(blend); }}
     public static void setShapeCallback(InputStampShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}
 }

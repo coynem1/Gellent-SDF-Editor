@@ -160,12 +160,23 @@ uniform int uShapeTypes[MAX_SHAPES];
 uniform vec2 uShapePos[MAX_SHAPES];
 uniform float uShapeSizes[MAX_SHAPES];
 uniform float uShapeAngles[MAX_SHAPES];
+uniform float uShapeBlends[MAX_SHAPES];
 
 // Rotation function for SDF
 vec2 rotate(vec2 p, float angle) {
-    float cosA = cos(angle);
-    float sinA = sin(angle);
+    float cosA = cos(-angle);
+    float sinA = sin(-angle);
     return mat2(cosA, -sinA, sinA, cosA) * p; // Rotate `p` by `angle`
+}
+
+float round_merge(float shape1, float shape2, float blend) {
+    vec2 intersectionSpace = vec2(shape1 - blend, shape2 - blend);
+    intersectionSpace = min(intersectionSpace, 0.0);
+
+    float insideDistance = -length(intersectionSpace);
+    float simpleUnion = smin(shape1, shape2, blend);
+    float outsideDistance = max(simpleUnion, blend);
+    return insideDistance + outsideDistance;
 }
 
 float userScene() {
@@ -188,7 +199,14 @@ float userScene() {
         else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(pRotated, size);
         else if (uShapeTypes[i] == 3) d = sdStar(pRotated, size);
 
-        dist = min(dist, d);
+        if (uShapeBlends[i] == 0.0) {
+            dist = min(dist, d);
+        }
+        else {
+            dist = round_merge(dist, d, uShapeBlends[i]);
+        }
+
+
     }
 
     return dist;

@@ -5,4 +5,5 @@ public class Blending extends Component{
     protected float blend = DEFAULT_BLEND;
 
     public void setBlend(float blend) {this.blend = blend;}
+    public float getBlend() {return this.blend;}
 }
