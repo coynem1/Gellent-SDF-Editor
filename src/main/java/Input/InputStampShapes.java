@@ -25,7 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
-    public enum TOOLS { SELECT, STAMP, SMEAR};
+    public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
@@ -43,18 +43,18 @@ public class InputStampShapes {
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private Blending blending = new Blending();
     private SculptObject currentSculpt = new SculptObject();
+    private Shape activeShape = null;
 
     private Scene currentScene;
     private SceneManager sceneManager;
     private ActionHandler actionHandler;
     private GsonSaver gsonSaver;
+    private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
     private SHAPES selectedShape = SHAPES.CIRCLE;
-
     private TOOLS toolsMode = TOOLS.SELECT;
     private MODES stampMode = MODES.UNION;
-    private Camera camera;
 
 
     public InputStampShapes(SceneManager sceneManager) {
@@ -62,35 +62,47 @@ public class InputStampShapes {
         this.currentScene = sceneManager.getScene();
         this.camera = this.currentScene.getCamera();
 
+        transform.setPosition(new Vector2f(0f, 0f));
     }
 
     public void init() {
         this.actionHandler = sceneManager.getActionHandler();
         this.gsonSaver = sceneManager.getGsonSaver();
+
+        updateActiveShape();
         bindInputs();
     }
 
     private void bindInputs() {
         InputImGui.onColourChanged((colour) -> {
             colourSelected = colour;
+            if (activeShape != null) activeShape.setColour(colour);
         });
         InputImGui.onScaleChanged((scale) -> {
             transform.setScale(scale);
+            if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onBlendChanged((blend) -> {
             blending.setBlend(blend);
+            if (activeShape != null) activeShape.setBlend(blend);
         });
         InputImGui.onRotationChanged((rotation) -> {
             // Convert to radians
             rotation *= (float) Math.PI / 180;
             transform.setRotation(rotation);
+            if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onShapeChanged((shape) -> {
             selectedShape = shape;
+            if (activeShape != null) activeShape.setShape(shape);
+        });
+        InputImGui.onToolChanged((tool) -> {
+            toolsMode = tool;
+            updateActiveShape();
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
-            // If clicking on UI, ignore
+            // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
 
             switch (button) {
@@ -102,9 +114,13 @@ public class InputStampShapes {
         });
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
+            // If focused on UI, ignore
+            if (ImGui.getIO().getWantCaptureMouse()) { return; }
+
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
             transform.setPosition(worldPos);
+            if (activeShape != null) activeShape.setTransform(transform);
         });
 
         // Shortcuts
@@ -133,12 +149,28 @@ public class InputStampShapes {
                 case GLFW_KEY_BACKSPACE:
                     toggleMode();
                     break;
+                case GLFW_KEY_S:
+                    // Scale shortcut
+                    // gsonSaver.save();
+                    break;
             }
         });
     }
 
-    // Change stamp mode
+    // Enables or disables active shape
+    private void updateActiveShape() {
+        if (toolsMode == TOOLS.STAMP) {
+            newActiveShape();
+            return;
+        }
+
+        if (activeShape != null) currentScene.removeObjectFromScene(activeShape);
+    }
+
+    // Change select/stamp mode
     private void toggleMode() {
+        if (toolsMode == TOOLS.SELECT) return;
+
         // Intersect switches to difference too
         if (stampMode == MODES.DIFFERENCE) {
             stampMode = MODES.UNION;
@@ -146,22 +178,28 @@ public class InputStampShapes {
         else {
             stampMode = MODES.DIFFERENCE;
         }
+
+        if (activeShape != null) activeShape.setShapeMode(stampMode);
     }
 
     private void stampShape() {
         Transform2D<Vector2f> copyTransform = transform.copy(); // Shouldn't be a reference
-        Shape shape = new Shape(selectedShape, currentSculpt);
 
-        shape.setTransform(copyTransform);
-        shape.setBlend(blending.getBlend());
-        shape.setColour(colourSelected);
-        shape.setShapeMode(stampMode);
+        activeShape.setTransform(copyTransform);
+        currentScene.removeObjectFromScene(activeShape);
+        actionHandler.perform(new ActionStamp(currentScene, activeShape));
 
-        actionHandler.perform(new ActionStamp(currentScene, shape));
-        // currentScene.addObjectToScene(shape);
+        newActiveShape();
+    }
+
+    private void newActiveShape() {
+        activeShape = new Shape(selectedShape, currentSculpt);
+        activeShape.setTransform(transform);
+        activeShape.setBlend(blending.getBlend());
+        activeShape.setColour(colourSelected);
+        activeShape.setShapeMode(stampMode);
+        currentScene.addObjectToScene(activeShape);
     }
 
     public static Vector3f getColourSelected() { return colourSelected; }
-
-    public void setToolsMode(TOOLS mode) { this.toolsMode = mode; }
 }

@@ -14,6 +14,7 @@ public class Shape extends GameObject {
     protected Vector3f colour = InputStampShapes.getColourSelected();
     protected Transform2D<Vector2f> transform = Transform2D.createFloat();
     protected Blending blending = new Blending();
+    protected transient Class<? extends Component> shapeTypeClass = null;
     protected InputStampShapes.SHAPES shapeType = null;
     protected InputStampShapes.MODES shapeModes = InputStampShapes.MODES.UNION;
 
@@ -21,37 +22,47 @@ public class Shape extends GameObject {
     public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
         super();
         sculptObject = sculpt;
-        shapeType = shape;
         transform.setPosition(new Vector2f(0f, 0f));
 
+        setShape(shape);
         addComponent(blending);
-
-        switch (shape) {
-            case CIRCLE:
-                addComponent(new ComponentCircle());
-                break;
-            case BOX:
-                addComponent(new ComponentBox());
-                break;
-            case TRIANGLE:
-                addComponent(new ComponentTriangle());
-                break;
-            case STAR:
-                addComponent(new ComponentStar());
-                break;
-            default:
-                addComponent(new ComponentCircle());
-                IO.println("WARNING: Unrecognised shape type. Defaulting to circle");
-                break;
-        }
     }
 
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D transform) {this.transform = transform;}
     public void setBlend(float blend) {this.blending.setBlend(blend);}
-    // public void setShapeMode(int shapeMode) {this.shapeModes = InputStampShapes.MODES.values()[shapeMode];}
     public void setShapeMode(InputStampShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
+    public void setShape(InputStampShapes.SHAPES shape) {
+        shapeType = shape;
+        if (shapeTypeClass != null) {
+            removeComponents(shapeTypeClass);
+        }
+
+        switch (shape) {
+            case CIRCLE:
+                shapeTypeClass = ComponentCircle.class;
+                addComponent(new ComponentCircle());
+                break;
+            case BOX:
+                shapeTypeClass = ComponentBox.class;
+                addComponent(new ComponentBox());
+                break;
+            case TRIANGLE:
+                shapeTypeClass = ComponentTriangle.class;
+                addComponent(new ComponentTriangle());
+                break;
+            case STAR:
+                shapeTypeClass = ComponentStar.class;
+                addComponent(new ComponentStar());
+                break;
+            default:
+                shapeTypeClass = ComponentCircle.class;
+                addComponent(new ComponentCircle());
+                IO.println("WARNING: Unrecognised shape type. Defaulting to circle");
+                break;
+        }
+    }
 
     // Getters
     public Vector3f getColour() {return this.colour;}

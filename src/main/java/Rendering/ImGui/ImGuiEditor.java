@@ -94,7 +94,8 @@ public class ImGuiEditor {
     private void showTools() {
         for (InputStampShapes.TOOLS tool : InputStampShapes.TOOLS.values()) {
             if (ImGui.radioButton(InputStampShapes.TOOL_NAMES.get(tool), toolSelected, tool.ordinal())) {
-                inputStamper.setToolsMode(tool);
+                // inputStamper.setToolsMode(tool);
+                InputImGui.setToolCallback(tool);
             }
 
             // End of radios

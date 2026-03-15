@@ -28,12 +28,13 @@ vec2 screenToWorld(vec2 fragCoord) {
     return worldPos;
 }
 
-// sigmoid smoothing
+// cubic smoothing
 float smin( float a, float b, float k )
 {
-    k *= log(2.0);
-    float x = b-a;
-    return a + x/(1.0-exp2(x/k));
+    float h = max(k - abs(a - b), 0.0) / k;
+    float m = h * h * h * 0.5;
+    float s = m * k * (1.0 / 3.0);
+    return min(a, b) - s;
 }
 
 float sdCircle(vec2 p, float r) {

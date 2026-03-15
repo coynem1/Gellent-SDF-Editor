@@ -18,6 +18,10 @@ public class InputImGui {
     public interface ShapeHandler {
         void handle(InputStampShapes.SHAPES shape);
     }
+    @FunctionalInterface
+    public interface ToolHandler {
+        void handle(InputStampShapes.TOOLS tool);
+    }
 
     // List of handlers
     private static final List<Vec3fHandler> onColourChanged = new CopyOnWriteArrayList<>();
@@ -26,6 +30,7 @@ public class InputImGui {
     private static final List<FloatHandler> onScaleChanged = new CopyOnWriteArrayList<>();
     private static final List<FloatHandler> onBlendChanged = new CopyOnWriteArrayList<>();
     private static final List<ShapeHandler> onShapeChanged = new CopyOnWriteArrayList<>();
+    private static final List<ToolHandler> onToolChanged = new CopyOnWriteArrayList<>();
 
     public static void onColourChanged(Vec3fHandler handler) { onColourChanged.add(handler); }
     public static void onPosChanged(Vec3fHandler handler) { onPosChanged.add(handler); }
@@ -33,6 +38,7 @@ public class InputImGui {
     public static void onScaleChanged(FloatHandler handler) { onScaleChanged.add(handler); }
     public static void onBlendChanged(FloatHandler handler) { onBlendChanged.add(handler); }
     public static void onShapeChanged(ShapeHandler handler) { onShapeChanged.add(handler); }
+    public static void onToolChanged(ToolHandler handler) { onToolChanged.add(handler); }
 
     // Update all colour change observers
     public static void setColourCallback(Vector3f colour) {
@@ -49,4 +55,5 @@ public class InputImGui {
     }
     public static void setBlendCallback(float blend) { for (var h : onBlendChanged) { h.handle(blend); }}
     public static void setShapeCallback(InputStampShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}
+    public static void setToolCallback(InputStampShapes.TOOLS tool) { for (var h : onToolChanged) { h.handle(tool); }}
 }
