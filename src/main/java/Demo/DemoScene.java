@@ -134,7 +134,7 @@ public class DemoScene extends Scene {
         float[] uShapeSizes = new float[MAX_SHAPES];
         float[] uShapeAngles = new float[MAX_SHAPES];
         float[] uShapeBlends = new float[MAX_SHAPES];
-        float[] uShapeCurves = new float[MAX_SHAPES];
+        float[] uShapeRounds = new float[MAX_SHAPES];
 
 
         for (int i = 0; i < objects.size(); i++) {
@@ -154,8 +154,8 @@ public class DemoScene extends Scene {
 
 
             ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
-            if (rounded == null) uShapeCurves[i] = 0f;
-            else uShapeCurves[i] = rounded.getRounded();
+            if (rounded == null) uShapeRounds[i] = 0f;
+            else uShapeRounds[i] = rounded.getRounded();
 
         }
 
@@ -168,7 +168,7 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeAngles", uShapeAngles);
         shaders.get(RENDER_SDF).uploadFloat("uShapeBlends", uShapeBlends);
-        shaders.get(RENDER_SDF).uploadFloat("uShapeCurves", uShapeCurves);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeRounds", uShapeRounds);
 
     }
 

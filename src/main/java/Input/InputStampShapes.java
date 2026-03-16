@@ -24,6 +24,8 @@ import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
+    private static final float MOUSE_ENGAGE_DIST = 1f;
+
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
@@ -54,6 +56,7 @@ public class InputStampShapes {
 
     private Vector2f mousePos = new Vector2f();
     private boolean shortcutsUsed[] = new boolean[SHORTCUTS.values().length];
+    private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
     private SHAPES selectedShape = SHAPES.CIRCLE;
     private TOOLS toolsMode = TOOLS.SELECT;
@@ -174,7 +177,7 @@ public class InputStampShapes {
         });
 
         // Let go of key
-        InputKeyEvents.onKeyReleased((key, _, mods) -> {
+        InputKeyEvents.onKeyReleased((key, _, _) -> {
             switch (key) {
                 case GLFW_KEY_S:
                     scaleShortcut(false);
@@ -195,6 +198,7 @@ public class InputStampShapes {
         if (shortcutsUsed[SHORTCUTS.ROUND.ordinal()]) { roundShortcut(true); }
     }
 
+    // Rounds through mouse position
     private void roundShortcut(boolean pressed) {
         // Check if round-able
         if (activeShape.getComponent(ComponentRounded.class) == null) return;
@@ -204,14 +208,21 @@ public class InputStampShapes {
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
         ComponentRounded rounded = activeShape.getComponent(ComponentRounded.class);
-
         if (rounded == null) return;
+
+        // Enabled only if the mouse has moved enough
+        if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
+        if (!mouseEngaged) {
+            // Easy reset rounded shortcut
+            rounded.setRounded(0f);
+            return;
+        }
 
         float round = worldPos.distance(prevWorldPos) / activeShape.getTransform().getScale() ;
         rounded.setRounded(min(round, ComponentRounded.MAX_ROUNDED));
     }
 
-    // Freezes active shape and rotates through mouse position
+    // Rotates through mouse position
     private void rotateShortcut(boolean pressed) {
         if (freezeActiveShape(pressed, SHORTCUTS.ROTATE)) return;
 
@@ -221,7 +232,7 @@ public class InputStampShapes {
         transform.setRotation(angle + (float) Math.PI * 1.5f);  // Offset to point top of shape towards mouse
     }
 
-    // Freezes active shape and scales through mouse position
+    // Scales through mouse position
     private void scaleShortcut(boolean pressed) {
         if (freezeActiveShape(pressed, SHORTCUTS.SCALE)) return;
 
@@ -246,6 +257,7 @@ public class InputStampShapes {
         }
 
         activeTransform = true;
+        mouseEngaged = false;
         return true;
     }
 

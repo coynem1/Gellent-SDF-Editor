@@ -113,7 +113,7 @@ uniform vec2 uShapePos[MAX_SHAPES];
 uniform float uShapeSizes[MAX_SHAPES];
 uniform float uShapeAngles[MAX_SHAPES];
 uniform float uShapeBlends[MAX_SHAPES];
-uniform float uShapeCurves[MAX_SHAPES];
+uniform float uShapeRounds[MAX_SHAPES];
 
 // Rotation function for SDF
 vec2 rotate(vec2 p, float angle) {
@@ -169,7 +169,7 @@ float userScene() {
         if (uShapeAngles[i] != 0.0) pRotated = rotate(p, uShapeAngles[i]);
 
         float d;
-        float rounded = uShapeCurves[i] * size; // Rounds edges
+        float rounded = uShapeRounds[i] * size; // Rounds edges
         if      (uShapeTypes[i] == 0) d = sdCircle(pRotated, size);
         else if (uShapeTypes[i] == 1) d = sdBox(pRotated, vec2(size - rounded, size - rounded)) - rounded;
         else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(pRotated, size - rounded) - rounded;
