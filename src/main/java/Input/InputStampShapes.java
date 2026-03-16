@@ -5,9 +5,9 @@ import Input.Actions.ActionStamp;
 import Jade.Camera;
 import Jade.Scene;
 import Jade.SceneManager;
-import Jade.Window;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.Blending;
+import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GsonSaver;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
@@ -17,7 +17,6 @@ import org.joml.Vector3f;
 import util.Transform2D;
 import util.WorldCoords;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.lang.Math.max;
@@ -29,7 +28,7 @@ public class InputStampShapes {
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
-    public enum SHORTCUTS { SCALE, ROTATE };
+    public enum SHORTCUTS { SCALE, ROTATE, ROUND };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -156,16 +155,21 @@ public class InputStampShapes {
                         break;
                 }
             }
-            switch (key) {
-                case GLFW_KEY_BACKSPACE:
-                    toggleMode();
-                    break;
-                case GLFW_KEY_S:
-                    scaleShortcut(true);
-                    break;
-                case GLFW_KEY_R:
-                    rotateShortcut(true);
-                    break;
+            else if (!ctrl && !shift) {
+                switch (key) {
+                    case GLFW_KEY_BACKSPACE:
+                        toggleMode();
+                        break;
+                    case GLFW_KEY_S:
+                        scaleShortcut(true);
+                        break;
+                    case GLFW_KEY_R:
+                        rotateShortcut(true);
+                        break;
+                    case GLFW_KEY_F:
+                        roundShortcut(true);
+                        break;
+                }
             }
         });
 
@@ -178,6 +182,9 @@ public class InputStampShapes {
                 case GLFW_KEY_R:
                     rotateShortcut(false);
                     break;
+                case GLFW_KEY_F:
+                    roundShortcut(false);
+                    break;
             }
         });
     }
@@ -185,6 +192,23 @@ public class InputStampShapes {
     private void shapeShortcut() {
         if (shortcutsUsed[SHORTCUTS.ROTATE.ordinal()]) { rotateShortcut(true); }
         if (shortcutsUsed[SHORTCUTS.SCALE.ordinal()]) { scaleShortcut(true); }
+        if (shortcutsUsed[SHORTCUTS.ROUND.ordinal()]) { roundShortcut(true); }
+    }
+
+    private void roundShortcut(boolean pressed) {
+        // Check if round-able
+        if (activeShape.getComponent(ComponentRounded.class) == null) return;
+
+        if (freezeActiveShape(pressed, SHORTCUTS.ROUND)) return;
+
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f prevWorldPos = transform.getPosition();
+        ComponentRounded rounded = activeShape.getComponent(ComponentRounded.class);
+
+        if (rounded == null) return;
+
+        float round = worldPos.distance(prevWorldPos) / activeShape.getTransform().getScale() ;
+        rounded.setRounded(min(round, ComponentRounded.MAX_ROUNDED));
     }
 
     // Freezes active shape and rotates through mouse position
@@ -261,11 +285,22 @@ public class InputStampShapes {
     }
 
     private void newActiveShape() {
+        Shape previousShape = activeShape;
+
         activeShape = new Shape(selectedShape, currentSculpt);
         activeShape.setTransform(transform);
         activeShape.setBlend(blending.getBlend());
         activeShape.setColour(colourSelected);
         activeShape.setShapeMode(stampMode);
+
+        if (previousShape != null) {
+            ComponentRounded rounded = previousShape.getComponent(ComponentRounded.class);
+            if (rounded != null) {
+                activeShape.getComponent(ComponentRounded.class).setRounded(rounded.getRounded());
+            }
+        };
+
+
         currentScene.addObjectToScene(activeShape);
     }
 

@@ -37,28 +37,32 @@ public class Shape extends GameObject {
         shapeType = shape;
         if (shapeTypeClass != null) {
             removeComponents(shapeTypeClass);
+            removeComponents(ComponentRounded.class);
         }
 
         switch (shape) {
             case CIRCLE:
-                shapeTypeClass = ComponentCircle.class;
-                addComponent(new ComponentCircle());
+                shapeTypeClass = BasicCircle.class;
+                addComponent(new BasicCircle());
                 break;
             case BOX:
-                shapeTypeClass = ComponentBox.class;
-                addComponent(new ComponentBox());
+                shapeTypeClass = BasicBox.class;
+                addComponent(new BasicBox());
+                addComponent(new ComponentRounded());
                 break;
             case TRIANGLE:
                 shapeTypeClass = ComponentTriangle.class;
                 addComponent(new ComponentTriangle());
+                addComponent(new ComponentRounded());
                 break;
             case STAR:
-                shapeTypeClass = ComponentStar.class;
-                addComponent(new ComponentStar());
+                shapeTypeClass = BasicStar.class;
+                addComponent(new BasicStar());
+                addComponent(new ComponentRounded());
                 break;
             default:
-                shapeTypeClass = ComponentCircle.class;
-                addComponent(new ComponentCircle());
+                shapeTypeClass = BasicCircle.class;
+                addComponent(new BasicCircle());
                 IO.println("WARNING: Unrecognised shape type. Defaulting to circle");
                 break;
         }

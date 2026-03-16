@@ -1,6 +1,6 @@
 package Rendering.Objects.Components;
 
-public class ComponentStar extends Component {
+public class BasicStar extends Component implements BasicShape {
     public transient static final String DEFAULT_NAME = "Star";
     public transient static final float DEFAULT_DIMENSIONS = 1.0f;
     protected float width = DEFAULT_DIMENSIONS, height = DEFAULT_DIMENSIONS;

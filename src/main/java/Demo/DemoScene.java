@@ -3,6 +3,7 @@ package Demo;
 import Input.InputKeyEvents;
 import Jade.Scene;
 import Jade.Window;
+import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
@@ -98,7 +99,7 @@ public class DemoScene extends Scene {
                 case GLFW_KEY_SPACE:
                     toggleRender = 2;
                     break;
-                case GLFW_KEY_F:
+                case GLFW_KEY_G:
                     toggleRender = 3;
                     break;
             }
@@ -133,6 +134,7 @@ public class DemoScene extends Scene {
         float[] uShapeSizes = new float[MAX_SHAPES];
         float[] uShapeAngles = new float[MAX_SHAPES];
         float[] uShapeBlends = new float[MAX_SHAPES];
+        float[] uShapeCurves = new float[MAX_SHAPES];
 
 
         for (int i = 0; i < objects.size(); i++) {
@@ -150,6 +152,11 @@ public class DemoScene extends Scene {
             uShapeAngles[i] = transform.getRotation();
             uShapeBlends[i] = shape.getBlend();
 
+
+            ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
+            if (rounded == null) uShapeCurves[i] = 0f;
+            else uShapeCurves[i] = rounded.getRounded();
+
         }
 
         if (uShapeCount == 0) return;
@@ -161,6 +168,7 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeAngles", uShapeAngles);
         shaders.get(RENDER_SDF).uploadFloat("uShapeBlends", uShapeBlends);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeCurves", uShapeCurves);
 
     }
 
