@@ -74,10 +74,8 @@ public class DemoScene extends Scene {
     private void testSculpt() {
         SculptObject sculpt = new SculptObject();
         testObject = new Shape(SHAPES.BOX, sculpt);
-        // GameObject testObject2 = new Shape(SHAPES.CIRCLE, sculpt);
 
         this.addObjectToScene(testObject);
-        // this.addObjectToScene(testObject2);
 
         Transform2D<Vector2f> transform = testObject.getTransform();
         transform.setScale(10f);

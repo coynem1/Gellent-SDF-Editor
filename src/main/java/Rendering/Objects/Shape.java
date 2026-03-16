@@ -8,7 +8,7 @@ import util.Transform2D;
 
 public class Shape extends GameObject {
     public transient static final String DEFAULT_NAME = "Shape";
-    public transient static final float MINIMUM_SCALE = 0.001f;   // Cannot scale to zero
+    public transient static final float MINIMUM_SCALE = 0.1f;   // Cannot scale to zero
 
     protected SculptObject sculptObject;
     protected Vector3f colour = InputStampShapes.getColourSelected();

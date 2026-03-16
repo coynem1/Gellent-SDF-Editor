@@ -116,8 +116,8 @@ uniform float uShapeBlends[MAX_SHAPES];
 
 // Rotation function for SDF
 vec2 rotate(vec2 p, float angle) {
-    float cosA = cos(-angle);
-    float sinA = sin(-angle);
+    float cosA = cos(angle);
+    float sinA = sin(angle);
     return mat2(cosA, -sinA, sinA, cosA) * p; // Rotate `p` by `angle`
 }
 

@@ -13,7 +13,6 @@ import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
 import util.Transform2D;
 import util.WorldCoords;
@@ -21,6 +20,8 @@ import util.WorldCoords;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
@@ -28,6 +29,7 @@ public class InputStampShapes {
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
+    public enum SHORTCUTS { SCALE, ROTATE };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -52,6 +54,8 @@ public class InputStampShapes {
     private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
+    private boolean shortcutsUsed[] = new boolean[SHORTCUTS.values().length];
+    private boolean activeTransform = true; // Active shape tracks mouse position
     private SHAPES selectedShape = SHAPES.CIRCLE;
     private TOOLS toolsMode = TOOLS.SELECT;
     private MODES stampMode = MODES.UNION;
@@ -89,7 +93,7 @@ public class InputStampShapes {
         InputImGui.onRotationChanged((rotation) -> {
             // Convert to radians
             rotation *= (float) Math.PI / 180;
-            transform.setRotation(rotation);
+            transform.setRotation(-rotation);
             if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onShapeChanged((shape) -> {
@@ -119,6 +123,13 @@ public class InputStampShapes {
 
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+
+            // Active shape changing
+            if (!activeTransform) {
+                shapeShortcut();
+                return;
+            }
+
             transform.setPosition(worldPos);
             if (activeShape != null) activeShape.setTransform(transform);
         });
@@ -150,11 +161,68 @@ public class InputStampShapes {
                     toggleMode();
                     break;
                 case GLFW_KEY_S:
-                    // Scale shortcut
-                    // gsonSaver.save();
+                    scaleShortcut(true);
+                    break;
+                case GLFW_KEY_R:
+                    rotateShortcut(true);
                     break;
             }
         });
+
+        // Let go of key
+        InputKeyEvents.onKeyReleased((key, _, mods) -> {
+            switch (key) {
+                case GLFW_KEY_S:
+                    scaleShortcut(false);
+                    break;
+                case GLFW_KEY_R:
+                    rotateShortcut(false);
+                    break;
+            }
+        });
+    }
+
+    private void shapeShortcut() {
+        if (shortcutsUsed[SHORTCUTS.ROTATE.ordinal()]) { rotateShortcut(true); }
+        if (shortcutsUsed[SHORTCUTS.SCALE.ordinal()]) { scaleShortcut(true); }
+    }
+
+    // Freezes active shape and rotates through mouse position
+    private void rotateShortcut(boolean pressed) {
+        if (freezeActiveShape(pressed, SHORTCUTS.ROTATE)) return;
+
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f prevWorldPos = transform.getPosition();
+        float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
+        transform.setRotation(angle + (float) Math.PI * 1.5f);  // Offset to point top of shape towards mouse
+    }
+
+    // Freezes active shape and scales through mouse position
+    private void scaleShortcut(boolean pressed) {
+        if (freezeActiveShape(pressed, SHORTCUTS.SCALE)) return;
+
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f prevWorldPos = transform.getPosition();
+        transform.setScale(max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE));
+    }
+
+    // Stops active shape from changing position
+    private boolean freezeActiveShape(boolean pressed, SHORTCUTS shortcut) {
+        if (activeShape == null) return true;
+
+        // Shortcut array
+        shortcutsUsed[shortcut.ordinal()] = pressed;
+
+        // Keep freezing if any shortcut is pressed
+        for (boolean s : shortcutsUsed) {
+            if (s) {
+                activeTransform = false;
+                return false;
+            }
+        }
+
+        activeTransform = true;
+        return true;
     }
 
     // Enables or disables active shape
