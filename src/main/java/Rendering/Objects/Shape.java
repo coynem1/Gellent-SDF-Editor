@@ -1,5 +1,6 @@
 package Rendering.Objects;
 
+import Input.InputShapes;
 import Input.InputStampShapes;
 import Rendering.Objects.Components.*;
 import org.joml.Vector2f;
@@ -11,15 +12,15 @@ public class Shape extends GameObject {
     public transient static final float MINIMUM_SCALE = 0.1f;   // Cannot scale to zero
 
     protected SculptObject sculptObject;
-    protected Vector3f colour = InputStampShapes.getColourSelected();
+    protected Vector3f colour = InputShapes.getColourSelected();
     protected Transform2D<Vector2f> transform = Transform2D.createFloat();
     protected Blending blending = new Blending();
     protected transient Class<? extends Component> shapeTypeClass = null;
-    protected InputStampShapes.SHAPES shapeType = null;
-    protected InputStampShapes.MODES shapeModes = InputStampShapes.MODES.UNION;
+    protected InputShapes.SHAPES shapeType = null;
+    protected InputShapes.MODES shapeModes = InputShapes.MODES.UNION;
 
     // Default shape constructor
-    public Shape(InputStampShapes.SHAPES shape, SculptObject sculpt) {
+    public Shape(InputShapes.SHAPES shape, SculptObject sculpt) {
         super();
         sculptObject = sculpt;
         transform.setPosition(new Vector2f(0f, 0f));
@@ -32,8 +33,8 @@ public class Shape extends GameObject {
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D transform) {this.transform = transform;}
     public void setBlend(float blend) {this.blending.setBlend(blend);}
-    public void setShapeMode(InputStampShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
-    public void setShape(InputStampShapes.SHAPES shape) {
+    public void setShapeMode(InputShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
+    public void setShape(InputShapes.SHAPES shape) {
         shapeType = shape;
         if (shapeTypeClass != null) {
             removeComponents(shapeTypeClass);
@@ -71,7 +72,7 @@ public class Shape extends GameObject {
     // Getters
     public Vector3f getColour() {return this.colour;}
     public Transform2D getTransform() {return this.transform;}
-    public InputStampShapes.SHAPES getShapeType() {return this.shapeType;}
+    public InputShapes.SHAPES getShapeType() {return this.shapeType;}
     public float getBlend() { return this.blending.getBlend(); }
     public int getShapeMode() {return shapeModes.ordinal();}
 

@@ -2,7 +2,7 @@ package Jade;
 
 import Demo.DemoScene;
 import Input.Actions.ActionHandler;
-import Input.InputStampShapes;
+import Input.InputShapes;
 import Rendering.Objects.GsonSaver;
 
 public class SceneManager {
@@ -54,7 +54,7 @@ public class SceneManager {
     public Scene getScene() {
         return get().currentScene;
     }
-    public InputStampShapes getInputStamper() {return actionHandler.getInputStamper();}
+    // public InputShapes getInputShapes() {return actionHandler.getInputShapes();}
     public ActionHandler getActionHandler() {return actionHandler;}
     public GsonSaver getGsonSaver() {return gsonSaver;}
 

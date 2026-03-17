@@ -27,22 +27,6 @@ public class InputStampShapes {
     private static final float MOUSE_ENGAGE_DIST = 1f;
 
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
-    public enum TOOLS { SELECT, STAMP, SMEAR };
-    public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
-    public enum MODES { UNION, DIFFERENCE, INTERSECTION };
-    public enum SHORTCUTS { SCALE, ROTATE, ROUND };
-    public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
-        put(TOOLS.SELECT, "Select");
-        put(TOOLS.STAMP, "Stamp");
-        put(TOOLS.SMEAR, "Smear");
-    }};
-    public static final HashMap<SHAPES, String> SHAPE_NAMES = new HashMap<>() {{
-        put(SHAPES.CIRCLE, "Circle");
-        put(SHAPES.BOX, "Box");
-        put(SHAPES.TRIANGLE, "Triangle");
-        put(SHAPES.STAR, "Star");
-    }};
-
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private Blending blending = new Blending();
     private SculptObject currentSculpt = new SculptObject();
@@ -55,12 +39,12 @@ public class InputStampShapes {
     private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
-    private boolean shortcutsUsed[] = new boolean[SHORTCUTS.values().length];
+    private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
-    private SHAPES selectedShape = SHAPES.CIRCLE;
-    private TOOLS toolsMode = TOOLS.SELECT;
-    private MODES stampMode = MODES.UNION;
+    private InputShapes.SHAPES selectedShape = InputShapes.SHAPES.CIRCLE;
+    private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    private InputShapes.MODES stampMode = InputShapes.MODES.UNION;
 
 
     public InputStampShapes(SceneManager sceneManager) {
@@ -82,24 +66,29 @@ public class InputStampShapes {
     private void bindInputs() {
         InputImGui.onColourChanged((colour) -> {
             colourSelected = colour;
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
             if (activeShape != null) activeShape.setColour(colour);
         });
         InputImGui.onScaleChanged((scale) -> {
             transform.setScale(scale);
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
             if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onBlendChanged((blend) -> {
             blending.setBlend(blend);
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
             if (activeShape != null) activeShape.setBlend(blend);
         });
         InputImGui.onRotationChanged((rotation) -> {
             // Convert to radians
             rotation *= (float) Math.PI / 180;
             transform.setRotation(-rotation);
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
             if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onShapeChanged((shape) -> {
             selectedShape = shape;
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
             if (activeShape != null) activeShape.setShape(shape);
         });
         InputImGui.onToolChanged((tool) -> {
@@ -110,11 +99,12 @@ public class InputStampShapes {
         InputMouseEvents.onBtnPressed((button, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
 
             switch (button) {
                 // Change Scene
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    if (toolsMode == TOOLS.STAMP) { stampShape(); }
+                    stampShape();
                     break;
             }
         });
@@ -122,6 +112,7 @@ public class InputStampShapes {
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
 
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
@@ -141,24 +132,9 @@ public class InputStampShapes {
             boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
             boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
 
-            if (ctrl && shift) {
-                switch (key) {
-                    case GLFW_KEY_Z:
-                        actionHandler.redo();
-                        break;
-                }
-            }
-            else if (ctrl) {
-                switch (key) {
-                    case GLFW_KEY_Z:
-                        actionHandler.undo();
-                        break;
-                    case GLFW_KEY_S:
-                        gsonSaver.save();
-                        break;
-                }
-            }
-            else if (!ctrl && !shift) {
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+
+            if (!ctrl && !shift) {
                 switch (key) {
                     case GLFW_KEY_BACKSPACE:
                         toggleMode();
@@ -178,6 +154,8 @@ public class InputStampShapes {
 
         // Let go of key
         InputKeyEvents.onKeyReleased((key, _, _) -> {
+            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+
             switch (key) {
                 case GLFW_KEY_S:
                     scaleShortcut(false);
@@ -193,9 +171,9 @@ public class InputStampShapes {
     }
 
     private void shapeShortcut() {
-        if (shortcutsUsed[SHORTCUTS.ROTATE.ordinal()]) { rotateShortcut(true); }
-        if (shortcutsUsed[SHORTCUTS.SCALE.ordinal()]) { scaleShortcut(true); }
-        if (shortcutsUsed[SHORTCUTS.ROUND.ordinal()]) { roundShortcut(true); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { rotateShortcut(true); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { scaleShortcut(true); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { roundShortcut(true); }
     }
 
     // Rounds through mouse position
@@ -203,7 +181,7 @@ public class InputStampShapes {
         // Check if round-able
         if (activeShape.getComponent(ComponentRounded.class) == null) return;
 
-        if (freezeActiveShape(pressed, SHORTCUTS.ROUND)) return;
+        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND)) return;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
@@ -224,7 +202,7 @@ public class InputStampShapes {
 
     // Rotates through mouse position
     private void rotateShortcut(boolean pressed) {
-        if (freezeActiveShape(pressed, SHORTCUTS.ROTATE)) return;
+        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE)) return;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
@@ -234,7 +212,7 @@ public class InputStampShapes {
 
     // Scales through mouse position
     private void scaleShortcut(boolean pressed) {
-        if (freezeActiveShape(pressed, SHORTCUTS.SCALE)) return;
+        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE)) return;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
@@ -242,7 +220,7 @@ public class InputStampShapes {
     }
 
     // Stops active shape from changing position
-    private boolean freezeActiveShape(boolean pressed, SHORTCUTS shortcut) {
+    private boolean freezeActiveShape(boolean pressed, InputShapes.SHORTCUTS shortcut) {
         if (activeShape == null) return true;
 
         // Shortcut array
@@ -263,7 +241,7 @@ public class InputStampShapes {
 
     // Enables or disables active shape
     private void updateActiveShape() {
-        if (toolsMode == TOOLS.STAMP) {
+        if (toolsMode == InputShapes.TOOLS.STAMP) {
             newActiveShape();
             return;
         }
@@ -273,14 +251,14 @@ public class InputStampShapes {
 
     // Change select/stamp mode
     private void toggleMode() {
-        if (toolsMode == TOOLS.SELECT) return;
+        if (toolsMode == InputShapes.TOOLS.SELECT) return;
 
         // Intersect switches to difference too
-        if (stampMode == MODES.DIFFERENCE) {
-            stampMode = MODES.UNION;
+        if (stampMode == InputShapes.MODES.DIFFERENCE) {
+            stampMode = InputShapes.MODES.UNION;
         }
         else {
-            stampMode = MODES.DIFFERENCE;
+            stampMode = InputShapes.MODES.DIFFERENCE;
         }
 
         if (activeShape != null) activeShape.setShapeMode(stampMode);

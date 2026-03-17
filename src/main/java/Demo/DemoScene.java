@@ -1,6 +1,7 @@
 package Demo;
 
 import Input.InputKeyEvents;
+import Input.InputShapes;
 import Jade.Scene;
 import Jade.Window;
 import Rendering.Objects.Components.ComponentRounded;
@@ -74,7 +75,7 @@ public class DemoScene extends Scene {
 
     private void testSculpt() {
         SculptObject sculpt = new SculptObject();
-        testObject = new Shape(SHAPES.BOX, sculpt);
+        testObject = new Shape(InputShapes.SHAPES.BOX, sculpt);
 
         this.addObjectToScene(testObject);
 

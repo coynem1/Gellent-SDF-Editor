@@ -1,7 +1,7 @@
 package Rendering.ImGui;
 
 import Input.InputImGui;
-import Input.InputStampShapes;
+import Input.InputShapes;
 import Jade.SceneManager;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
@@ -12,22 +12,19 @@ import imgui.type.ImFloat;
 import imgui.type.ImInt;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
     // private boolean showText = true;
-    private ImInt toolSelected = new ImInt(InputStampShapes.TOOLS.SELECT.ordinal());
+    private ImInt toolSelected = new ImInt(InputShapes.TOOLS.SELECT.ordinal());
     private ImFloat scale = new ImFloat(10.0f);
     private float[] blend = new float[1];
     private float[] rotation = new float[1];
     private float[] position = new float[3];
     private int count = 0;
 
-    private InputStampShapes inputStamper;
+    // private InputShapes inputShapes;
     private static float[] colour = DEFAULT_COLOUR;
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private int shapeSelected = 0;
@@ -35,7 +32,7 @@ public class ImGuiEditor {
     public ImGuiEditor() {}
 
     public void init() {
-        inputStamper = SceneManager.get().getInputStamper();
+        // inputShapes = SceneManager.get().getInputShapes();
         menubar.init();
 
         InputImGui.setScaleCallback(scale.get());
@@ -92,14 +89,14 @@ public class ImGuiEditor {
 
     // Tool Radio Buttons
     private void showTools() {
-        for (InputStampShapes.TOOLS tool : InputStampShapes.TOOLS.values()) {
-            if (ImGui.radioButton(InputStampShapes.TOOL_NAMES.get(tool), toolSelected, tool.ordinal())) {
+        for (InputShapes.TOOLS tool : InputShapes.TOOLS.values()) {
+            if (ImGui.radioButton(InputShapes.TOOL_NAMES.get(tool), toolSelected, tool.ordinal())) {
                 // inputStamper.setToolsMode(tool);
                 InputImGui.setToolCallback(tool);
             }
 
             // End of radios
-            if (tool.ordinal() < InputStampShapes.TOOLS.values().length - 1) {
+            if (tool.ordinal() < InputShapes.TOOLS.values().length - 1) {
                 ImGui.sameLine();
             }
         }
@@ -107,14 +104,14 @@ public class ImGuiEditor {
 
     // Shape Combo Box
     private void showShape() {
-        InputStampShapes.SHAPES shapes[] = InputStampShapes.SHAPES.values();
+        InputShapes.SHAPES shapes[] = InputShapes.SHAPES.values();
 
         // Uses lookup for shape nickname
-        if (ImGui.beginCombo("Shape", InputStampShapes.SHAPE_NAMES.get(shapes[shapeSelected]))) {
+        if (ImGui.beginCombo("Shape", InputShapes.SHAPE_NAMES.get(shapes[shapeSelected]))) {
             for (int n = 0; n < shapes.length; n++) {
                 boolean isSelected = shapeSelected == n;
 
-                if (ImGui.selectable(InputStampShapes.SHAPE_NAMES.get(shapes[n]), isSelected)) {
+                if (ImGui.selectable(InputShapes.SHAPE_NAMES.get(shapes[n]), isSelected)) {
                     shapeSelected = n;
                     InputImGui.setShapeCallback(shapes[n]);
                 }

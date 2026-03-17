@@ -16,11 +16,11 @@ public class InputImGui {
     }
     @FunctionalInterface
     public interface ShapeHandler {
-        void handle(InputStampShapes.SHAPES shape);
+        void handle(InputShapes.SHAPES shape);
     }
     @FunctionalInterface
     public interface ToolHandler {
-        void handle(InputStampShapes.TOOLS tool);
+        void handle(InputShapes.TOOLS tool);
     }
 
     // List of handlers
@@ -54,6 +54,6 @@ public class InputImGui {
         for (var h : onScaleChanged) { h.handle(scale); }
     }
     public static void setBlendCallback(float blend) { for (var h : onBlendChanged) { h.handle(blend); }}
-    public static void setShapeCallback(InputStampShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}
-    public static void setToolCallback(InputStampShapes.TOOLS tool) { for (var h : onToolChanged) { h.handle(tool); }}
+    public static void setShapeCallback(InputShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}
+    public static void setToolCallback(InputShapes.TOOLS tool) { for (var h : onToolChanged) { h.handle(tool); }}
 }

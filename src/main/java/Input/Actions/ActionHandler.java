@@ -1,5 +1,6 @@
 package Input.Actions;
 
+import Input.InputShapes;
 import Input.InputStampShapes;
 import Jade.Scene;
 import Jade.SceneManager;
@@ -11,7 +12,8 @@ import java.util.Deque;
 public class ActionHandler {
     private boolean unsavedChanges = false;
 
-    private InputStampShapes inputStamper;
+    // private InputStampShapes inputStamper;
+    private InputShapes inputShapes;
     private Scene scene;
     private SceneManager sceneManager;
 
@@ -21,12 +23,12 @@ public class ActionHandler {
 
     public ActionHandler(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
-        this.inputStamper = new InputStampShapes(sceneManager);
+        this.inputShapes = new InputShapes(sceneManager);
     }
 
     public void init() {
         this.scene = sceneManager.getScene();
-        this.inputStamper.init();
+        this.inputShapes.init();
     }
 
     // Execute a new action and push it to the undo stack
@@ -51,5 +53,5 @@ public class ActionHandler {
     }
 
     public Scene getScene() { return scene; }
-    public InputStampShapes getInputStamper() { return inputStamper; }
+    public InputShapes getInputShapes() { return inputShapes; }
 }
