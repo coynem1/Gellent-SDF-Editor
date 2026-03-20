@@ -1,17 +1,16 @@
 package Input;
 
 import Input.Actions.ActionHandler;
-import Input.Actions.ActionStamp;
 import Jade.Camera;
 import Jade.Scene;
 import Jade.SceneManager;
 import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
+import Rendering.Objects.GameObject;
 import Rendering.Objects.GsonSaver;
-import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import util.Transform2D;
@@ -52,10 +51,11 @@ public class InputShapes {
     private Camera camera;
 
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
-    private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private Vector2f mousePos = new Vector2f();
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
+    private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    // private InputShapes.MODES stampMode = InputShapes.MODES.UNION;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -64,13 +64,14 @@ public class InputShapes {
 
         this.inputStamper = new InputStampShapes(sceneManager);
         this.inputSelector = new InputSelectShapes(sceneManager);
+        transform.setPosition(new Vector2f(0f, 0f));
     }
 
     public void init() {
         this.actionHandler = sceneManager.getActionHandler();
         this.gsonSaver = sceneManager.getGsonSaver();
-        this.inputStamper.init();
-        this.inputSelector.init();
+        this.inputStamper.init(this);
+        this.inputSelector.init(this);
 
         bindInputs();
     }
@@ -81,6 +82,12 @@ public class InputShapes {
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
 
             mousePos = new Vector2f(xPos, yPos);
+            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+
+            // Active shape changing
+            if (!activeTransform) return;
+
+            transform.setPosition(worldPos);
         });
 
         // Shortcuts
@@ -108,77 +115,72 @@ public class InputShapes {
         });
     }
 
+    // Change select/stamp mode
+    public MODES toggleMode(@NotNull Shape shape) {
+        MODES shapeMode = MODES.values()[shape.getShapeMode()];
+
+        // Intersect switches to difference too
+        if (shapeMode == MODES.DIFFERENCE) {
+            shapeMode = MODES.UNION;
+        }
+        else {
+            shapeMode = MODES.DIFFERENCE;
+        }
+
+        shape.setShapeMode(shapeMode);
+        return shapeMode;
+    }
 
     // Rounds through mouse position
-    private Shape roundShortcut(boolean pressed, Shape shape) {
+    public GameObject roundShortcut(@NotNull GameObject object) {
         // Check if round-able
-        if (shape.getComponent(ComponentRounded.class) == null) return shape;
-        if (freezeActiveShape(pressed, shape, InputShapes.SHORTCUTS.ROUND)) return shape;
+        if (object.getComponent(ComponentRounded.class) == null) return object;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
-        ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
-        if (rounded == null) return shape;
+        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
+        if (rounded == null) return object;
 
         // Enabled only if the mouse has moved enough
         if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
         if (!mouseEngaged) {
             // Easy reset rounded shortcut
             rounded.setRounded(0f);
-            return shape;
+            return object;
         }
 
-        float round = worldPos.distance(prevWorldPos) / shape.getTransform().getScale() ;
+        if (object.getClass() != Shape.class) return object;
+        float round = worldPos.distance(prevWorldPos) / ((Shape) object).getTransform().getScale() ;
         rounded.setRounded(min(round, ComponentRounded.MAX_ROUNDED));
-        return shape;
+        return object;
     }
 
     // Rotates through mouse position
-    private Shape rotateShortcut(boolean pressed, Shape shape) {
-        if (freezeActiveShape(pressed, shape, InputShapes.SHORTCUTS.ROTATE)) return shape;
-
+    public GameObject rotateShortcut(@NotNull GameObject object) {
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
+
         float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
-        angle = angle + (float) Math.PI * 1.5f; // Offset to point top of shape towards mouse
+        angle = angle + (float) Math.PI * 1.5f; // Offset to point top of object towards mouse
         transform.setRotation(angle);
 
-        shape.getTransform().setRotation(angle);
-        return shape;
+        if (object.getClass() == Shape.class) ((Shape) object).getTransform().setRotation(angle);
+        return object;
     }
 
     // Scales through mouse position
-    private Shape scaleShortcut(boolean pressed, Shape shape) {
-        if (freezeActiveShape(pressed, shape, InputShapes.SHORTCUTS.SCALE)) return shape;
-
+    public GameObject scaleShortcut(@NotNull GameObject object) {
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
         float scale = max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE);
         transform.setScale(scale);
 
-        shape.getTransform().setScale(scale);
-        return shape;
+        ((Shape) object).getTransform().setScale(scale);
+        return object;
     }
 
-    // Stops active shape from changing position
-    private boolean freezeActiveShape(boolean pressed, Shape shape, InputShapes.SHORTCUTS shortcut) {
-        if (shape == null) return true;
-
-        // Shortcut array
-        shortcutsUsed[shortcut.ordinal()] = pressed;
-
-        // Keep freezing if any shortcut is pressed
-        for (boolean s : shortcutsUsed) {
-            if (s) {
-                activeTransform = false;
-                return false;
-            }
-        }
-
-        activeTransform = true;
-        mouseEngaged = false;
-        return true;
-    }
+    public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
+    public void setActiveTransform(boolean active) {this.activeTransform = active;}
 
     public static Vector3f getColourSelected() { return colourSelected; }
 }

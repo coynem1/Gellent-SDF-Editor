@@ -8,7 +8,7 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class WindowIcon {
+public abstract class WindowIcon {
     private final static int RGBA_CHANNELS = 4;
     private final static String ICON_PATH = "assets/Images/icon.png";
 

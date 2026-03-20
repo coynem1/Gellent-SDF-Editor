@@ -30,6 +30,7 @@ public class InputSelectShapes {
     private Scene currentScene;
     private SceneManager sceneManager;
     private ActionHandler actionHandler;
+    private InputShapes inputShapes;
     private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
@@ -45,8 +46,9 @@ public class InputSelectShapes {
         this.camera = this.currentScene.getCamera();
     }
 
-    public void init() {
+    public void init(InputShapes inputShapes) {
         this.actionHandler = sceneManager.getActionHandler();
+        this.inputShapes = inputShapes;
         // this.gsonSaver = sceneManager.getGsonSaver();
 
         updateActiveShape();
