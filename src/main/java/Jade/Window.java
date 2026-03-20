@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import util.GameClock;
 import util.Time;
+import util.WindowIcon;
 
 import java.nio.IntBuffer;
 
@@ -36,7 +37,7 @@ public class Window {
         this.height = 1080;
         imguiWindow = new ImGuiWindow();
 
-        this.title = "SDF Editor";
+        this.title = "Gellent";
     }
 
     // Set shader version
@@ -147,6 +148,9 @@ public class Window {
             width = w.get(0);
             height = h.get(0);
         }
+
+        // Set the window icon
+        WindowIcon.setWindowIcon(glfwWindow);
 
         imguiWindow.clearBuffer();
         renderBuffer();
