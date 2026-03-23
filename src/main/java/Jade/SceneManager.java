@@ -2,8 +2,7 @@ package Jade;
 
 import Demo.DemoScene;
 import Input.Actions.ActionHandler;
-import Input.InputShapes;
-import Rendering.Objects.GsonSaver;
+import Saving.GsonSaver;
 
 public class SceneManager {
     private static SceneManager instance;
@@ -31,6 +30,7 @@ public class SceneManager {
         gsonSaver = new GsonSaver(currentScene);
 
         actionHandler.init();
+        gsonSaver.init();
     }
 
     // Singleton

@@ -1,23 +1,14 @@
 package Input;
 
 import Input.Actions.ActionHandler;
-import Input.Actions.ActionStamp;
 import Jade.Camera;
 import Jade.Scene;
 import Jade.SceneManager;
-import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.Components.Blending;
-import Rendering.Objects.Components.ComponentRounded;
-import Rendering.Objects.GsonSaver;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
-import util.Transform2D;
 import util.WorldCoords;
-
-import java.util.HashMap;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;

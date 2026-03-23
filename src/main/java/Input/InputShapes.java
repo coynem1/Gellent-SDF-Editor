@@ -7,7 +7,7 @@ import Jade.SceneManager;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
-import Rendering.Objects.GsonSaver;
+import Saving.GsonSaver;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
@@ -108,7 +108,7 @@ public class InputShapes {
                         actionHandler.undo();
                         break;
                     case GLFW_KEY_S:
-                        gsonSaver.save();
+                        gsonSaver.save(true);
                         break;
                 }
             }

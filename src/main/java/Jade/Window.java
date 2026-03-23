@@ -22,6 +22,8 @@ import static org.lwjgl.opengl.GL11C.*;
 
 // Entire program, looping until closed
 public class Window {
+    public static final String APP_NAME = "Gellent";
+
     private int width, height;
     private String title;
     private long glfwWindow;
@@ -37,7 +39,7 @@ public class Window {
         this.height = 1080;
         imguiWindow = new ImGuiWindow();
 
-        this.title = "Gellent";
+        this.title = APP_NAME;
     }
 
     // Set shader version
