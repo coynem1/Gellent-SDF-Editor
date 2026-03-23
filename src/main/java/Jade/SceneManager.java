@@ -3,6 +3,7 @@ package Jade;
 import Demo.DemoScene;
 import Input.Actions.ActionHandler;
 import Saving.GsonSaver;
+import Saving.TitleWindow;
 
 public class SceneManager {
     private static SceneManager instance;
@@ -11,23 +12,23 @@ public class SceneManager {
     private static int currentMode;   // Editing, Playing or Debugging, etc.
     private static String[] sceneModes;
 
-    private GsonSaver gsonSaver;
-    private ActionHandler actionHandler;
+    private GsonSaver gsonSaver = null;
+    private ActionHandler actionHandler = null;
+    private TitleWindow titleWindow = null;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
         currentMode = 0;
-
-        // setScene(new SceneBase("World"));
     }
 
     public void init() {
         setScene(new DemoScene("DemoScene"));
         currentScene.start();
 
-        // Input
+        // Input, Saving and Title
         actionHandler = new ActionHandler(this);
         gsonSaver = new GsonSaver(currentScene);
+        titleWindow = new TitleWindow();
 
         actionHandler.init();
         gsonSaver.init();

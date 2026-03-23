@@ -211,4 +211,10 @@ public class Window {
         return height;
     }
     public long getWindow() {return glfwWindow;}
+
+    public void setTitle(String title) {
+        this.title = title;
+        if (glfwWindow == NULL) return;
+        glfwSetWindowTitle(glfwWindow, title);
+    }
 }

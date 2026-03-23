@@ -110,6 +110,9 @@ public class InputShapes {
                     case GLFW_KEY_S:
                         gsonSaver.save(true);
                         break;
+                    case GLFW_KEY_O:
+                        gsonSaver.load();
+                        break;
                 }
             }
         });

@@ -70,4 +70,5 @@ public abstract class Scene {
 
     public Camera getCamera() {return camera;}
     public ArrayList<GameObject> getObjects() {return objects;}
+    public String getName() {return name;}
 }

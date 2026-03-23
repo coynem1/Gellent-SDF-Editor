@@ -1,6 +1,9 @@
 package Saving;
 
+import Input.Actions.ActionHandler;
+import Input.InputSaving;
 import Jade.Scene;
+import Jade.SceneManager;
 import Jade.Window;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,16 +46,27 @@ public class GsonSaver {
         if (file != null) {
             try {
                 Files.writeString(file, serialised);
+                InputSaving.setSaveCallback(currentFile.getName());
             } catch (Exception e) {
                 IO.println("Failed to save scene data: " + e.getMessage());
             }
         }
     }
 
+    // TODO: Implement loading saved scenes
     public void load() {
-        String serialised = gson.toJson(currentScene.getObjects());
+        String extension = SaveDialog.GELLENT_FILE_EXTENSION;
+        String pathStr;
+        Path path;
 
-        IO.println(serialised);
+        pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
+
+        // File is valid
+        if (pathStr != null && pathStr.endsWith("." + extension)) {
+            path = Path.of(pathStr);
+            currentFile = path.toFile();
+            InputSaving.setSaveCallback(currentFile.getName());
+        }
     }
 
     // Save the scene to a file
@@ -78,4 +92,6 @@ public class GsonSaver {
             return null;
         }
     }
+
+    public File getCurrentFile() { return currentFile; }
 }

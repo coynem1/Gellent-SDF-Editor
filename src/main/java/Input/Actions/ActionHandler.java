@@ -1,5 +1,6 @@
 package Input.Actions;
 
+import Input.InputSaving;
 import Input.InputShapes;
 import Input.InputStampShapes;
 import Jade.Scene;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 
 public class ActionHandler {
-    private boolean unsavedChanges = false;
+    private int lastSavedAction = 0;
 
     // private InputStampShapes inputStamper;
     private InputShapes inputShapes;
@@ -24,6 +25,15 @@ public class ActionHandler {
     public ActionHandler(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
         this.inputShapes = new InputShapes(sceneManager);
+        bindObservers();
+    }
+
+    // Unsaved changes update
+    private void bindObservers() {
+        InputSaving.onSaved((_) -> {
+            lastSavedAction = undoStack.size();
+            InputSaving.setActionCallback(false);
+        });
     }
 
     public void init() {
@@ -36,6 +46,7 @@ public class ActionHandler {
         action.execute();
         undoStack.push(action);
         redoStack.clear();  // Redo history emptied
+        InputSaving.setActionCallback(true);
     }
 
     public void undo() {
@@ -43,6 +54,7 @@ public class ActionHandler {
         Action action = undoStack.pop();
         action.undo();
         redoStack.push(action);
+        InputSaving.setActionCallback(lastSavedAction != undoStack.size());
     }
 
     public void redo() {
@@ -50,6 +62,7 @@ public class ActionHandler {
         Action action = redoStack.pop();
         action.execute();
         undoStack.push(action);
+        InputSaving.setActionCallback(lastSavedAction != undoStack.size());
     }
 
     public Scene getScene() { return scene; }

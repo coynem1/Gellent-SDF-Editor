@@ -29,7 +29,7 @@ public class ImGuiMenubar {
 
         if (ImGui.beginMenu("File")) {
             ImGui.menuItem("New", "Ctrl+N", false, true);
-            ImGui.menuItem("Open", "Ctrl+O", false, true);
+            if (ImGui.menuItem("Open", "Ctrl+O", false, true)) { gsonSaver.load(); }
 
             if (ImGui.beginMenu("Open Recent", false)) {
                 ImGui.menuItem("File 1", null, false, true);
