@@ -3,6 +3,7 @@ package Rendering.Objects;
 import Input.InputShapes;
 import Input.InputStampShapes;
 import Rendering.Objects.Components.*;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import util.Transform2D;
@@ -14,8 +15,6 @@ public class Shape extends GameObject {
     protected SculptObject sculptObject;
     protected Vector3f colour = InputShapes.getColourSelected();
     protected Transform2D<Vector2f> transform = Transform2D.createFloat();
-    protected Blending blending = new Blending();
-    protected transient Class<? extends Component> shapeTypeClass = null;
     protected InputShapes.SHAPES shapeType = null;
     protected InputShapes.MODES shapeModes = InputShapes.MODES.UNION;
 
@@ -26,46 +25,33 @@ public class Shape extends GameObject {
         transform.setPosition(new Vector2f(0f, 0f));
 
         setShape(shape);
-        addComponent(blending);
     }
 
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D transform) {this.transform = transform;}
-    public void setBlend(float blend) {this.blending.setBlend(blend);}
-    public void setShapeMode(InputShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
-    public void setShape(InputShapes.SHAPES shape) {
-        shapeType = shape;
-        if (shapeTypeClass != null) {
-            removeComponents(shapeTypeClass);
-            removeComponents(ComponentRounded.class);
-        }
+    public void setBlend(float blend) {
+        Blending blending = getComponent(Blending.class);
 
-        switch (shape) {
-            case CIRCLE:
-                shapeTypeClass = BasicCircle.class;
-                addComponent(new BasicCircle());
-                break;
-            case BOX:
-                shapeTypeClass = BasicBox.class;
-                addComponent(new BasicBox());
-                addComponent(new ComponentRounded());
-                break;
-            case TRIANGLE:
-                shapeTypeClass = ComponentTriangle.class;
-                addComponent(new ComponentTriangle());
-                addComponent(new ComponentRounded());
-                break;
-            case STAR:
-                shapeTypeClass = BasicStar.class;
-                addComponent(new BasicStar());
-                addComponent(new ComponentRounded());
-                break;
-            default:
-                shapeTypeClass = BasicCircle.class;
-                addComponent(new BasicCircle());
-                IO.println("WARNING: Unrecognised shape type. Defaulting to circle");
-                break;
+        // Create a blending component if needed and set it
+        if (blending != null) {
+            blending.setBlend(blend);
+        }
+        else if (blend != 0f) {
+            blending = new Blending();
+            blending.setBlend(blend);
+            addComponent(blending);
+        }
+    }
+    public void setShapeMode(InputShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
+    public void setShape(@NotNull InputShapes.SHAPES shape) {
+        shapeType = shape;
+
+        // if unroundable, remove the rounded component that might be there
+        for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
+            if (shape == unroundable) {
+                removeComponents(ComponentRounded.class);
+            }
         }
     }
 
@@ -73,7 +59,16 @@ public class Shape extends GameObject {
     public Vector3f getColour() {return this.colour;}
     public Transform2D getTransform() {return this.transform;}
     public InputShapes.SHAPES getShapeType() {return this.shapeType;}
-    public float getBlend() { return this.blending.getBlend(); }
+    public float getBlend() {
+        Blending blending = getComponent(Blending.class);
+
+        // Remove blending if its zero
+        if (blending != null) {
+            if (blending.getBlend() > 0f) return blending.getBlend();
+            else removeComponents(Blending.class);
+        };
+        return 0f;
+    }
     public int getShapeMode() {return shapeModes.ordinal();}
 
 }

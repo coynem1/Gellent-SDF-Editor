@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 import util.Transform2D;
 import util.WorldCoords;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.lang.Math.max;
@@ -41,6 +42,7 @@ public class InputShapes {
         put(SHAPES.TRIANGLE, "Triangle");
         put(SHAPES.STAR, "Star");
     }};
+    public static final SHAPES[] UNROUNDABLE_SHAPES = { SHAPES.CIRCLE };
 
     private InputStampShapes inputStamper;
     private InputSelectShapes inputSelector;
@@ -135,14 +137,36 @@ public class InputShapes {
     }
 
     // Rounds through mouse position
-    public GameObject roundShortcut(@NotNull GameObject object) {
-        // Check if round-able
-        if (object.getComponent(ComponentRounded.class) == null) return object;
+    public GameObject roundShortcut(@NotNull GameObject object, boolean pressed) {
+        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
+
+        // If finished rounding, and it's zero, remove the rounded component
+        if (!pressed) {
+            if (rounded == null) return object;
+            if (rounded.getRounded() == 0f) {
+                object.removeComponents(ComponentRounded.class);
+                return object;
+            }
+        }
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
         Vector2f prevWorldPos = transform.getPosition();
-        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
-        if (rounded == null) return object;
+
+
+        // If roundable shape, add the round component
+        if (rounded == null) {
+            if (object.getClass() != Shape.class) return object;
+            Shape shape = (Shape) object;
+
+            // Check if unroundable
+            for (var unroundable : UNROUNDABLE_SHAPES) {
+                if (shape.getShapeType() == unroundable) return object;
+            }
+
+            // Add round component
+            shape.addComponent(new ComponentRounded());
+            rounded = object.getComponent(ComponentRounded.class);
+        }
 
         // Enabled only if the mouse has moved enough
         if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;

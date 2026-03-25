@@ -143,7 +143,7 @@ public class InputStampShapes {
                     case GLFW_KEY_F:
                         if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND)) {
                             inputShapes.setMouseEngaged(false);
-                            object = inputShapes.roundShortcut(object);
+                            object = inputShapes.roundShortcut(object, pressed);
                         }
                         break;
                 }
@@ -160,13 +160,16 @@ public class InputStampShapes {
 
             switch (key) {
                 case GLFW_KEY_S:
-                    if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE)) object = inputShapes.scaleShortcut(object);
+                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
+                    // if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE)) object = inputShapes.scaleShortcut(object);
                     break;
                 case GLFW_KEY_R:
-                    if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE)) object = inputShapes.rotateShortcut(object);
+                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE);
+                    // if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE)) object = inputShapes.rotateShortcut(object);
                     break;
                 case GLFW_KEY_F:
-                    if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND)) object = inputShapes.roundShortcut(object);
+                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND);
+                    object = inputShapes.roundShortcut(object, false);  // Removes rounded if needed
                     break;
             }
 
@@ -180,7 +183,7 @@ public class InputStampShapes {
 
         if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { object = inputShapes.rotateShortcut(object); }
         if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { object = inputShapes.scaleShortcut(object); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { object = inputShapes.roundShortcut(object); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { object = inputShapes.roundShortcut(object, true); }
 
         activeShape = (Shape) object;
     }
@@ -239,6 +242,7 @@ public class InputStampShapes {
         if (previousShape != null) {
             ComponentRounded rounded = previousShape.getComponent(ComponentRounded.class);
             if (rounded != null) {
+                activeShape.addComponent(new ComponentRounded());
                 activeShape.getComponent(ComponentRounded.class).setRounded(rounded.getRounded());
             }
         };

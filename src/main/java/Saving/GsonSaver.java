@@ -1,16 +1,14 @@
 package Saving;
 
-import Input.Actions.ActionHandler;
 import Input.InputSaving;
 import Jade.Scene;
-import Jade.SceneManager;
 import Jade.Window;
+import Rendering.Objects.Components.Component;
+import Saving.Deserialisers.DeserialiseComponents;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -27,6 +25,7 @@ public class GsonSaver {
         this.currentScene = currentScene;
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
+            .registerTypeAdapter(Component.class, new DeserialiseComponents())
             .create();
         this.settings = new AppSettings();
 

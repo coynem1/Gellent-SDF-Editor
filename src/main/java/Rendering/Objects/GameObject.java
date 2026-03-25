@@ -55,7 +55,6 @@ public class GameObject {
         }
     }
 
-
-
+    public void setName(String name) { this.name = name; }
 
 }
