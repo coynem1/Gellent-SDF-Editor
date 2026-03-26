@@ -13,11 +13,15 @@ public class Transform2D <T>{
     private Transform2D() {}
 
     public static Transform2D<Vector2f> createFloat() {
-        return new Transform2D<>();
+        Transform2D<Vector2f> t = new Transform2D<>();
+        t.position = new Vector2f(0, 0);
+        return t;
     }
 
     public static Transform2D<Vector2i> createInt() {
-        return new Transform2D<>();
+        Transform2D<Vector2i> t = new Transform2D<>();
+        t.position = new Vector2i(0, 0);
+        return t;
     }
 
     public Transform2D<T> copy() {

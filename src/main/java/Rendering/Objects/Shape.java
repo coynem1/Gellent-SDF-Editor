@@ -9,7 +9,6 @@ import org.joml.Vector3f;
 import util.Transform2D;
 
 public class Shape extends GameObject {
-    public transient static final String DEFAULT_NAME = "Shape";
     public transient static final float MINIMUM_SCALE = 0.1f;   // Cannot scale to zero
 
     protected SculptObject sculptObject;
@@ -29,19 +28,26 @@ public class Shape extends GameObject {
 
     // Setters for tweaking
     public void setColour(Vector3f colour) {this.colour = colour;}
-    public void setTransform(Transform2D transform) {this.transform = transform;}
+    public void setTransform(Transform2D<Vector2f> transform) {this.transform = transform;}
     public void setBlend(float blend) {
         Blending blending = getComponent(Blending.class);
 
-        // Create a blending component if needed and set it
-        if (blending != null) {
-            blending.setBlend(blend);
+        // Remove blending if its zero
+        if (blend == 0f) {
+            if (blending == null) return;
+            removeComponents(Blending.class);
+            return;
         }
-        else if (blend != 0f) {
+
+        // Create a blending component if needed and set it
+        if (blending == null) {
             blending = new Blending();
             blending.setBlend(blend);
             addComponent(blending);
+            return;
         }
+
+        blending.setBlend(blend);
     }
     public void setShapeMode(InputShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
     public void setShape(@NotNull InputShapes.SHAPES shape) {
@@ -57,7 +63,7 @@ public class Shape extends GameObject {
 
     // Getters
     public Vector3f getColour() {return this.colour;}
-    public Transform2D getTransform() {return this.transform;}
+    public Transform2D<Vector2f> getTransform() {return this.transform;}
     public InputShapes.SHAPES getShapeType() {return this.shapeType;}
     public float getBlend() {
         Blending blending = getComponent(Blending.class);

@@ -4,7 +4,9 @@ import Input.InputSaving;
 import Jade.Scene;
 import Jade.Window;
 import Rendering.Objects.Components.Component;
+import Rendering.Objects.Shape;
 import Saving.Deserialisers.DeserialiseComponents;
+import Saving.Deserialisers.DeserialiseShapes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -26,6 +28,7 @@ public class GsonSaver {
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Component.class, new DeserialiseComponents())
+            .registerTypeAdapter(Shape.class, new DeserialiseShapes())
             .create();
         this.settings = new AppSettings();
 
@@ -59,10 +62,10 @@ public class GsonSaver {
         Path path;
 
         pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
+        path = Path.of(pathStr);
 
         // File is valid
-        if (pathStr != null && pathStr.endsWith("." + extension)) {
-            path = Path.of(pathStr);
+        if (isValidGellentFile(path)) {
             currentFile = path.toFile();
             InputSaving.setSaveCallback(currentFile.getName());
         }
@@ -93,4 +96,14 @@ public class GsonSaver {
     }
 
     public File getCurrentFile() { return currentFile; }
+
+    // Check if a file is a valid Gellent file
+    public static boolean isValidGellentFile(Path path) {
+        String pathStr = path.toString();
+
+        if (!Files.exists(path)) return false;
+        if (!pathStr.endsWith("." + SaveDialog.GELLENT_FILE_EXTENSION)) return false;
+
+        return true;
+    }
 }

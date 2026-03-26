@@ -4,6 +4,7 @@ import Rendering.Objects.Components.Component;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GameObject {
@@ -56,5 +57,7 @@ public class GameObject {
     }
 
     public void setName(String name) { this.name = name; }
+    public String getName() { return name; }
+    public List<Component> getComponents() { return Collections.unmodifiableList(components); }
 
 }

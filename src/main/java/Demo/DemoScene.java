@@ -16,9 +16,9 @@ import util.GameClock;
 import util.Time;
 import util.Transform2D;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static Input.InputStampShapes.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
@@ -28,15 +28,12 @@ public class DemoScene extends Scene {
     private String[] demos;
 
     // Game variables
-    private float blend = 0.5f;
     private int toggleRender = 0;
-    private boolean blendPressed = false;
-    private boolean awaitUploadShader = false;
 
     private Shape testObject;
 
-    public DemoScene(String name) {
-        super(name);
+    public DemoScene() {
+        super();
 
         // File paths
         this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
@@ -57,17 +54,10 @@ public class DemoScene extends Scene {
 
         // Drawing shapes
         this.renderDebugger.createRect(-50f, -50f, 100f, 100f);
-        this.renderDebugger.createRect(102f, 52f, 60f, 23f);
         this.renderDebugger.render();
 
         bindInputs();
         uploadShader();
-
-        // Upload shaders in fixed intervals
-        GameClock.get().addObserver(delta -> {
-            // Cannot change glfw not on the main thread
-            awaitUploadShader = true;
-        });
 
         // Draw shapes
         testSculpt();
@@ -111,8 +101,8 @@ public class DemoScene extends Scene {
 
     // Sends variables to shader at fixed intervals
     private void uploadShader() {
-        if (!awaitUploadShader) return;
-        awaitUploadShader = false;
+        if (!awaitGameClock) return;
+        awaitGameClock = false;
 
         uploadShapes();
 

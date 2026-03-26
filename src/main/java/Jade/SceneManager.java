@@ -5,6 +5,8 @@ import Input.Actions.ActionHandler;
 import Saving.GsonSaver;
 import Saving.TitleWindow;
 
+import java.nio.file.Path;
+
 public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
@@ -22,8 +24,8 @@ public class SceneManager {
     }
 
     public void init() {
-        setScene(new DemoScene("DemoScene"));
-        currentScene.start();
+        // TODO: Attempt to load recent scene
+        setScene(new SceneBase());
 
         // Input, Saving and Title
         actionHandler = new ActionHandler(this);
@@ -32,6 +34,8 @@ public class SceneManager {
 
         actionHandler.init();
         gsonSaver.init();
+        currentScene.loadSceneFromFile(Path.of("C:/Users/ciara/Desktop/Code/College Work/Year 4/FYP/Demo/untitled.glnt"));
+        currentScene.start();
     }
 
     // Singleton
@@ -60,8 +64,8 @@ public class SceneManager {
     public GsonSaver getGsonSaver() {return gsonSaver;}
 
     // Adds new scene to dict
-    public Scene createScene(String name) {
-        Scene scene = new SceneBase(name);
+    public Scene createScene() {
+        Scene scene = new SceneBase();
         setScene(scene);
         return scene;
     }
