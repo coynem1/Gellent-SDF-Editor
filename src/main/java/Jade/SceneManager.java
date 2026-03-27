@@ -44,7 +44,7 @@ public class SceneManager {
         // Notify only once that the scene has been opened
         Path path = gsonSaver.getRecentFile(0);
         loadScene(path);
-        InputSaving.setOpenCallback(path.getFileName().toString());
+        if (path != null) InputSaving.setOpenCallback(path.getFileName().toString());
 
         // Ensures that the scene is in the settings file
         InputSaving.onOpened((filePath) -> {
