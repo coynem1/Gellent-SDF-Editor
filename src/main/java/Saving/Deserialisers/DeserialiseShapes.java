@@ -27,7 +27,7 @@ public class DeserialiseShapes implements JsonDeserializer<Shape> {
 
         SculptObject sculpt = context.deserialize(jsonObject.get(SCULPT_OBJECT), SculptObject.class);
         Vector3f colour = context.deserialize(jsonObject.get(COLOUR), Vector3f.class);
-        //Transform2D<Vector2f> transform = context.deserialize(jsonObject.get(TRANSFORM), Transform2D.class);
+
         Type transformType = new TypeToken<Transform2D<Vector2f>>(){}.getType();
         Transform2D<Vector2f> transform = context.deserialize(jsonObject.get(TRANSFORM), transformType);
 

@@ -42,8 +42,8 @@ public class InputStampShapes {
 
     public InputStampShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
-        this.currentScene = sceneManager.getScene();
-        this.camera = this.currentScene.getCamera();
+        // this.currentScene = sceneManager.getScene();
+        // this.camera = this.currentScene.getCamera();
 
         transform.setPosition(new Vector2f(0f, 0f));
     }
@@ -108,7 +108,7 @@ public class InputStampShapes {
             if (toolsMode != InputShapes.TOOLS.STAMP) return;
 
             mousePos = new Vector2f(xPos, yPos);
-            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
             // Active shape changing
             if (!activeTransform) {
@@ -216,15 +216,15 @@ public class InputStampShapes {
             return;
         }
 
-        if (activeShape != null) currentScene.removeObjectFromScene(activeShape);
+        if (activeShape != null) sceneManager.getScene().removeObjectFromScene(activeShape);
     }
 
     private void stampShape() {
         Transform2D<Vector2f> copyTransform = transform.copy(); // Shouldn't be a reference
 
         activeShape.setTransform(copyTransform);
-        currentScene.removeObjectFromScene(activeShape);
-        actionHandler.perform(new ActionStamp(currentScene, activeShape));
+        sceneManager.getScene().removeObjectFromScene(activeShape);
+        actionHandler.perform(new ActionStamp(sceneManager.getScene(), activeShape));
 
         newActiveShape();
     }
@@ -247,6 +247,6 @@ public class InputStampShapes {
             }
         };
 
-        currentScene.addObjectToScene(activeShape);
+        sceneManager.getScene().addObjectToScene(activeShape);
     }
 }

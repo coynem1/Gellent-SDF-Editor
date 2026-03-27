@@ -24,7 +24,7 @@ import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputShapes {
-    private static final float MOUSE_ENGAGE_DIST = 1f;
+    private static final float MOUSE_ENGAGE_DIST = 0.1f;
 
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     public enum TOOLS { SELECT, STAMP, SMEAR };
@@ -57,16 +57,15 @@ public class InputShapes {
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
     private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
-    // private InputShapes.MODES stampMode = InputShapes.MODES.UNION;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
-        this.currentScene = sceneManager.getScene();
-        this.camera = this.currentScene.getCamera();
 
         this.inputStamper = new InputStampShapes(sceneManager);
         this.inputSelector = new InputSelectShapes(sceneManager);
         transform.setPosition(new Vector2f(0f, 0f));
+
+        bindInputs();
     }
 
     public void init() {
@@ -75,7 +74,7 @@ public class InputShapes {
         this.inputStamper.init(this);
         this.inputSelector.init(this);
 
-        bindInputs();
+        // bindInputs();
     }
 
     private void bindInputs() {
@@ -84,7 +83,7 @@ public class InputShapes {
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
 
             mousePos = new Vector2f(xPos, yPos);
-            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
             // Active shape changing
             if (!activeTransform) return;
@@ -149,7 +148,7 @@ public class InputShapes {
             }
         }
 
-        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
 
 
@@ -184,7 +183,7 @@ public class InputShapes {
 
     // Rotates through mouse position
     public GameObject rotateShortcut(@NotNull GameObject object) {
-        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
 
         float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
@@ -197,7 +196,7 @@ public class InputShapes {
 
     // Scales through mouse position
     public GameObject scaleShortcut(@NotNull GameObject object) {
-        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
         float scale = max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE);
         transform.setScale(scale);

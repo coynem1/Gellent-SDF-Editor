@@ -25,12 +25,15 @@ public class TitleWindow {
             fileName = file;
             updateWindowTitle();
         });
+        InputSaving.onOpened((file) -> {
+            fileName = file;
+            updateWindowTitle();
+        });
         InputSaving.onActionChanged((unsaved) -> {
             unsavedChanges = unsaved;
             updateWindowTitle();
         });
     }
-
 
     // Update the window title to possibly include file name and unsaved changes
     public void updateWindowTitle() {

@@ -2,29 +2,31 @@ package Saving;
 
 import Input.InputSaving;
 import Jade.Scene;
+import Jade.SceneManager;
 import Jade.Window;
 import Rendering.Objects.Components.Component;
+import Rendering.Objects.GameObject;
 import Rendering.Objects.Shape;
 import Saving.Deserialisers.DeserialiseComponents;
 import Saving.Deserialisers.DeserialiseShapes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import util.GameClock;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class GsonSaver {
     public static final String VERSION = "0.1a";
     public static final String CONFIG_DIR = AppPaths.getConfigDir(Window.APP_NAME);
 
-    private Scene currentScene;
     private final Gson gson;
     private AppSettings settings;
     private File currentFile;
 
-    public GsonSaver(Scene currentScene) {
-        this.currentScene = currentScene;
+    public GsonSaver() {
         this.gson = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Component.class, new DeserialiseComponents())
@@ -41,6 +43,7 @@ public class GsonSaver {
     }
 
     public void save(boolean overwrite) {
+        Scene currentScene = SceneManager.get().getScene();
         String serialised = gson.toJson(currentScene.getObjects());
         Path file = saveSceneFile(overwrite);
 
@@ -61,14 +64,17 @@ public class GsonSaver {
         String pathStr;
         Path path;
 
+        // Open a file
         pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
         path = Path.of(pathStr);
 
-        // File is valid
-        if (isValidGellentFile(path)) {
-            currentFile = path.toFile();
-            InputSaving.setSaveCallback(currentFile.getName());
-        }
+        // File is not valid
+        if (!isValidGellentFile(path)) return;
+
+        currentFile = path.toFile();
+        addRecentFiles(path);
+        InputSaving.setSaveCallback(currentFile.getName());
+        InputSaving.setOpenCallback(currentFile.getName());
     }
 
     // Save the scene to a file
@@ -86,7 +92,7 @@ public class GsonSaver {
         if (pathStr != null) {
             // user picked a location, now actually write your data to it
             path = Path.of(pathStr);
-            settings.setCurrentFile(path);
+            settings.addRecentFiles(path);
             currentFile = path.toFile();
             return path;
         } else {
@@ -95,7 +101,11 @@ public class GsonSaver {
         }
     }
 
+    // Add a file to the recent files list
+    public void addRecentFiles(Path path) { settings.addRecentFiles(path); }
+
     public File getCurrentFile() { return currentFile; }
+    public Path getRecentFile(int index) { return settings.getRecentFile(index); }
 
     // Check if a file is a valid Gellent file
     public static boolean isValidGellentFile(Path path) {

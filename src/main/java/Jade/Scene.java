@@ -104,8 +104,6 @@ public abstract class Scene {
             addObjectToScene(obj);
         }
         levelLoaded = true;
-
-        IO.println("JSON: " + json);
     }
 
     // Start all objects in the scene
@@ -173,7 +171,6 @@ public abstract class Scene {
             Transform2D<Vector2f> transform = shape.getTransform();
 
             uShapeCount ++;
-            IO.println("Pos: " + transform.getPosition());
 
             uShapePos[i] = new Vector2f(transform.getPosition().x,transform.getPosition().y);
             uShapeTypes[i] = shape.getShapeType().ordinal();

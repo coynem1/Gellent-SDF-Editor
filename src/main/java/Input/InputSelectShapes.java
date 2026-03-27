@@ -18,11 +18,8 @@ public class InputSelectShapes {
     private SculptObject selectedSculpt = new SculptObject();
     private Shape selectedShape = null;
 
-    private Scene currentScene;
     private SceneManager sceneManager;
-    private ActionHandler actionHandler;
     private InputShapes inputShapes;
-    private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
@@ -33,14 +30,10 @@ public class InputSelectShapes {
 
     public InputSelectShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
-        this.currentScene = sceneManager.getScene();
-        this.camera = this.currentScene.getCamera();
     }
 
     public void init(InputShapes inputShapes) {
-        this.actionHandler = sceneManager.getActionHandler();
         this.inputShapes = inputShapes;
-        // this.gsonSaver = sceneManager.getGsonSaver();
 
         updateActiveShape();
         bindInputs();
@@ -85,7 +78,7 @@ public class InputSelectShapes {
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
 
             mousePos = new Vector2f(xPos, yPos);
-            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, camera);
+            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
             // transform.setPosition(worldPos);
         });
