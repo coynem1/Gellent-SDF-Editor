@@ -1,5 +1,6 @@
 package Jade;
 
+import Input.InputSaving;
 import Input.InputStampShapes;
 import Rendering.Objects.Components.Component;
 import Rendering.Objects.Components.ComponentRounded;
@@ -79,8 +80,7 @@ public abstract class Scene {
         });
     }
 
-    // TODO: Add error handling
-    // Assume that the file is valid
+    // Load JSON and create objects from it
     protected void loadSceneFromFile(@NotNull Path path) {
         Gson gson = new GsonBuilder()
             .setPrettyPrinting()

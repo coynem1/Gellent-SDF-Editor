@@ -10,13 +10,14 @@ public class ImGuiMenubar {
     private static String[] recentFiles = new String[10];
     private ActionHandler actionHandler;
     private GsonSaver gsonSaver;
+    private SceneManager sceneManager;
 
     public ImGuiMenubar() {
         // actionHandler = SceneManager.get().getActionHandler();
     }
 
     public void init() {
-        SceneManager sceneManager = SceneManager.get();
+        sceneManager = SceneManager.get();
 
         actionHandler = sceneManager.getActionHandler();
         gsonSaver = sceneManager.getGsonSaver();
@@ -28,7 +29,7 @@ public class ImGuiMenubar {
         }
 
         if (ImGui.beginMenu("File")) {
-            ImGui.menuItem("New", "Ctrl+N", false, true);
+            if (ImGui.menuItem("New", "Ctrl+N", false, true)) { sceneManager.newScene(); }
             if (ImGui.menuItem("Open", "Ctrl+O", false, true)) { gsonSaver.load(); }
 
             if (ImGui.beginMenu("Open Recent", false)) {

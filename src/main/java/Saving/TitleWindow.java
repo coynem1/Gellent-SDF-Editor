@@ -1,10 +1,10 @@
 package Saving;
 
-import Input.Actions.ActionHandler;
 import Input.InputSaving;
-import Jade.SceneManager;
 import Jade.Window;
-import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TitleWindow {
     private static final String DELIMITER = " - ";
@@ -21,12 +21,16 @@ public class TitleWindow {
     }
 
     private void bindObservers() {
-        InputSaving.onSaved((file) -> {
-            fileName = file;
+        InputSaving.onSaved((name) -> {
+            fileName = name;
             updateWindowTitle();
         });
-        InputSaving.onOpened((file) -> {
-            fileName = file;
+        InputSaving.onNewFile(() -> {
+            fileName = null;
+            updateWindowTitle();
+        });
+        InputSaving.onOpened((filePath) -> {
+            fileName = Paths.get(filePath).getFileName().toString();
             updateWindowTitle();
         });
         InputSaving.onActionChanged((unsaved) -> {

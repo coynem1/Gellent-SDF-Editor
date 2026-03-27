@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import util.Transform2D;
 
+import java.io.File;
 import java.nio.file.Path;
 
 public class SceneManager {
@@ -40,38 +41,49 @@ public class SceneManager {
         actionHandler.init();
         gsonSaver.init();
 
-        loadScene();
+        // Notify only once that the scene has been opened
+        Path path = gsonSaver.getRecentFile(0);
+        loadScene(path);
+        InputSaving.setOpenCallback(path.getFileName().toString());
 
-        InputSaving.onOpened((file) -> {
-            loadScene();
+        // Ensures that the scene is in the settings file
+        InputSaving.onOpened((filePath) -> {
+            loadScene(Path.of(filePath));
         });
-
-
     }
 
-    private void loadScene() {
-        Path path = null;
+    public void newScene() {
+        setScene(new SceneBase());
+        blankScene();
+        InputSaving.newFileCallback();
+        currentScene.start();
+    }
+
+    // Load the most recent scene from settings, if not, load a blank scene
+    private void loadScene(Path path) {
         setScene(new SceneBase());
 
-        // Load the most recent scene from settings, if not, load a blank scene
-        path = gsonSaver.getRecentFile(0);
         if (path != null) {
             currentScene.loadSceneFromFile(path);
         }
         else {
-            // Blank scene with a single square
-            Transform2D<Vector2f> transform = Transform2D.createFloat();
-            transform.setPosition(new Vector2f(0,0));
-            transform.setScale(10f);
-
-            Shape square = new Shape(InputShapes.SHAPES.BOX, new SculptObject());
-            square.setShapeMode(InputShapes.MODES.UNION);
-            square.setTransform(transform);
-
-            currentScene.addObjectToScene(square);
+            blankScene();
         }
 
         currentScene.start();
+    }
+
+    // Add a single square to the blank scene
+    private void blankScene() {
+        Transform2D<Vector2f> transform = Transform2D.createFloat();
+        transform.setPosition(new Vector2f(0,0));
+        transform.setScale(10f);
+
+        Shape square = new Shape(InputShapes.SHAPES.BOX, new SculptObject());
+        square.setShapeMode(InputShapes.MODES.UNION);
+        square.setTransform(transform);
+
+        currentScene.addObjectToScene(square);
     }
 
     // Singleton
@@ -95,15 +107,4 @@ public class SceneManager {
     public Camera getCamera() { return currentScene.getCamera(); }
     public ActionHandler getActionHandler() {return actionHandler;}
     public GsonSaver getGsonSaver() {return gsonSaver;}
-
-    // Adds new scene to dict
-    public void loadSceneFromFile(Path path) {
-        if (!GsonSaver.isValidGellentFile(path)) return;
-
-        gsonSaver.addRecentFiles(path);
-        init();
-
-        // setScene(new SceneBase());
-        // currentScene.loadSceneFromFile(path);
-    }
 }

@@ -46,11 +46,9 @@ public class InputShapes {
 
     private InputStampShapes inputStamper;
     private InputSelectShapes inputSelector;
-    private Scene currentScene;
     private SceneManager sceneManager;
     private ActionHandler actionHandler;
     private GsonSaver gsonSaver;
-    private Camera camera;
 
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private Vector2f mousePos = new Vector2f();
@@ -73,8 +71,6 @@ public class InputShapes {
         this.gsonSaver = sceneManager.getGsonSaver();
         this.inputStamper.init(this);
         this.inputSelector.init(this);
-
-        // bindInputs();
     }
 
     private void bindInputs() {
@@ -113,6 +109,9 @@ public class InputShapes {
                         break;
                     case GLFW_KEY_O:
                         gsonSaver.load();
+                        break;
+                    case GLFW_KEY_N:
+                        sceneManager.newScene();
                         break;
                 }
             }

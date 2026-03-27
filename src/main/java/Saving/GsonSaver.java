@@ -58,7 +58,7 @@ public class GsonSaver {
         }
     }
 
-    // TODO: Implement loading saved scenes
+    // Opens a dialog to open a file
     public void load() {
         String extension = SaveDialog.GELLENT_FILE_EXTENSION;
         String pathStr;
@@ -66,6 +66,7 @@ public class GsonSaver {
 
         // Open a file
         pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
+        if (pathStr == null) return;
         path = Path.of(pathStr);
 
         // File is not valid
@@ -73,8 +74,7 @@ public class GsonSaver {
 
         currentFile = path.toFile();
         addRecentFiles(path);
-        InputSaving.setSaveCallback(currentFile.getName());
-        InputSaving.setOpenCallback(currentFile.getName());
+        InputSaving.setOpenCallback(currentFile.toString());
     }
 
     // Save the scene to a file
