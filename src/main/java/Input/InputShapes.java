@@ -2,8 +2,10 @@ package Input;
 
 import Input.Actions.ActionHandler;
 import Jade.SceneManager;
+import Observers.InputImGui;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
+import Observers.InputShapesEvents;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
@@ -54,7 +56,7 @@ public class InputShapes {
     private Vector2f mousePos = new Vector2f();
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
-    private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    private static InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -74,6 +76,10 @@ public class InputShapes {
     }
 
     private void bindInputs() {
+        InputImGui.onToolChanged((tool) -> {
+            toolsMode = tool;
+        });
+
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
@@ -115,7 +121,27 @@ public class InputShapes {
                         break;
                 }
             }
+            else {
+                switch (key) {
+                    case GLFW_KEY_TAB:
+                        toggleToolsMode();
+                        break;
+                }
+            }
+
         });
+    }
+
+    // Toggles between select/stamp
+    private void toggleToolsMode() {
+        // In case of smear, switch to select
+        if (toolsMode == TOOLS.SELECT) {
+            toolsMode = TOOLS.STAMP;
+        }
+        else {
+            toolsMode = TOOLS.SELECT;
+        }
+        InputShapesEvents.setToolModeCallback(toolsMode);
     }
 
     // Change select/stamp mode
@@ -207,4 +233,5 @@ public class InputShapes {
     public void setActiveTransform(boolean active) {this.activeTransform = active;}
 
     public static Vector3f getColourSelected() { return colourSelected; }
+    public static TOOLS getToolsMode() { return toolsMode; }
 }

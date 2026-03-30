@@ -8,6 +8,7 @@ import Jade.SceneManager;
 import Observers.InputImGui;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
+import Observers.InputShapesEvents;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
@@ -39,14 +40,11 @@ public class InputStampShapes {
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private boolean activeTransform = true; // Active shape tracks mouse position
     private InputShapes.SHAPES selectedShape = InputShapes.SHAPES.CIRCLE;
-    private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
     private InputShapes.MODES stampMode = InputShapes.MODES.UNION;
-
+    private boolean enabled = false;
 
     public InputStampShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
-        // this.currentScene = sceneManager.getScene();
-        // this.camera = this.currentScene.getCamera();
 
         transform.setPosition(new Vector2f(0f, 0f));
     }
@@ -63,40 +61,42 @@ public class InputStampShapes {
         // ImGui UI inputs
         InputImGui.onColourChanged((colour) -> {
             colourSelected = colour;
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
             if (activeShape != null) activeShape.setColour(colour);
         });
         InputImGui.onScaleChanged((scale) -> {
             transform.setScale(scale);
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
             if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onBlendChanged((blend) -> {
             blending.setBlend(blend);
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
             if (activeShape != null) activeShape.setBlend(blend);
         });
         InputImGui.onRotationChanged((rotation) -> {
             // Convert to radians
             rotation *= (float) Math.PI / 180;
             transform.setRotation(-rotation);
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
             if (activeShape != null) activeShape.setTransform(transform);
         });
         InputImGui.onShapeChanged((shape) -> {
             selectedShape = shape;
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
             if (activeShape != null) activeShape.setShape(shape);
         });
         InputImGui.onToolChanged((tool) -> {
-            toolsMode = tool;
+            updateActiveShape();
+        });
+        InputShapesEvents.onToolModeChanged((tool) -> {
             updateActiveShape();
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
 
             switch (button) {
                 // Change Scene
@@ -109,7 +109,7 @@ public class InputStampShapes {
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) return;
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
 
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
@@ -131,7 +131,7 @@ public class InputStampShapes {
             GameObject object = activeShape;
             boolean pressed = true;
 
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
 
             if (!ctrl && !shift) {
                 switch (key) {
@@ -160,7 +160,7 @@ public class InputStampShapes {
         InputKeyEvents.onKeyReleased((key, _, _) -> {
             boolean pressed = false;
             GameObject object = activeShape;
-            if (toolsMode != InputShapes.TOOLS.STAMP) return;
+            if (!enabled) return;
 
             switch (key) {
                 case GLFW_KEY_S:
@@ -217,12 +217,14 @@ public class InputStampShapes {
 
     // Enables or disables active shape
     private void updateActiveShape() {
-        if (toolsMode == InputShapes.TOOLS.STAMP) {
+        if (InputShapes.getToolsMode() == InputShapes.TOOLS.STAMP) {
             newActiveShape();
+            enabled = true;
             return;
         }
 
         if (activeShape != null) sceneManager.getScene().removeObjectFromScene(activeShape);
+        enabled = false;
     }
 
     private void stampShape() {

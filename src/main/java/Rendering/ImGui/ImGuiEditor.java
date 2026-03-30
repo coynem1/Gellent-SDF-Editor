@@ -82,7 +82,6 @@ public class ImGuiEditor {
         showTools();
         colourPicker();
         showShape();
-        ImGui.separator();
 
     }
 
@@ -90,7 +89,6 @@ public class ImGuiEditor {
     private void showTools() {
         for (InputShapes.TOOLS tool : InputShapes.TOOLS.values()) {
             if (ImGui.radioButton(InputShapes.TOOL_NAMES.get(tool), toolSelected, tool.ordinal())) {
-                // inputStamper.setToolsMode(tool);
                 InputImGui.setToolCallback(tool);
             }
 
