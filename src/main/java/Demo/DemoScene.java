@@ -1,13 +1,22 @@
-package Jade;
+package Demo;
 
-import Input.InputKeyEvents;
+import Observers.InputKeyEvents;
+import Input.InputShapes;
+import Jade.Scene;
+import Jade.Window;
+import Rendering.Objects.Components.ComponentRounded;
+import Rendering.Objects.GameObject;
+import Rendering.Objects.SculptObject;
+import Rendering.Objects.Shape;
 import Rendering.RenderDebugger;
+import Rendering.RenderSDF;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
-import util.GameClock;
 import util.Time;
+import util.Transform2D;
 
 import java.nio.file.Paths;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
@@ -17,17 +26,16 @@ public class DemoScene extends Scene {
     private String[] demos;
 
     // Game variables
-    private float blend = 0.5f;
     private int toggleRender = 0;
-    private boolean blendPressed = false;
-    private boolean awaitUploadShader = false;
 
-    public DemoScene(String name) {
-        super(name);
+    private Shape testObject;
+
+    public DemoScene() {
+        super();
 
         // File paths
         this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
-        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentDemo.glsl"));
+        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentEditor.glsl"));
         this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
         this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
 
@@ -44,49 +52,32 @@ public class DemoScene extends Scene {
 
         // Drawing shapes
         this.renderDebugger.createRect(-50f, -50f, 100f, 100f);
-        this.renderDebugger.createRect(102f, 52f, 60f, 23f);
         this.renderDebugger.render();
 
         bindInputs();
         uploadShader();
 
-        // Upload shaders in fixed intervals
-        GameClock.get().addObserver(delta -> {
-            // Cannot change glfw not on the main thread
-            awaitUploadShader = true;
-        });
+        // Draw shapes
+        testSculpt();
+    }
 
+    private void testSculpt() {
+        SculptObject sculpt = new SculptObject();
+        testObject = new Shape(InputShapes.SHAPES.BOX, sculpt);
+
+        this.addObjectToScene(testObject);
+
+        Transform2D<Vector2f> transform = testObject.getTransform();
+        transform.setScale(10f);
+        transform.setRotation(45f);
+        transform.setPosition(new Vector2f(0, 0));
+        testObject.setTransform(transform);
     }
 
     // Single binding when key changes
     private void bindInputs() {
         InputKeyEvents.onKeyPressed((key, scancode, mods) -> {
             switch (key) {
-                // Change Scene
-                case GLFW_KEY_0:
-                    currentDemo = 0;
-                    break;
-                case GLFW_KEY_1:
-                    currentDemo = 1;
-                    break;
-                case GLFW_KEY_2:
-                    currentDemo = 2;
-                    break;
-                case GLFW_KEY_3:
-                    currentDemo = 3;
-                    break;
-                case GLFW_KEY_4:
-                    currentDemo = 4;
-                    break;
-
-                // Change Blend
-                case GLFW_KEY_UP:
-                    blend += 0.4f;
-                    break;
-                case GLFW_KEY_DOWN:
-                    blend -= 0.4f;
-                    break;
-
                 // Change render mode
                 case GLFW_KEY_LEFT:
                     toggleRender = 0;
@@ -97,7 +88,7 @@ public class DemoScene extends Scene {
                 case GLFW_KEY_SPACE:
                     toggleRender = 2;
                     break;
-                case GLFW_KEY_F:
+                case GLFW_KEY_G:
                     toggleRender = 3;
                     break;
             }
@@ -108,8 +99,10 @@ public class DemoScene extends Scene {
 
     // Sends variables to shader at fixed intervals
     private void uploadShader() {
-        if (!awaitUploadShader) return;
-        awaitUploadShader = false;
+        if (!awaitGameClock) return;
+        awaitGameClock = false;
+
+        uploadShapes();
 
         shaders.get(RENDER_SDF).uploadMat4("uProjection", camera.getStaticProjectionMat());
         shaders.get(RENDER_SDF).uploadMat4("uView", camera.getViewMat(true));
@@ -118,10 +111,56 @@ public class DemoScene extends Scene {
         shaders.get(RENDER_SDF).uploadFloat("uViewHeight", camera.getViewHeight());
 
         shaders.get(RENDER_SDF).uploadFloat("uTime", Time.getTime());
-        shaders.get(RENDER_SDF).uploadFloat("uBlend", blend);
-        shaders.get(RENDER_SDF).uploadInt("uDemoScene", currentDemo);
         shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
+
+    private void uploadShapes() {
+        int MAX_SHAPES = 100;
+        int uShapeCount = 0;
+        Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
+        int[] uShapeTypes = new int[MAX_SHAPES];
+        int[] uShapeModes = new int[MAX_SHAPES];
+        float[] uShapeSizes = new float[MAX_SHAPES];
+        float[] uShapeAngles = new float[MAX_SHAPES];
+        float[] uShapeBlends = new float[MAX_SHAPES];
+        float[] uShapeRounds = new float[MAX_SHAPES];
+
+
+        for (int i = 0; i < objects.size(); i++) {
+            GameObject obj = objects.get(i);
+            if (!(obj instanceof Shape)) return;
+
+            Shape shape = (Shape) obj;
+            Transform2D<Vector2f> transform = shape.getTransform();
+
+            uShapeCount ++;
+            uShapePos[i] = transform.getPosition();
+            uShapeTypes[i] = shape.getShapeType().ordinal();
+            uShapeModes[i] = shape.getShapeMode();
+            uShapeSizes[i] = transform.getScale();
+            uShapeAngles[i] = transform.getRotation();
+            uShapeBlends[i] = shape.getBlend();
+
+
+            ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
+            if (rounded == null) uShapeRounds[i] = 0f;
+            else uShapeRounds[i] = rounded.getRounded();
+
+        }
+
+        if (uShapeCount == 0) return;
+
+        shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
+        shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
+        shaders.get(RENDER_SDF).uploadInt("uShapeTypes", uShapeTypes);
+        shaders.get(RENDER_SDF).uploadInt("uShapeModes", uShapeModes);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeAngles", uShapeAngles);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeBlends", uShapeBlends);
+        shaders.get(RENDER_SDF).uploadFloat("uShapeRounds", uShapeRounds);
+
+    }
+
 
     // Sends variables to shader every frame
     private void uploadShaderImmediate() {
@@ -134,8 +173,6 @@ public class DemoScene extends Scene {
 
     @Override
     public void process(float delta) {
-        camera.process();
-
         uploadShader();
         uploadShaderImmediate();
 

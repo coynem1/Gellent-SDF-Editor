@@ -1,20 +1,38 @@
 package Jade;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import Observers.InputKeyEvents;
+
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 
 public class SceneBase extends Scene {
-    public SceneBase(String name) {
-        super(name);
 
-        // File paths
-        this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
-        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentDemo.glsl"));
-        this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
-        this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
+    public SceneBase() {
+        super();
 
-        this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);
-        this.shaderSDF = this.render.getShader();
+        bindInputs();
+    }
+
+    // TODO: Move to another class
+    // Single binding when key changes
+    private void bindInputs() {
+        InputKeyEvents.onKeyPressed((key, scancode, mods) -> {
+            switch (key) {
+                // Change render mode
+                case GLFW_KEY_LEFT:
+                    toggleRender = 0;
+                    break;
+                case GLFW_KEY_RIGHT:
+                    toggleRender = 1;
+                    break;
+                case GLFW_KEY_SPACE:
+                    toggleRender = 2;
+                    break;
+                case GLFW_KEY_G:
+                    toggleRender = 3;
+                    break;
+            }
+        });
     }
 
 

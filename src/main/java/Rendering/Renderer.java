@@ -1,6 +1,7 @@
 package Rendering;
 
 import Jade.Camera;
+import Rendering.Shaders.Shader;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -8,7 +9,6 @@ import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;

@@ -2,6 +2,7 @@ package Input;
 
 import Jade.Camera;
 import Jade.Window;
+import Observers.InputMouseEvents;
 import org.joml.Vector2f;
 
 import static java.lang.Math.clamp;
@@ -58,14 +59,14 @@ public class InputCamera {
             // Cache mouse position
             this.xPos = xPos;
             this.yPos = yPos;
+
+            if (middleMouseHeld){
+                cameraMove();
+            }
         });
     }
 
-    public void process(){
-        if (middleMouseHeld){
-            cameraMove();
-        }
-    }
+    public void process(){}
 
     // When the move button is first pressed, set the anchor point
     private void cameraAnchor(){

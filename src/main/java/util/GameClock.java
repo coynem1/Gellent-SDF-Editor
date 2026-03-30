@@ -11,7 +11,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 
 // Singleton game clock, observers for fixed updates
 public class GameClock {
-    protected static final double TICKS_PER_SEC = 60.0;
+    protected static final double TICKS_PER_SEC = 60f;
     protected static final double NS_PER_TICK = 1_000_000_000.0 / TICKS_PER_SEC;
     protected static final int MS_SECOND = 1000;
     protected static final int MAX_FRAME_LAG = 5; // Can be up to 5 frames behind

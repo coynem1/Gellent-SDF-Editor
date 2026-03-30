@@ -1,4 +1,4 @@
-package Input;
+package Observers;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

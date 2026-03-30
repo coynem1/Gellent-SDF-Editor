@@ -1,7 +1,7 @@
 package Jade;
 
-import Input.InputKeyEvents;
-import Input.InputMouseEvents;
+import Observers.InputKeyEvents;
+import Observers.InputMouseEvents;
 import Rendering.ImGui.ImGuiWindow;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import util.GameClock;
 import util.Time;
+import util.WindowIcon;
 
 import java.nio.IntBuffer;
 
@@ -20,6 +21,8 @@ import static org.lwjgl.opengl.GL11C.*;
 
 // Entire program, looping until closed
 public class Window {
+    public static final String APP_NAME = "Gellent";
+
     private int width, height;
     private String title;
     private long glfwWindow;
@@ -35,7 +38,7 @@ public class Window {
         this.height = 1080;
         imguiWindow = new ImGuiWindow();
 
-        this.title = "SDF Editor";
+        this.title = APP_NAME;
     }
 
     // Set shader version
@@ -147,6 +150,9 @@ public class Window {
             height = h.get(0);
         }
 
+        // Set the window icon
+        WindowIcon.setWindowIcon(glfwWindow);
+
         imguiWindow.clearBuffer();
         renderBuffer();
     }
@@ -154,6 +160,7 @@ public class Window {
     public void loop() {
         float deltaTime = 0;
         SceneManager sceneManager = SceneManager.get();
+        sceneManager.init();
 
         Time.get().beginFrame();
         imguiWindow.init();
@@ -203,4 +210,10 @@ public class Window {
         return height;
     }
     public long getWindow() {return glfwWindow;}
+
+    public void setTitle(String title) {
+        this.title = title;
+        if (glfwWindow == NULL) return;
+        glfwSetWindowTitle(glfwWindow, title);
+    }
 }

@@ -7,10 +7,7 @@ uniform float uZoom;
 uniform float uViewHeight;
 
 uniform float uTime;
-uniform int uDemoScene;
-uniform float uBlend;
 uniform int uToggleRender;
-uniform vec2 uMouse;
 
 out vec4 FragColor;
 
@@ -31,12 +28,13 @@ vec2 screenToWorld(vec2 fragCoord) {
     return worldPos;
 }
 
-// sigmoid smoothing
+// cubic smoothing
 float smin( float a, float b, float k )
 {
-    k *= log(2.0);
-    float x = b-a;
-    return a + x/(1.0-exp2(x/k));
+    float h = max(k - abs(a - b), 0.0) / k;
+    float m = h * h * h * 0.5;
+    float s = m * k * (1.0 / 3.0);
+    return min(a, b) - s;
 }
 
 float sdCircle(vec2 p, float r) {
@@ -78,55 +76,8 @@ float sdStar(vec2 p, float r )
     return length(p-v3*clamp(dot(p,v3),0.0,k1z*r)) * sign(p.y*v3.x-p.x*v3.y);
 }
 
-// SDFs for Hi text
-float hiDemo() {
-    vec2 world = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(0.0, 0.0);
-    float xMid = world.x-offset.x;
-    float yMid = world.y-offset.y;
-
-    float dCircle1 = sdCircle(vec2(xMid, yMid), 10.0);
-    float dBox1 = sdBox(vec2(xMid, yMid + 50.0), vec2(8.0 - uBlend, 33.0 - uBlend)) - uBlend;
-    float dBox2 = sdBox(vec2(xMid+24, yMid + 33.0), vec2(8.0 - uBlend, 50.0 - uBlend)) - uBlend;
-    float dBox3 = sdBox(vec2(xMid+60, yMid + 33.0), vec2(8.0 - uBlend, 50.0 - uBlend)) - uBlend;
-    float dBox4 = sdBox(vec2(xMid+42, yMid + 33.0), vec2(20.0- uBlend, 8.0 -uBlend)) - uBlend;
-
-    return min(min(min(min(dCircle1, dBox1), dBox2), dBox3), dBox4);
-}
-
-// Demo of multiple types of shapes
-float shapesScene() {
-    vec2 world = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(0.0, 0.0);
-    float scalar = 0.1;
-    float xMid = world.x-offset.x;
-    float yMid = world.y-offset.y;
-
-    float dCircle1 = sdCircle(vec2(xMid, yMid), 25.0);
-    float dBox1 = sdBox(vec2(xMid-20, yMid + 40.0), vec2(10.0, 10.0));
-    float dBox2 = sdBox(vec2(xMid-60, yMid + 8.0), vec2(25.0, 10.0));
-    float dTriangle = sdEquilateralTriangle(vec2(xMid+24, yMid + 70.0), 40.0);
-    float dStar = sdStar(vec2(xMid+60, yMid), 20.0 + sin(uTime) * 5.0);
-
-
-    return min(min(min(smin(dCircle1, dTriangle, 10.0 * uBlend), dBox1), dBox2), dStar);
-}
-
-// smooth blend between shapes
-float smoothingScene() {
-    vec2 worldCoords = screenToWorld(gl_FragCoord.xy);
-    vec2 offset = vec2(-5, 0);
-    float xMid = worldCoords.x-offset.x;
-    float yMid = worldCoords.y-offset.y;
-
-    float dCircle1 = sdCircle(vec2(xMid+20, yMid), 40.0);
-    float dBox1 = sdBox(vec2(xMid-50, yMid + 30.0), vec2(30.0, 40.0));
-
-    return smin(dCircle1, dBox1, 5.0 * uBlend);
-}
-
 // Renders SDFs with animated isolines
-void render(float dist, float zoom, int uDemoScene) {
+void render(float dist, float zoom) {
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0 : -2.0;
 
@@ -150,23 +101,33 @@ void render(float dist, float zoom, int uDemoScene) {
     col = mix( col, vec3(1.0), 1.0 - smoothstep(0.0, 0.60, abs(dist)));    // White outline
 
 
-    FragColor = vec4(col, 1.0); //vec4(mod(float(2500) * 0.0001, 1.0), mod(float(m.y) *0.0001, 1.0), 0.0, 1.0);
+    FragColor = vec4(col, 1.0);
 }
 
 #define MAX_SHAPES 100
 
 uniform int uShapeCount;
 uniform int uShapeTypes[MAX_SHAPES];
+uniform int uShapeModes[MAX_SHAPES];
 uniform vec2 uShapePos[MAX_SHAPES];
 uniform float uShapeSizes[MAX_SHAPES];
 uniform float uShapeAngles[MAX_SHAPES];
 uniform float uShapeBlends[MAX_SHAPES];
+uniform float uShapeRounds[MAX_SHAPES];
 
 // Rotation function for SDF
 vec2 rotate(vec2 p, float angle) {
-    float cosA = cos(-angle);
-    float sinA = sin(-angle);
+    float cosA = cos(angle);
+    float sinA = sin(angle);
     return mat2(cosA, -sinA, sinA, cosA) * p; // Rotate `p` by `angle`
+}
+
+float intersect(float shape1, float shape2){
+    return max(shape1, shape2);
+}
+
+float difference(float base, float subtraction){
+    return intersect(base, -subtraction);
 }
 
 float round_merge(float shape1, float shape2, float blend) {
@@ -177,6 +138,20 @@ float round_merge(float shape1, float shape2, float blend) {
     float simpleUnion = smin(shape1, shape2, blend);
     float outsideDistance = max(simpleUnion, blend);
     return insideDistance + outsideDistance;
+}
+
+float round_intersect(float shape1, float shape2, float radius){
+    vec2 intersectionSpace = vec2(shape1 + radius, shape2 + radius);
+    intersectionSpace = max(intersectionSpace, 0.0);
+
+    float outsideDistance = length(intersectionSpace);
+    float simpleIntersection = intersect(shape1, shape2);
+    float insideDistance = min(simpleIntersection, -radius);
+    return outsideDistance + insideDistance;
+}
+
+float round_subtract(float base, float subtraction, float radius){
+    return round_intersect(base, -subtraction, radius);
 }
 
 float userScene() {
@@ -194,19 +169,26 @@ float userScene() {
         if (uShapeAngles[i] != 0.0) pRotated = rotate(p, uShapeAngles[i]);
 
         float d;
+        float rounded = uShapeRounds[i] * size; // Rounds edges
         if      (uShapeTypes[i] == 0) d = sdCircle(pRotated, size);
-        else if (uShapeTypes[i] == 1) d = sdBox(pRotated, vec2(size, uShapeSizes[i]));
-        else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(pRotated, size);
-        else if (uShapeTypes[i] == 3) d = sdStar(pRotated, size);
+        else if (uShapeTypes[i] == 1) d = sdBox(pRotated, vec2(size - rounded, size - rounded)) - rounded;
+        else if (uShapeTypes[i] == 2) d = sdEquilateralTriangle(pRotated, size - rounded) - rounded;
+        else if (uShapeTypes[i] == 3) d = sdStar(pRotated, size - rounded) - rounded;
 
-        if (uShapeBlends[i] == 0.0) {
-            dist = min(dist, d);
+        // What modes are shapes in?
+        if (uShapeModes[i] == 0) {
+            if (uShapeBlends[i] == 0.0) dist = min(dist, d);
+            else dist = round_merge(dist, d, uShapeBlends[i]);
+        }
+        else if (uShapeModes[i] == 1) {
+            if (uShapeBlends[i] == 0.0) dist = difference(dist, d);
+            else dist = round_subtract(dist, d, uShapeBlends[i]);
         }
         else {
-            dist = round_merge(dist, d, uShapeBlends[i]);
+            if (uShapeBlends[i] == 0.0) dist = intersect(dist, d);
+            else dist = round_intersect(dist, d, uShapeBlends[i]);
         }
-
-
+//        dist = min(dist, d);
     }
 
     return dist;
@@ -214,32 +196,8 @@ float userScene() {
 
 void main()
 {
-    float dist = 0.0;
-    vec2 world;
-
-    switch (uDemoScene) {
-        case 0:
-            world = screenToWorld(gl_FragCoord.xy);
-            dist = userScene();
-//            dist = sdCircle(vec2(world.x, world.y),100.0);
-            break;
-        case 1:
-            world = screenToWorld(gl_FragCoord.xy);
-            dist = sdBox(vec2(world.x, world.y), vec2(100.0, 100.0));
-            break;
-        case 2:
-            dist = smoothingScene();
-            break;
-        case 3:
-            dist = shapesScene();
-            break;
-        case 4:
-            dist = hiDemo();
-            break;
-        default:
-            break;
-    }
-    render(dist, 1.4, uDemoScene);
+    float dist = userScene();
+    render(dist, 1.4);
 }
 
 

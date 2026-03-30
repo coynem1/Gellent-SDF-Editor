@@ -1,5 +1,6 @@
 package Rendering.ImGui;
 
+import Input.InputStampShapes;
 import Jade.Window;
 import imgui.*;
 import imgui.app.Color;
@@ -7,6 +8,8 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.glfw.GLFW;
+
+import java.awt.*;
 
 import static imgui.ImGui.getIO;
 import static org.lwjgl.opengl.GL11.*;
@@ -22,7 +25,7 @@ public class ImGuiWindow {
     private long glfwWindow;
 
     private ImGuiEditor editor;
-    private final Color colorBg = new Color(.5f, .5f, .5f, 1);
+    private final Color colorBg = new Color(.5f, .5f, .5f, 1);  // TODO: Remove
 
 
     public ImGuiWindow() {
@@ -33,7 +36,7 @@ public class ImGuiWindow {
     public void init() {
         this.glfwWindow = Window.get().getWindow();
         if (this.glfwWindow == 0L) {
-            throw new IllegalStateException("GLFW window handle is 0. Did you create the window before ImGui init?");
+            throw new IllegalStateException("GLFW window handle is 0. Did you create the window before ImGui start?");
         }
 
         if (this.glslVersion == null || this.glslVersion.isBlank()) {
@@ -43,7 +46,7 @@ public class ImGuiWindow {
             throw new IllegalStateException("ImGuiEditor was not created (editor == null).");
         }
 
-        // init
+        // start
         ImGui.createContext();
         final ImGuiIO io = ImGui.getIO();
         io.setIniFilename(null);                                // Don't save .ini file
@@ -56,10 +59,14 @@ public class ImGuiWindow {
 
         imGuiGlfw.init(glfwWindow, true);
         imGuiGl3.init(glslVersion);
+
+        this.editor.init();
     }
 
     // Creates font atlas and merges it with the default font
     private void setupFont(final ImGuiIO io) {
+        final float DPI_STANDARD = 96f;
+        final float DPI_SCALAR = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
         final ImFontAtlas atlas = io.getFonts();    // Sprite sheet atlas
         final ImFontConfig baseConfig = new ImFontConfig(), iconConfig= new ImFontConfig(); // Character/icon types
         final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder(); // Glyphs ranges provide
@@ -73,7 +80,7 @@ public class ImGuiWindow {
         baseConfig.setPixelSnapH(true);
         baseConfig.setGlyphRanges(atlas.getGlyphRangesDefault());
 
-        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", FONT_SIZE, baseConfig);
+        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", (int) FONT_SIZE * DPI_SCALAR, baseConfig);
         baseConfig.destroy();
 
         // Add default font
@@ -87,8 +94,8 @@ public class ImGuiWindow {
         iconConfig.setPixelSnapH(true);
 
         // Add icons and compile
-        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
-        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", ICON_SIZE, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
         atlas.build();
 
         iconConfig.destroy();

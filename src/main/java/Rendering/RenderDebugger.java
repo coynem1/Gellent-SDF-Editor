@@ -1,6 +1,7 @@
 package Rendering;
 
 import Jade.Camera;
+import Rendering.Shaders.Shader;
 import org.lwjgl.BufferUtils;
 
 import java.nio.file.Path;

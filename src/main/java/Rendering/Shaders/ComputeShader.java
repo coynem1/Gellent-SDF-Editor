@@ -1,4 +1,4 @@
-package Rendering;
+package Rendering.Shaders;
 
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
@@ -73,7 +73,7 @@ public class ComputeShader extends Shader {
 
     public void compile(int resolution) {
         // Puts GLSL into String
-        // init();
+        // start();
 
         // 1. Create and compile compute shader
         computeShader = glCreateShader(GL_COMPUTE_SHADER);
