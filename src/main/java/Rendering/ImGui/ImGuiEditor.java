@@ -1,8 +1,7 @@
 package Rendering.ImGui;
 
-import Input.InputImGui;
+import Observers.InputImGui;
 import Input.InputShapes;
-import Jade.SceneManager;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import imgui.flag.ImGuiSliderFlags;

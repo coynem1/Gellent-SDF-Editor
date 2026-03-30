@@ -1,6 +1,6 @@
 package Demo;
 
-import Input.InputKeyEvents;
+import Observers.InputKeyEvents;
 import Input.InputShapes;
 import Jade.Scene;
 import Jade.Window;
@@ -12,11 +12,9 @@ import Rendering.RenderDebugger;
 import Rendering.RenderSDF;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
-import util.GameClock;
 import util.Time;
 import util.Transform2D;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.lwjgl.glfw.GLFW.*;

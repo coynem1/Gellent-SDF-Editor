@@ -1,6 +1,6 @@
 package Rendering.Objects.Components;
 
-import Input.InputMouseEvents;
+import Observers.InputMouseEvents;
 import org.joml.Vector2i;
 import util.Transform2D;
 

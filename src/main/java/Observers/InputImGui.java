@@ -1,5 +1,6 @@
-package Input;
+package Observers;
 
+import Input.InputShapes;
 import org.joml.Vector3f;
 
 import java.util.List;

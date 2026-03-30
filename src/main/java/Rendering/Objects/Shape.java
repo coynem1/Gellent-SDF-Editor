@@ -32,7 +32,7 @@ public class Shape extends GameObject {
     public void setBlend(float blend) {
         Blending blending = getComponent(Blending.class);
 
-        // Remove blending if its zero
+        // Remove blending if it's zero
         if (blend == 0f) {
             if (blending == null) return;
             removeComponents(Blending.class);
@@ -48,6 +48,31 @@ public class Shape extends GameObject {
         }
 
         blending.setBlend(blend);
+    }
+    public void setRounded(float round) {
+        ComponentRounded rounded = getComponent(ComponentRounded.class);
+
+        // Remove rounded if it's zero
+        if (round == 0f) {
+            if (rounded == null) return;
+            removeComponents(ComponentRounded.class);
+            return;
+        }
+
+        // Create a rounded component if needed and set it
+        if (rounded == null) {
+            // Check if the shapes unroundable
+            for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
+                if (this.getShapeType() == unroundable) return;
+            }
+
+            rounded = new ComponentRounded();
+            rounded.setRounded(round);
+            addComponent(rounded);
+            return;
+        }
+
+        rounded.setRounded(round);
     }
     public void setShapeMode(InputShapes.MODES shapeMode) {this.shapeModes = shapeMode;}
     public void setShape(@NotNull InputShapes.SHAPES shape) {
@@ -72,6 +97,16 @@ public class Shape extends GameObject {
         if (blending != null) {
             if (blending.getBlend() > 0f) return blending.getBlend();
             else removeComponents(Blending.class);
+        };
+        return 0f;
+    }
+    public float getRounded() {
+        ComponentRounded rounded = getComponent(ComponentRounded.class);
+
+        // Remove rounded if it's zero
+        if (rounded != null) {
+            if (rounded.getRounded() > 0f) return rounded.getRounded();
+            else removeComponents(ComponentRounded.class);
         };
         return 0f;
     }

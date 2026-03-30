@@ -1,9 +1,9 @@
 package Input;
 
-import Input.Actions.ActionHandler;
-import Jade.Camera;
-import Jade.Scene;
 import Jade.SceneManager;
+import Observers.InputImGui;
+import Observers.InputKeyEvents;
+import Observers.InputMouseEvents;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;

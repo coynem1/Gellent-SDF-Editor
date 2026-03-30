@@ -1,11 +1,6 @@
 package Jade;
 
-import Input.InputKeyEvents;
-import Rendering.RenderDebugger;
-import Rendering.RenderSDF;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import Observers.InputKeyEvents;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;

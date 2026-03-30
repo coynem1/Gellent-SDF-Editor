@@ -1,8 +1,7 @@
-package Input;
+package Observers;
 
 import org.joml.Vector2i;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 

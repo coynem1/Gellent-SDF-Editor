@@ -2,6 +2,7 @@ package Input;
 
 import Jade.Camera;
 import Jade.Window;
+import Observers.InputMouseEvents;
 import org.joml.Vector2f;
 
 import static java.lang.Math.clamp;

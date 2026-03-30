@@ -1,10 +1,11 @@
 package Input;
 
 import Input.Actions.ActionHandler;
-import Jade.Camera;
-import Jade.Scene;
 import Jade.SceneManager;
+import Observers.InputKeyEvents;
+import Observers.InputMouseEvents;
 import Rendering.ImGui.ImGuiEditor;
+import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
 import Saving.GsonSaver;
@@ -16,7 +17,6 @@ import org.joml.Vector3f;
 import util.Transform2D;
 import util.WorldCoords;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.lang.Math.max;
@@ -24,13 +24,13 @@ import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputShapes {
-    private static final float MOUSE_ENGAGE_DIST = 0.1f;
+    private static final float MOUSE_ENGAGE_DIST = 1f;
 
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
-    public enum SHORTCUTS { SCALE, ROTATE, ROUND };
+    public enum SHORTCUTS { SCALE, ROTATE, ROUND, BLEND};
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -135,49 +135,47 @@ public class InputShapes {
     }
 
     // Rounds through mouse position
-    public GameObject roundShortcut(@NotNull GameObject object, boolean pressed) {
-        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
-
-        // If finished rounding, and it's zero, remove the rounded component
-        if (!pressed) {
-            if (rounded == null) return object;
-            if (rounded.getRounded() == 0f) {
-                object.removeComponents(ComponentRounded.class);
-                return object;
-            }
-        }
+    public GameObject blendShortcut(@NotNull GameObject object) {
+        if (object.getClass() != Shape.class) return object;    // Only shapes can be blended
+        Shape shape = (Shape) object;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
 
-
-        // If roundable shape, add the round component
-        if (rounded == null) {
-            if (object.getClass() != Shape.class) return object;
-            Shape shape = (Shape) object;
-
-            // Check if unroundable
-            for (var unroundable : UNROUNDABLE_SHAPES) {
-                if (shape.getShapeType() == unroundable) return object;
-            }
-
-            // Add round component
-            shape.addComponent(new ComponentRounded());
-            rounded = object.getComponent(ComponentRounded.class);
+        // Enabled only if the mouse has moved enough
+        if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
+        if (!mouseEngaged) {
+            // Easy reset blend shortcut
+            shape.setBlend(0f);
+            return shape;
         }
+
+        // Normal blending
+        float blending = worldPos.distance(prevWorldPos) ;
+        shape.setBlend(blending);
+        return shape;
+    }
+
+    // Rounds through mouse position
+    public GameObject roundShortcut(@NotNull GameObject object) {
+        if (object.getClass() != Shape.class) return object;    // Only shapes can be rounded
+        Shape shape = (Shape) object;
+
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+        Vector2f prevWorldPos = transform.getPosition();
 
         // Enabled only if the mouse has moved enough
         if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
         if (!mouseEngaged) {
             // Easy reset rounded shortcut
-            rounded.setRounded(0f);
+            shape.setRounded(0f);
             return object;
         }
 
-        if (object.getClass() != Shape.class) return object;
-        float round = worldPos.distance(prevWorldPos) / ((Shape) object).getTransform().getScale() ;
-        rounded.setRounded(min(round, ComponentRounded.MAX_ROUNDED));
-        return object;
+        // Normal Rounding
+        float round = worldPos.distance(prevWorldPos) / shape.getTransform().getScale() ;
+        shape.setRounded(round);
+        return shape;
     }
 
     // Rotates through mouse position
@@ -197,6 +195,7 @@ public class InputShapes {
     public GameObject scaleShortcut(@NotNull GameObject object) {
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
+
         float scale = max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE);
         transform.setScale(scale);
 

@@ -5,6 +5,9 @@ import Input.Actions.ActionStamp;
 import Jade.Camera;
 import Jade.Scene;
 import Jade.SceneManager;
+import Observers.InputImGui;
+import Observers.InputKeyEvents;
+import Observers.InputMouseEvents;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
@@ -57,6 +60,7 @@ public class InputStampShapes {
     }
 
     private void bindInputs() {
+        // ImGui UI inputs
         InputImGui.onColourChanged((colour) -> {
             colourSelected = colour;
             if (toolsMode != InputShapes.TOOLS.STAMP) return;
@@ -140,11 +144,11 @@ public class InputStampShapes {
                     case GLFW_KEY_R:
                         if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE)) object = inputShapes.rotateShortcut(object);
                         break;
+                    case GLFW_KEY_B:
+                        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.BLEND)) object = inputShapes.blendShortcut(object);
+                        break;
                     case GLFW_KEY_F:
-                        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND)) {
-                            inputShapes.setMouseEngaged(false);
-                            object = inputShapes.roundShortcut(object, pressed);
-                        }
+                        if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND)) object = inputShapes.roundShortcut(object);
                         break;
                 }
             }
@@ -152,7 +156,7 @@ public class InputStampShapes {
             activeShape = (Shape) object;
         });
 
-        // Let go of key
+        // Let go of a key
         InputKeyEvents.onKeyReleased((key, _, _) -> {
             boolean pressed = false;
             GameObject object = activeShape;
@@ -161,15 +165,15 @@ public class InputStampShapes {
             switch (key) {
                 case GLFW_KEY_S:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
-                    // if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE)) object = inputShapes.scaleShortcut(object);
                     break;
                 case GLFW_KEY_R:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE);
-                    // if (freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE)) object = inputShapes.rotateShortcut(object);
+                    break;
+                case GLFW_KEY_B:
+                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.BLEND);
                     break;
                 case GLFW_KEY_F:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND);
-                    object = inputShapes.roundShortcut(object, false);  // Removes rounded if needed
                     break;
             }
 
@@ -183,7 +187,8 @@ public class InputStampShapes {
 
         if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { object = inputShapes.rotateShortcut(object); }
         if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { object = inputShapes.scaleShortcut(object); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { object = inputShapes.roundShortcut(object, true); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.BLEND.ordinal()]) { object = inputShapes.blendShortcut(object); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { object = inputShapes.roundShortcut(object); }
 
         activeShape = (Shape) object;
     }
@@ -206,6 +211,7 @@ public class InputStampShapes {
 
         activeTransform = true;
         inputShapes.setActiveTransform(true);
+        inputShapes.setMouseEngaged(false);
         return false;
     }
 
@@ -235,11 +241,11 @@ public class InputStampShapes {
 
         activeShape = new Shape(selectedShape, currentSculpt);
         activeShape.setTransform(transform);
-        activeShape.setBlend(blending.getBlend());
         activeShape.setColour(colourSelected);
         activeShape.setShapeMode(stampMode);
 
         if (previousShape != null) {
+            activeShape.setBlend(previousShape.getBlend());
             ComponentRounded rounded = previousShape.getComponent(ComponentRounded.class);
             if (rounded != null) {
                 activeShape.addComponent(new ComponentRounded());

@@ -1,9 +1,8 @@
 package Jade;
 
-import Input.InputKeyEvents;
-import Input.InputMouseEvents;
+import Observers.InputKeyEvents;
+import Observers.InputMouseEvents;
 import Rendering.ImGui.ImGuiWindow;
-import org.joml.Vector2i;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
