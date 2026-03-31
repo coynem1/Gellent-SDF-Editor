@@ -184,8 +184,24 @@ public class InputShapes {
 
     // Rounds through mouse position
     public GameObject roundShortcut(@NotNull GameObject object) {
-        if (object.getClass() != Shape.class) return object;    // Only shapes can be rounded
+        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+
+        // Must be shape
+        if (object.getClass() != Shape.class) return object;
+
+        // Check if the shapes unroundable
         Shape shape = (Shape) object;
+        for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
+            if (shape.getShapeType() == unroundable) return object;
+        }
+
+        // Add a rounded component if needed
+        if (rounded == null) {
+            rounded = new ComponentRounded();
+            object.addComponent(rounded);
+        }
+        if (transformObj == null) return object;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
@@ -194,18 +210,19 @@ public class InputShapes {
         if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
         if (!mouseEngaged) {
             // Easy reset rounded shortcut
-            shape.setRounded(0f);
+            rounded.setRounded(0f);
             return object;
         }
 
         // Normal Rounding
-        float round = worldPos.distance(prevWorldPos) / shape.getTransform().getScale() ;
-        shape.setRounded(round);
-        return shape;
+        float round = worldPos.distance(prevWorldPos) / transformObj.getScale() ;
+        rounded.setRounded(round);
+        return object;
     }
 
     // Rotates through mouse position
     public GameObject rotateShortcut(@NotNull GameObject object) {
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
 
@@ -213,7 +230,15 @@ public class InputShapes {
         angle = angle + (float) Math.PI * 1.5f; // Offset to point top of object towards mouse
         transform.setRotation(angle);
 
-        if (object.getClass() == Shape.class) ((Shape) object).getTransform().setRotation(angle);
+        // Enabled only if the mouse has moved enough
+        if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
+        if (!mouseEngaged) {
+            // Easy reset Rotation shortcut
+            if (transformObj != null) transformObj.setRotation(0);
+            return object;
+        }
+
+        if (transformObj != null) transformObj.setRotation(angle);
         return object;
     }
 

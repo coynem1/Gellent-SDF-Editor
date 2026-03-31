@@ -30,11 +30,9 @@ public class InputStampShapes {
     private SculptObject currentSculpt = new SculptObject();
     private Shape activeShape = null;
 
-    private Scene currentScene;
     private SceneManager sceneManager;
     private ActionHandler actionHandler;
     private InputShapes inputShapes;
-    private Camera camera;
 
     private Vector2f mousePos = new Vector2f();
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
@@ -107,9 +105,8 @@ public class InputStampShapes {
         });
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
-            // If focused on UI, ignore
-            if (ImGui.getIO().getWantCaptureMouse()) return;
-            if (!enabled) return;
+            // If focused on UI or not enabled, ignore
+            if (ImGui.getIO().getWantCaptureMouse() || !enabled) return;
 
             mousePos = new Vector2f(xPos, yPos);
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
@@ -159,15 +156,18 @@ public class InputStampShapes {
         // Let go of a key
         InputKeyEvents.onKeyReleased((key, _, _) -> {
             boolean pressed = false;
-            GameObject object = activeShape;
             if (!enabled) return;
+
+            Transform2D<Vector2f> transformShape = activeShape.getComponent(Transform2D.class);
 
             switch (key) {
                 case GLFW_KEY_S:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
+                    if (transformShape != null) transform.setScale(transformShape.getScale());
                     break;
                 case GLFW_KEY_R:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE);
+                    if (transformShape != null) transform.setRotation(transformShape.getRotation());
                     break;
                 case GLFW_KEY_B:
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.BLEND);
@@ -176,8 +176,6 @@ public class InputStampShapes {
                     freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND);
                     break;
             }
-
-            activeShape = (Shape) object;
         });
     }
 
@@ -228,6 +226,13 @@ public class InputStampShapes {
     }
 
     private void stampShape() {
+        // Update transform because might be actively changing
+        Transform2D<Vector2f> transformShape = activeShape.getComponent(Transform2D.class);
+        if (transformShape != null) {
+            transform.setRotation(transformShape.getRotation());
+            transform.setScale(transformShape.getScale());
+        }
+
         Transform2D<Vector2f> copyTransform = transform.copy(); // Shouldn't be a reference
 
         activeShape.setTransform(copyTransform);

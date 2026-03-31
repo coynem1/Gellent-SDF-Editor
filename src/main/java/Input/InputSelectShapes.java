@@ -4,10 +4,13 @@ import Jade.SceneManager;
 import Observers.InputImGui;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
+import Rendering.Objects.GameObject;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
+import util.CalculateSDF;
+import util.Transform2D;
 import util.WorldCoords;
 
 import static java.lang.Math.max;
@@ -17,6 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputSelectShapes {
     private SculptObject selectedSculpt = new SculptObject();
     private Shape selectedShape = null;
+    private GameObject selectedObject = null;
 
     private SceneManager sceneManager;
     private InputShapes inputShapes;
@@ -27,6 +31,7 @@ public class InputSelectShapes {
     private boolean activeTransform = true; // Active shape tracks mouse position
     private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
     private InputShapes.MODES stampMode = InputShapes.MODES.UNION;
+    private boolean enabled = false;
 
     public InputSelectShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -35,21 +40,27 @@ public class InputSelectShapes {
     public void init(InputShapes inputShapes) {
         this.inputShapes = inputShapes;
 
+        selectedObject = new Shape(InputShapes.SHAPES.BOX, selectedSculpt);
+
         updateActiveShape();
         bindInputs();
     }
 
     private void bindInputs() {
         InputImGui.onColourChanged((colour) -> {
+            if (!enabled) return;
             if (selectedShape != null) selectedShape.setColour(colour);
         });
         InputImGui.onScaleChanged((scale) -> {
+            if (!enabled) return;
             if (selectedShape != null) selectedShape.getTransform().setScale(scale);
         });
         InputImGui.onBlendChanged((blend) -> {
+            if (!enabled) return;
             if (selectedShape != null) selectedShape.setBlend(blend);
         });
         InputImGui.onRotationChanged((rotation) -> {
+            if (!enabled) return;
             if (selectedShape != null) {
                 // Convert to radians
                 rotation *= (float) Math.PI / 180;
@@ -62,25 +73,35 @@ public class InputSelectShapes {
         });
 
         InputMouseEvents.onBtnPressed((button, _) -> {
-            // If focused on UI, ignore
-            if (ImGui.getIO().getWantCaptureMouse()) { return; }
+            // If focused on UI or not enabled, ignore
+            if (ImGui.getIO().getWantCaptureMouse() || !enabled) { return; }
 
+            // Grab hovered shape
             switch (button) {
-                // Change Scene
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    if (toolsMode == InputShapes.TOOLS.SELECT) { selectShape(); }
+                    selectShape();
+                    break;
+            }
+        });
+        InputMouseEvents.onBtnReleased((button, _) -> {
+            // Grab hovered shape
+            switch (button) {
+                case GLFW_MOUSE_BUTTON_LEFT:
+                    activeTransform = false;
                     break;
             }
         });
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
-            // If focused on UI, ignore
-            if (ImGui.getIO().getWantCaptureMouse()) { return; }
+            // If focused on UI or not enabled, ignore
+            if (ImGui.getIO().getWantCaptureMouse() || !enabled) { return; }
 
             mousePos = new Vector2f(xPos, yPos);
-            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
-            // transform.setPosition(worldPos);
+            // Active shape changing
+            if (!activeTransform) {
+                shapeShortcut();
+            }
         });
 
         // Shortcuts
@@ -88,19 +109,21 @@ public class InputSelectShapes {
             boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
             boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
 
+            if (!enabled) return;
+
             if (!ctrl && !shift) {
                 switch (key) {
                     case GLFW_KEY_BACKSPACE:
-                        toggleMode();
+                        if (selectedObject.getClass() == Shape.class) inputShapes.toggleMode((Shape) selectedObject);
                         break;
                     case GLFW_KEY_S:
-                        scaleShortcut(true);
+                        inputShapes.scaleShortcut(selectedObject);
                         break;
                     case GLFW_KEY_R:
-                        rotateShortcut(true);
+                        inputShapes.rotateShortcut(selectedObject);
                         break;
                     case GLFW_KEY_F:
-                        roundShortcut(true);
+                        inputShapes.roundShortcut(selectedObject);
                         break;
                 }
             }
@@ -108,40 +131,42 @@ public class InputSelectShapes {
 
         // Let go of key
         InputKeyEvents.onKeyReleased((key, _, _) -> {
+            if (!enabled) return;
             switch (key) {
                 case GLFW_KEY_S:
-                    scaleShortcut(false);
+                    inputShapes.scaleShortcut(selectedObject);
                     break;
                 case GLFW_KEY_R:
-                    rotateShortcut(false);
+                    inputShapes.rotateShortcut(selectedObject);
                     break;
                 case GLFW_KEY_F:
-                    roundShortcut(false);
+                    inputShapes.roundShortcut(selectedObject);
                     break;
             }
         });
     }
 
     private void shapeShortcut() {
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { rotateShortcut(true); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { scaleShortcut(true); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { roundShortcut(true); }
+        if (selectedObject == null) return;
+
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { inputShapes.rotateShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { inputShapes.scaleShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { inputShapes.roundShortcut(selectedObject); }
     }
 
-    // TODO: Selects shape you click on
-    private void selectShape() {}
+    // TODO: Selects shape you hover on before interacting with it
+    private void selectShape() {
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
-    // Rounds through mouse position
-    private void roundShortcut(boolean pressed) {
-        return;
-    }
+        // Find hovered shape
+        for (GameObject object : sceneManager.getScene().getObjects()) {
+            if (object.getClass() != Shape.class) continue;
+            if (CalculateSDF.calculateSDF((Shape) object, worldPos) <= 0) {
+                selectedObject = object;
+                return;
+            }
+        }
 
-    // Rotates through mouse position
-    private void rotateShortcut(boolean pressed) {
-    }
-
-    // Scales through mouse position
-    private void scaleShortcut(boolean pressed) {
     }
 
     // Stops active shape from changing position
@@ -166,13 +191,10 @@ public class InputSelectShapes {
 
     // TODO: Changes active shape to selected shape
     private void updateActiveShape() {
-
-    }
-
-    // Change select union/difference mode
-    private void toggleMode() {
-        if (toolsMode != InputShapes.TOOLS.SELECT) return;
-
-        if (selectedShape != null) selectedShape.setShapeMode(stampMode);
+        if (toolsMode != InputShapes.TOOLS.SELECT) {
+            enabled = false;
+            return;
+        }
+        enabled = true;
     }
 }
