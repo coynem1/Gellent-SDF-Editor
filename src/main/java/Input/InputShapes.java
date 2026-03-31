@@ -223,8 +223,10 @@ public class InputShapes {
     // Rotates through mouse position
     public GameObject rotateShortcut(@NotNull GameObject object) {
         Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+        if (transformObj == null) return object;
+
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
-        Vector2f prevWorldPos = transform.getPosition();
+        Vector2f prevWorldPos = transformObj.getPosition();
 
         float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
         angle = angle + (float) Math.PI * 1.5f; // Offset to point top of object towards mouse
@@ -244,18 +246,37 @@ public class InputShapes {
 
     // Scales through mouse position
     public GameObject scaleShortcut(@NotNull GameObject object) {
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+        if (transformObj == null) return object;
+
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
-        Vector2f prevWorldPos = transform.getPosition();
+        Vector2f prevWorldPos = transformObj.getPosition();
 
         float scale = max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE);
         transform.setScale(scale);
 
-        ((Shape) object).getTransform().setScale(scale);
+        transformObj.setScale(scale);
+        return object;
+    }
+
+    public GameObject moveObject(@NotNull GameObject object) { return moveObject(object, new Vector2f()); }
+    public GameObject moveObject(@NotNull GameObject object, Vector2f offset) {
+        Transform2D<Vector2f> transformComponent = object.getComponent(Transform2D.class);
+
+        // If focused on UI, ignore
+        if (ImGui.getIO().getWantCaptureMouse()) return object;
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+
+        if (transformComponent != null) transformComponent.setPosition(worldPos.sub(offset));
         return object;
     }
 
     public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
-    public void setActiveTransform(boolean active) {this.activeTransform = active;}
+    public void setActiveTransform(boolean active) {
+        this.activeTransform = active;
+        if (!active) return;
+        transform.setPosition(new Vector2f(WorldCoords.screenToWorld(mousePos, sceneManager.getCamera())));
+    }
 
     public static Vector3f getColourSelected() { return colourSelected; }
     public static TOOLS getToolsMode() { return toolsMode; }

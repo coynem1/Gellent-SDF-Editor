@@ -106,10 +106,9 @@ public class InputStampShapes {
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI or not enabled, ignore
-            if (ImGui.getIO().getWantCaptureMouse() || !enabled) return;
-
-            mousePos = new Vector2f(xPos, yPos);
+            if (ImGui.getIO().getWantCaptureMouse() || !enabled) { return; }
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+            Transform2D<Vector2f> transformComponent;
 
             // Active shape changing
             if (!activeTransform) {
@@ -117,8 +116,18 @@ public class InputStampShapes {
                 return;
             }
 
-            transform.setPosition(worldPos);
-            if (activeShape != null) activeShape.setTransform(transform);
+            if (activeShape != null) {
+                activeShape = (Shape) inputShapes.moveObject(activeShape);
+
+                // transformComponent = activeShape.getComponent(Transform2D.class);
+                // if (transformComponent == null) return;
+
+                // transform.setPosition(worldPos);
+                // transform.setPosition(activeShape.getTransform().getPosition());
+            }
+
+            // transform.setPosition(worldPos);
+            // if (activeShape != null) activeShape.setTransform(transform);
         });
 
         // Shortcuts
@@ -229,6 +238,7 @@ public class InputStampShapes {
         // Update transform because might be actively changing
         Transform2D<Vector2f> transformShape = activeShape.getComponent(Transform2D.class);
         if (transformShape != null) {
+            transform.setPosition(transformShape.getPosition());
             transform.setRotation(transformShape.getRotation());
             transform.setScale(transformShape.getScale());
         }
