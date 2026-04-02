@@ -8,7 +8,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
 import java.lang.reflect.Type;
 

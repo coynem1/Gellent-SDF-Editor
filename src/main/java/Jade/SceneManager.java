@@ -1,8 +1,6 @@
 package Jade;
 
-import Demo.DemoScene;
 import Input.Actions.ActionHandler;
-import Input.Actions.ActionStamp;
 import Input.InputSaving;
 import Input.InputShapes;
 import Rendering.Objects.SculptObject;
@@ -11,9 +9,8 @@ import Saving.GsonSaver;
 import Saving.TitleWindow;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
-import java.io.File;
 import java.nio.file.Path;
 
 public class SceneManager {

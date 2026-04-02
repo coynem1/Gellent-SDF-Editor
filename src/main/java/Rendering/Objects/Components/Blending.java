@@ -9,4 +9,11 @@ public class Blending extends Component{
 
     public void setBlend(float blend) {this.blend = min(blend, MAX_BLEND);}
     public float getBlend() {return this.blend;}
+
+    @Override
+    public Component copy() {
+        Blending copy = new Blending();
+        copy.blend = blend;
+        return copy;
+    }
 }

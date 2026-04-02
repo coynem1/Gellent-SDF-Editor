@@ -7,7 +7,6 @@ import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
 import Observers.InputShapesEvents;
 import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
 import Saving.GsonSaver;
@@ -16,7 +15,7 @@ import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 import util.WorldCoords;
 
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class InputShapes {
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
-    public enum SHORTCUTS { SCALE, ROTATE, ROUND, BLEND};
+    public enum SHORTCUTS { MOVE, SCALE, ROTATE, ROUND, BLEND, MODE };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -227,13 +226,14 @@ public class InputShapes {
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transformObj.getPosition();
+        Vector2f mousePrevPos = transform.getPosition();
 
         float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
         angle = angle + (float) Math.PI * 1.5f; // Offset to point top of object towards mouse
         transform.setRotation(angle);
 
         // Enabled only if the mouse has moved enough
-        if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
+        if (worldPos.distance(mousePrevPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
         if (!mouseEngaged) {
             // Easy reset Rotation shortcut
             if (transformObj != null) transformObj.setRotation(0);

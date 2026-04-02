@@ -1,7 +1,5 @@
 package Jade;
 
-import Input.InputSaving;
-import Input.InputStampShapes;
 import Rendering.Objects.Components.Component;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
@@ -12,7 +10,6 @@ import Rendering.Shaders.Shader;
 import Saving.Deserialisers.DeserialiseComponents;
 import Saving.Deserialisers.DeserialiseGameObjects;
 import Saving.Deserialisers.DeserialiseShapes;
-import Saving.GsonSaver;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +17,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import util.GameClock;
 import util.Time;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

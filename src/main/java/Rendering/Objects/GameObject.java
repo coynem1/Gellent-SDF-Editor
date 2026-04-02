@@ -57,6 +57,18 @@ public class GameObject {
         }
     }
 
+    // Create a deep copy
+    public GameObject copy() {
+        GameObject clone = new GameObject();
+        clone.setName(this.name);
+
+        for (Component c : components) {
+            clone.addComponent(c.copy());
+        }
+
+        return clone;
+    }
+
     public void setName(String name) { this.name = name; }
     public String getName() { return name; }
     public List<Component> getComponents() { return Collections.unmodifiableList(components); }

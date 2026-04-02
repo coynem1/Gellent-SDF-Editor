@@ -1,6 +1,5 @@
-package util;
+package Rendering.Objects.Components;
 
-import Rendering.Objects.Components.Component;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 

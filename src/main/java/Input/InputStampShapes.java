@@ -2,8 +2,6 @@ package Input;
 
 import Input.Actions.ActionHandler;
 import Input.Actions.ActionStamp;
-import Jade.Camera;
-import Jade.Scene;
 import Jade.SceneManager;
 import Observers.InputImGui;
 import Observers.InputKeyEvents;
@@ -18,8 +16,7 @@ import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import util.Transform2D;
-import util.WorldCoords;
+import Rendering.Objects.Components.Transform2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -31,7 +28,6 @@ public class InputStampShapes {
     private Shape activeShape = null;
 
     private SceneManager sceneManager;
-    private ActionHandler actionHandler;
     private InputShapes inputShapes;
 
     private Vector2f mousePos = new Vector2f();
@@ -48,7 +44,6 @@ public class InputStampShapes {
     }
 
     public void init(InputShapes inputShapes) {
-        this.actionHandler = sceneManager.getActionHandler();
         this.inputShapes = inputShapes;
 
         updateActiveShape();
@@ -107,8 +102,6 @@ public class InputStampShapes {
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI or not enabled, ignore
             if (ImGui.getIO().getWantCaptureMouse() || !enabled) { return; }
-            Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
-            Transform2D<Vector2f> transformComponent;
 
             // Active shape changing
             if (!activeTransform) {
@@ -118,16 +111,7 @@ public class InputStampShapes {
 
             if (activeShape != null) {
                 activeShape = (Shape) inputShapes.moveObject(activeShape);
-
-                // transformComponent = activeShape.getComponent(Transform2D.class);
-                // if (transformComponent == null) return;
-
-                // transform.setPosition(worldPos);
-                // transform.setPosition(activeShape.getTransform().getPosition());
             }
-
-            // transform.setPosition(worldPos);
-            // if (activeShape != null) activeShape.setTransform(transform);
         });
 
         // Shortcuts
@@ -235,6 +219,8 @@ public class InputStampShapes {
     }
 
     private void stampShape() {
+        ActionHandler actionHandler = sceneManager.getActionHandler();
+
         // Update transform because might be actively changing
         Transform2D<Vector2f> transformShape = activeShape.getComponent(Transform2D.class);
         if (transformShape != null) {

@@ -1,12 +1,11 @@
 package Rendering.Objects;
 
 import Input.InputShapes;
-import Input.InputStampShapes;
 import Rendering.Objects.Components.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
 public class Shape extends GameObject {
     public transient static final float MINIMUM_SCALE = 0.1f;   // Cannot scale to zero
@@ -134,4 +133,18 @@ public class Shape extends GameObject {
     }
     public int getShapeMode() {return shapeModes.ordinal();}
 
+    @Override
+    public Shape copy() {
+        Shape clone = new Shape(getShapeType(), sculptObject);
+
+        for (Component c : getComponents()) {
+            clone.addComponent(c.copy());
+        }
+
+        clone.colour = colour;
+        clone.shapeType = shapeType;
+        clone.shapeModes = shapeModes;
+
+        return clone;
+    }
 }
