@@ -1,5 +1,6 @@
 package Input;
 
+import Input.Actions.ActionDelete;
 import Input.Actions.ActionHandler;
 import Jade.SceneManager;
 import Observers.InputImGui;
@@ -56,6 +57,7 @@ public class InputShapes {
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
     private static InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    private GameObject currentObject = null;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -78,6 +80,9 @@ public class InputShapes {
         InputImGui.onToolChanged((tool) -> {
             toolsMode = tool;
         });
+
+        InputSaving.onOpened((_) ->{ reset(); });
+        InputSaving.onNewFile(this::reset);
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore
@@ -131,6 +136,19 @@ public class InputShapes {
         });
     }
 
+    // Set everything back to default, for new scenes
+    public void reset() {
+        mouseEngaged = false;
+        activeTransform = true;
+        currentObject = null;
+        toolsMode = InputShapes.TOOLS.SELECT;
+        transform.setPosition(new Vector2f());
+        currentObject = null;
+
+        inputSelector.reset();
+        inputStamper.reset();
+    }
+
     // Toggles between select/stamp
     private void toggleToolsMode() {
         // In case of smear, switch to select
@@ -140,6 +158,7 @@ public class InputShapes {
         else {
             toolsMode = TOOLS.SELECT;
         }
+        currentObject = null;
         InputShapesEvents.setToolModeCallback(toolsMode);
     }
 
@@ -271,13 +290,20 @@ public class InputShapes {
         return object;
     }
 
+    public void deleteSelected() {
+        if (currentObject == null) return;
+        actionHandler.perform(new ActionDelete(currentObject));
+    }
+
     public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
     public void setActiveTransform(boolean active) {
         this.activeTransform = active;
         if (!active) return;
         transform.setPosition(new Vector2f(WorldCoords.screenToWorld(mousePos, sceneManager.getCamera())));
     }
+    public void setCurrentObject(GameObject object) { this.currentObject = object; }
 
     public static Vector3f getColourSelected() { return colourSelected; }
     public static TOOLS getToolsMode() { return toolsMode; }
+    public boolean hasSelected() { if (currentObject != null) return true; return false;}
 }

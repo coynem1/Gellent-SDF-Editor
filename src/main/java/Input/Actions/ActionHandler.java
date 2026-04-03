@@ -65,6 +65,17 @@ public class ActionHandler {
         InputSaving.setActionCallback(lastSavedAction != undoStack.size());
     }
 
+    public void clear() {
+        undoStack.clear();
+        redoStack.clear();
+    }
+
+    // InputShapes
+    public void deleteSelected() {
+        inputShapes.deleteSelected();
+    }
+    public boolean hasSelected() { return inputShapes.hasSelected(); }
+
     public Scene getScene() { return scene; }
     public InputShapes getInputShapes() { return inputShapes; }
 }

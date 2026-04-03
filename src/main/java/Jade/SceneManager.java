@@ -59,6 +59,7 @@ public class SceneManager {
     // Load the most recent scene from settings, if not, load a blank scene
     private void loadScene(Path path) {
         setScene(new SceneBase());
+        SceneManager.get().getActionHandler().clear();
 
         if (path != null) {
             currentScene.loadSceneFromFile(path);

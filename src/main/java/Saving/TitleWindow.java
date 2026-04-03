@@ -27,10 +27,12 @@ public class TitleWindow {
         });
         InputSaving.onNewFile(() -> {
             fileName = null;
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onOpened((filePath) -> {
             fileName = Paths.get(filePath).getFileName().toString();
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onActionChanged((unsaved) -> {

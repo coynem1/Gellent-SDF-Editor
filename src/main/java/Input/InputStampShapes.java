@@ -23,14 +23,12 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputStampShapes {
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
-    private Blending blending = new Blending();
     private SculptObject currentSculpt = new SculptObject();
     private Shape activeShape = null;
 
     private SceneManager sceneManager;
     private InputShapes inputShapes;
 
-    private Vector2f mousePos = new Vector2f();
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private boolean activeTransform = true; // Active shape tracks mouse position
     private InputShapes.SHAPES selectedShape = InputShapes.SHAPES.CIRCLE;
@@ -50,35 +48,47 @@ public class InputStampShapes {
         bindInputs();
     }
 
+    // Set everything back to default, for new scenes
+    public void reset() {
+        activeShape = null;
+        currentSculpt = new SculptObject();
+        transform = Transform2D.createFloat();
+        activeTransform = true;
+        selectedShape = InputShapes.SHAPES.CIRCLE;
+        stampMode = InputShapes.MODES.UNION;
+        shortcutsUsed = new boolean[InputShapes.SHORTCUTS.values().length];
+        enabled = (inputShapes.getToolsMode() != InputShapes.TOOLS.SELECT);
+    }
+
     private void bindInputs() {
-        // ImGui UI inputs
-        InputImGui.onColourChanged((colour) -> {
-            colourSelected = colour;
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setColour(colour);
-        });
-        InputImGui.onScaleChanged((scale) -> {
-            transform.setScale(scale);
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setTransform(transform);
-        });
-        InputImGui.onBlendChanged((blend) -> {
-            blending.setBlend(blend);
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setBlend(blend);
-        });
-        InputImGui.onRotationChanged((rotation) -> {
-            // Convert to radians
-            rotation *= (float) Math.PI / 180;
-            transform.setRotation(-rotation);
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setTransform(transform);
-        });
-        InputImGui.onShapeChanged((shape) -> {
-            selectedShape = shape;
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setShape(shape);
-        });
+        // // ImGui UI inputs
+        // InputImGui.onColourChanged((colour) -> {
+        //     colourSelected = colour;
+        //     if (!enabled) return;
+        //     if (activeShape != null) activeShape.setColour(colour);
+        // });
+        // InputImGui.onScaleChanged((scale) -> {
+        //     transform.setScale(scale);
+        //     if (!enabled) return;
+        //     if (activeShape != null) activeShape.setTransform(transform);
+        // });
+        // InputImGui.onBlendChanged((blend) -> {
+        //     blending.setBlend(blend);
+        //     if (!enabled) return;
+        //     if (activeShape != null) activeShape.setBlend(blend);
+        // });
+        // InputImGui.onRotationChanged((rotation) -> {
+        //     // Convert to radians
+        //     rotation *= (float) Math.PI / 180;
+        //     transform.setRotation(-rotation);
+        //     if (!enabled) return;
+        //     if (activeShape != null) activeShape.setTransform(transform);
+        // });
+        // InputImGui.onShapeChanged((shape) -> {
+        //     selectedShape = shape;
+        //     if (!enabled) return;
+        //     if (activeShape != null) activeShape.setShape(shape);
+        // });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
         });

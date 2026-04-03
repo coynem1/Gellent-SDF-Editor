@@ -23,8 +23,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class InputSelectShapes {
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
-    private SculptObject selectedSculpt = new SculptObject();
-    private Shape selectedShape = null;
     private GameObject selectedObject = null;
     private GameObject selectedObjectBefore = null;
 
@@ -33,7 +31,6 @@ public class InputSelectShapes {
     private InputShapes inputShapes;
 
     private Vector2f mousePos = new Vector2f();
-    // private Transform2D<Vector2f> prevTransform = Transform2D.createFloat();
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private boolean usingShortcuts = true; // Active shape tracks mouse position
     private boolean moving = false;
@@ -46,34 +43,45 @@ public class InputSelectShapes {
     public void init(InputShapes inputShapes) {
         this.inputShapes = inputShapes;
         this.actionHandler = sceneManager.getActionHandler();
-        selectedObject = new Shape(InputShapes.SHAPES.BOX, selectedSculpt);
 
         updateActiveShape();
         bindInputs();
     }
 
+    // Set everything back to default, for new scenes
+    public void reset() {
+        selectedObject = null;
+        selectedObjectBefore = null;
+        moving = false;
+        transform = Transform2D.createFloat();
+        usingShortcuts = true;
+        shortcutsUsed = new boolean[InputShapes.SHORTCUTS.values().length];
+        enabled = (inputShapes.getToolsMode() == InputShapes.TOOLS.SELECT);
+    }
+
     private void bindInputs() {
         // ImGui UI inputs
-        InputImGui.onColourChanged((colour) -> {
-            if (!enabled) return;
-            if (selectedShape != null) selectedShape.setColour(colour);
-        });
-        InputImGui.onScaleChanged((scale) -> {
-            if (!enabled) return;
-            if (selectedShape != null) selectedShape.getTransform().setScale(scale);
-        });
-        InputImGui.onBlendChanged((blend) -> {
-            if (!enabled) return;
-            if (selectedShape != null) selectedShape.setBlend(blend);
-        });
-        InputImGui.onRotationChanged((rotation) -> {
-            if (!enabled) return;
-            if (selectedShape != null) {
-                // Convert to radians
-                rotation *= (float) Math.PI / 180;
-                selectedShape.getTransform().setRotation(rotation);
-            }
-        });
+        // InputImGui.onColourChanged((colour) -> {
+        //     if (!enabled) return;
+        //     if (selectedObject != null && selectedObject.getClass() == Shape.class)
+        //         ((Shape) selectedObject).setColour(colour);
+        // });
+        // InputImGui.onScaleChanged((scale) -> {
+        //     if (!enabled) return;
+        //     if (selectedShape != null) selectedShape.getTransform().setScale(scale);
+        // });
+        // InputImGui.onBlendChanged((blend) -> {
+        //     if (!enabled) return;
+        //     if (selectedShape != null) selectedShape.setBlend(blend);
+        // });
+        // InputImGui.onRotationChanged((rotation) -> {
+        //     if (!enabled) return;
+        //     if (selectedShape != null) {
+        //         // Convert to radians
+        //         rotation *= (float) Math.PI / 180;
+        //         selectedShape.getTransform().setRotation(rotation);
+        //     }
+        // });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
         });
@@ -145,6 +153,9 @@ public class InputSelectShapes {
 
             if (!ctrl && !shift) {
                 switch (key) {
+                    case GLFW_KEY_DELETE:
+                        inputShapes.deleteSelected();
+                        break;
                     case GLFW_KEY_BACKSPACE:
                         if (selectedObject.getClass() != Shape.class) return;
                         Shape shape = (Shape) selectedObject;
@@ -367,10 +378,12 @@ public class InputSelectShapes {
             if (object.getClass() != Shape.class) continue;
             if (CalculateSDF.calculateSDF((Shape) object, worldPos) <= 0) {
                 selectedObject = object;
+                inputShapes.setCurrentObject(selectedObject);
                 return;
             }
         }
         selectedObject = null;
+        inputShapes.setCurrentObject(null);
     }
 
     // Stops active shape from changing position

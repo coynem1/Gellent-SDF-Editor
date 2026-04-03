@@ -28,6 +28,8 @@ public class ImGuiMenubar {
             return;
         }
 
+        boolean hasSelected = actionHandler.hasSelected();
+
         if (ImGui.beginMenu("File")) {
             if (ImGui.menuItem("New", "Ctrl+N", false, true)) { sceneManager.newScene(); }
             if (ImGui.menuItem("Open", "Ctrl+O", false, true)) { gsonSaver.load(); }
@@ -46,13 +48,13 @@ public class ImGuiMenubar {
         }
 
         if (ImGui.beginMenu("Edit")) {
-            ImGui.menuItem("Copy", "Ctrl+C", false, false);
-            ImGui.menuItem("Paste", "Ctrl+V", false, false);
-            ImGui.menuItem("Cut", "Ctrl+X", false, false);
-            ImGui.menuItem("Delete", "Delete", false, false);
+            ImGui.menuItem("Copy", "Ctrl+C", false, hasSelected);
+            ImGui.menuItem("Paste", "Ctrl+V", false, hasSelected);
+            ImGui.menuItem("Cut", "Ctrl+X", false, hasSelected);
+            if (ImGui.menuItem("Delete", "Delete", false, hasSelected)) { actionHandler.deleteSelected(); }
             ImGui.separator();
             if (ImGui.menuItem("Undo", "Ctrl+Z", false, true)) { actionHandler.undo(); }
-            if (ImGui.menuItem("Redo", "Ctrl+Y", false, true)) { actionHandler.redo(); }
+            if (ImGui.menuItem("Redo", "Ctrl+Shift+Z", false, true)) { actionHandler.redo(); }
             ImGui.endMenu();
         }
 

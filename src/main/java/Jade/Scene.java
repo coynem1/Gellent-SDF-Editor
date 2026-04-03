@@ -55,6 +55,7 @@ public abstract class Scene {
         this.fShaderPath = new HashMap<String, Path>();
         this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
+        this.objects = new ArrayList<>();
 
         // Default file paths
         this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
@@ -121,14 +122,13 @@ public abstract class Scene {
         }
     }
 
-    public void addObjectToScene(GameObject object) {
-        objects.add(object);
+    public void addObjectToScene(GameObject object) { addObjectToScene(object, objects.size()); }
+    public void addObjectToScene(GameObject object, int index) {
+        objects.add(index, object);
         if (isRunning) { object.start(); }
     }
 
-    public void removeObjectFromScene(GameObject object) {
-        objects.remove(object);
-    }
+    public void removeObjectFromScene(GameObject object) { objects.remove(object); }
 
     // Sends variables to shader at fixed intervals
     private void uploadShader() {
@@ -176,14 +176,11 @@ public abstract class Scene {
             uShapeAngles[i] = transform.getRotation();
             uShapeBlends[i] = shape.getBlend();
 
-
             ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
             if (rounded == null) uShapeRounds[i] = 0f;
             else uShapeRounds[i] = rounded.getRounded();
 
         }
-
-        if (uShapeCount == 0) return;
 
         shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
         shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
