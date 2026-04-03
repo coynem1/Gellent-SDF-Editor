@@ -23,6 +23,7 @@ public class TitleWindow {
     private void bindObservers() {
         InputSaving.onSaved((name) -> {
             fileName = name;
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onNewFile(() -> {

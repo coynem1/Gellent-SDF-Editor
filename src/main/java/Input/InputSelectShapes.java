@@ -154,6 +154,7 @@ public class InputSelectShapes {
             if (!enabled) return;
             GameObject selectedObject = inputShapes.getSelected();
 
+
             if (!ctrl && !shift) {
                 switch (key) {
                     case GLFW_KEY_DELETE:
@@ -211,7 +212,9 @@ public class InputSelectShapes {
         });
 
         // Let go of key
-        InputKeyEvents.onKeyReleased((key, _, _) -> {
+        InputKeyEvents.onKeyReleased((key, _, mods) -> {
+            boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
+            boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
             boolean pressed = false;
             if (!enabled) return;
 
@@ -219,27 +222,29 @@ public class InputSelectShapes {
             GameObject selectedObject = inputShapes.getSelected();
             if (selectedObject != null) transformShape = selectedObject.getComponent(Transform2D.class);
 
-            switch (key) {
-                case GLFW_KEY_S:
-                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
-                    if (transformShape == null) return;
-                    saveAction(InputShapes.SHORTCUTS.SCALE);
-                    break;
-                case GLFW_KEY_R:
-                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE);
-                    if (transformShape == null) return;
-                    saveAction(InputShapes.SHORTCUTS.ROTATE);
-                    break;
-                case GLFW_KEY_B:
-                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.BLEND);
-                    if (transformShape == null) return;
-                    saveAction(InputShapes.SHORTCUTS.BLEND);
-                    break;
-                case GLFW_KEY_F:
-                    freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND);
-                    if (transformShape == null) return;
-                    saveAction(InputShapes.SHORTCUTS.ROUND);
-                    break;
+            if (!ctrl && !shift) {
+                switch (key) {
+                    case GLFW_KEY_S:
+                        freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
+                        if (transformShape == null) return;
+                        saveAction(InputShapes.SHORTCUTS.SCALE);
+                        break;
+                    case GLFW_KEY_R:
+                        freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROTATE);
+                        if (transformShape == null) return;
+                        saveAction(InputShapes.SHORTCUTS.ROTATE);
+                        break;
+                    case GLFW_KEY_B:
+                        freezeActiveShape(pressed, InputShapes.SHORTCUTS.BLEND);
+                        if (transformShape == null) return;
+                        saveAction(InputShapes.SHORTCUTS.BLEND);
+                        break;
+                    case GLFW_KEY_F:
+                        freezeActiveShape(pressed, InputShapes.SHORTCUTS.ROUND);
+                        if (transformShape == null) return;
+                        saveAction(InputShapes.SHORTCUTS.ROUND);
+                        break;
+                }
             }
         });
     }

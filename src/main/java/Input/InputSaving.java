@@ -30,7 +30,7 @@ public class InputSaving {
 
     // Update all observers
     public static void setSaveCallback(String filename) { for (var h : onSaved) { h.handle(filename); }}
-    public static void setOpenCallback(String filename) { for (var h : onOpened) { h.handle(filename); }}
+    public static void setOpenCallback(String filepath) { for (var h : onOpened) { h.handle(filepath); }}
     public static void newFileCallback() { for (var h : onNewFile) { h.handle(); }}
     public static void setActionCallback(boolean unsaved) { for (var h : onActionChanged) { h.handle(unsaved); }}
 }

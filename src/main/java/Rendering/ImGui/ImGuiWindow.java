@@ -24,13 +24,16 @@ public class ImGuiWindow {
     private String glslVersion = null;
     private long glfwWindow;
 
+    private boolean windowClosing = false;
     private ImGuiEditor editor;
+    private ImGuiWindowClose windowClose;
     private final Color colorBg = new Color(.5f, .5f, .5f, 1);  // TODO: Remove
 
 
     public ImGuiWindow() {
         this.glslVersion = Window.GLFW_VERSION;
         this.editor = new ImGuiEditor();
+        this.windowClose = new ImGuiWindowClose(this);
     }
 
     public void init() {
@@ -109,6 +112,7 @@ public class ImGuiWindow {
 
         // Render UI here
         editor.render();
+        if (windowClosing) windowClose.close();
 
         endFrame();
     }
@@ -143,5 +147,7 @@ public class ImGuiWindow {
         imGuiGlfw.shutdown();
         ImGui.destroyContext();
     }
+
+    public void setWindowClosing(boolean windowClosing) { this.windowClosing = windowClosing;}
 
 }

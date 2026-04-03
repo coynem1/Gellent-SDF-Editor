@@ -30,6 +30,7 @@ public abstract class Scene {
     protected static final String RENDER_SDF = "RENDER_SDF";
     protected static final String RENDER_DEBUG = "RENDER_DEBUG";
     protected static final String DEFAULT_SCENE_NAME = "Unnamed Scene";
+    protected static final int MAX_SHAPES = 145;
 
     protected String name;
     protected RenderSDF render;
@@ -37,7 +38,6 @@ public abstract class Scene {
     protected Camera camera;
 
     protected HashMap<String, Shader> shaders;
-    protected Shader shaderSDF;
     protected HashMap<String, Path> vShaderPath;
     protected HashMap<String, Path> fShaderPath;
 
@@ -55,7 +55,6 @@ public abstract class Scene {
         this.fShaderPath = new HashMap<String, Path>();
         this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
-        this.objects = new ArrayList<>();
 
         // Default file paths
         this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
@@ -95,13 +94,19 @@ public abstract class Scene {
             e.printStackTrace();
         }
 
-        if (json.isEmpty()) return;
+        if (json.isEmpty()) SceneManager.get().loadScene(null);
 
-        Shape[] objs = gson.fromJson(json, Shape[].class);
-        for (Shape obj : objs) {
-            addObjectToScene(obj);
+        try {
+            // GameObject[] objs = gson.fromJson(json, GameObject[].class);
+            Shape[] objs = gson.fromJson(json, Shape[].class);
+            for (GameObject obj : objs) {
+                addObjectToScene(obj);
+            }
+            levelLoaded = true;
+        } catch (Exception e) {
+            // Load a blank scene if an error occurs
+            SceneManager.get().loadScene(null);
         }
-        levelLoaded = true;
     }
 
     // Start all objects in the scene
@@ -124,7 +129,12 @@ public abstract class Scene {
 
     public void addObjectToScene(GameObject object) { addObjectToScene(object, objects.size()); }
     public void addObjectToScene(GameObject object, int index) {
-        objects.add(index, object);
+        int i = index;
+        if (objects.size() >= MAX_SHAPES -1) {
+            removeObjectFromScene(objects.get(0));
+            i -= 1;
+        }
+        objects.add(i, object);
         if (isRunning) { object.start(); }
     }
 
@@ -149,7 +159,6 @@ public abstract class Scene {
 
     // TODO: Optimise to update only shapes that have changed
     private void uploadShapes() {
-        int MAX_SHAPES = 100;
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
         int[] uShapeTypes = new int[MAX_SHAPES];

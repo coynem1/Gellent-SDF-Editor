@@ -40,6 +40,11 @@ public class GsonSaver {
 
     public void init() {
         settings.init();
+
+        InputSaving.onOpened((filepath) ->{
+            currentFile = new File(filepath);
+            if (!currentFile.exists()) currentFile = null;
+        });
     }
 
     public void save(boolean overwrite) {
@@ -74,7 +79,7 @@ public class GsonSaver {
 
         currentFile = path.toFile();
         addRecentFiles(path);
-        InputSaving.setOpenCallback(currentFile.toString());
+        InputSaving.setOpenCallback(path.toString());
     }
 
     // Save the scene to a file

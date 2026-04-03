@@ -32,7 +32,6 @@ public class ActionHandler {
     private void bindObservers() {
         InputSaving.onSaved((_) -> {
             lastSavedAction = undoStack.size();
-            InputSaving.setActionCallback(false);
         });
     }
 
@@ -79,4 +78,5 @@ public class ActionHandler {
 
     public Scene getScene() { return scene; }
     public InputShapes getInputShapes() { return inputShapes; }
+    public boolean hasUnsavedChanges() { return (lastSavedAction != undoStack.size()); }
 }

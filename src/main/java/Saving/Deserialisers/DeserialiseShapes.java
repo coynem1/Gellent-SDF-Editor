@@ -28,8 +28,8 @@ public class DeserialiseShapes implements JsonDeserializer<Shape> {
         SculptObject sculpt = context.deserialize(jsonObject.get(SCULPT_OBJECT), SculptObject.class);
         Vector3f colour = context.deserialize(jsonObject.get(COLOUR), Vector3f.class);
 
-        Type transformType = new TypeToken<Transform2D<Vector2f>>(){}.getType();
-        Transform2D<Vector2f> transform = context.deserialize(jsonObject.get(TRANSFORM), transformType);
+        // Type transformType = new TypeToken<Transform2D<Vector2f>>(){}.getType();
+        // Transform2D<Vector2f> transform = context.deserialize(jsonObject.get(TRANSFORM), transformType);
 
         InputShapes.SHAPES shapeType = InputShapes.SHAPES.valueOf(jsonObject.get(SHAPE_TYPE).getAsString());
         InputShapes.MODES shapeModes = InputShapes.MODES.valueOf(jsonObject.get(SHAPE_MODES).getAsString());
@@ -38,7 +38,7 @@ public class DeserialiseShapes implements JsonDeserializer<Shape> {
 
         Shape obj = new Shape(shapeType, sculpt);
         obj.setColour(colour);
-        obj.setTransform(transform);
+        // obj.setTransform(transform);
         obj.setShapeMode(shapeModes);
         obj.setName(name);
         for (JsonElement component : components) {
