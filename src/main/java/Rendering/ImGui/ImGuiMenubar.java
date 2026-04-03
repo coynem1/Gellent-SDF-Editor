@@ -48,9 +48,9 @@ public class ImGuiMenubar {
         }
 
         if (ImGui.beginMenu("Edit")) {
-            ImGui.menuItem("Copy", "Ctrl+C", false, hasSelected);
-            ImGui.menuItem("Paste", "Ctrl+V", false, hasSelected);
-            ImGui.menuItem("Cut", "Ctrl+X", false, hasSelected);
+            if (ImGui.menuItem("Copy", "Ctrl+C", false, hasSelected)) { actionHandler.copySelected(); }
+            if (ImGui.menuItem("Paste", "Ctrl+V", false, hasSelected)) { actionHandler.pasteSelected(); }
+            if (ImGui.menuItem("Cut", "Ctrl+X", false, hasSelected)) { actionHandler.cutSelected(); }
             if (ImGui.menuItem("Delete", "Delete", false, hasSelected)) { actionHandler.deleteSelected(); }
             ImGui.separator();
             if (ImGui.menuItem("Undo", "Ctrl+Z", false, true)) { actionHandler.undo(); }

@@ -71,9 +71,10 @@ public class ActionHandler {
     }
 
     // InputShapes
-    public void deleteSelected() {
-        inputShapes.deleteSelected();
-    }
+    public void deleteSelected() { inputShapes.deleteSelected(); }
+    public void copySelected() { inputShapes.copySelected(); }
+    public void cutSelected() { inputShapes.cutSelected(); }
+    public void pasteSelected() { inputShapes.pasteObject(); }
     public boolean hasSelected() { return inputShapes.hasSelected(); }
 
     public Scene getScene() { return scene; }

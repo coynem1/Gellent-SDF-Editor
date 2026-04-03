@@ -9,7 +9,6 @@ import Observers.InputShapesEvents;
 import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
-import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
@@ -17,13 +16,14 @@ import util.CalculateSDF;
 import Rendering.Objects.Components.Transform2D;
 import util.WorldCoords;
 
+import java.util.List;
+
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputSelectShapes {
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
-    private GameObject selectedObject = null;
     private GameObject selectedObjectBefore = null;
 
     private SceneManager sceneManager;
@@ -50,7 +50,7 @@ public class InputSelectShapes {
 
     // Set everything back to default, for new scenes
     public void reset() {
-        selectedObject = null;
+        // selectedObject = null;
         selectedObjectBefore = null;
         moving = false;
         transform = Transform2D.createFloat();
@@ -95,11 +95,13 @@ public class InputSelectShapes {
 
             Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
             Transform2D<Vector2f> transformComponent;
+            GameObject selectedObject;
 
             // Grab hovered shape
             switch (button) {
                 case GLFW_MOUSE_BUTTON_LEFT:
                     selectShape();
+                    selectedObject = inputShapes.getSelected();
                     if (selectedObject == null) return;
                     moving = true;
 
@@ -119,7 +121,7 @@ public class InputSelectShapes {
             // If focused on UI or not enabled, ignore
             if (ImGui.getIO().getWantCaptureMouse() || !enabled) { return; }
 
-            if (selectedObject == null) return;
+            if (inputShapes.getSelected() == null) return;
 
             // Grab hovered shape
             switch (button) {
@@ -150,10 +152,12 @@ public class InputSelectShapes {
             boolean pressed = true;
 
             if (!enabled) return;
+            GameObject selectedObject = inputShapes.getSelected();
 
             if (!ctrl && !shift) {
                 switch (key) {
                     case GLFW_KEY_DELETE:
+                        if (selectedObject == null) return;
                         inputShapes.deleteSelected();
                         break;
                     case GLFW_KEY_BACKSPACE:
@@ -164,7 +168,7 @@ public class InputSelectShapes {
                         shape.setShapeMode(inputShapes.toggleMode(shape));
                         saveAction(InputShapes.SHORTCUTS.MODE);
 
-                        selectedObject = shape;
+                        // selectedObject = shape;
                         break;
                     case GLFW_KEY_S:
                         freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
@@ -192,6 +196,18 @@ public class InputSelectShapes {
                         break;
                 }
             }
+            else if (ctrl) {
+                switch (key) {
+                    case GLFW_KEY_C:
+                        if (selectedObject == null) return;
+                        inputShapes.copySelected();
+                        break;
+                    case GLFW_KEY_X:
+                        if (selectedObject == null) return;
+                        inputShapes.cutSelected();
+                        break;
+                }
+            }
         });
 
         // Let go of key
@@ -200,6 +216,7 @@ public class InputSelectShapes {
             if (!enabled) return;
 
             Transform2D<Vector2f> transformShape = null;
+            GameObject selectedObject = inputShapes.getSelected();
             if (selectedObject != null) transformShape = selectedObject.getComponent(Transform2D.class);
 
             switch (key) {
@@ -229,6 +246,7 @@ public class InputSelectShapes {
 
     // Save the action and its properties
     private void saveAction(InputShapes.SHORTCUTS shortcut) {
+        GameObject selectedObject = inputShapes.getSelected();
         Transform2D<Vector2f> transformNow = selectedObject.getComponent(Transform2D.class);
         Transform2D<Vector2f> transformBefore = selectedObjectBefore.getComponent(Transform2D.class);
 
@@ -301,6 +319,7 @@ public class InputSelectShapes {
     }
 
     private void savePreviousObject(InputShapes.SHORTCUTS shortcut) {
+        GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null) return;
 
         // Save the previous object
@@ -354,41 +373,47 @@ public class InputSelectShapes {
 
     // Select the hovered shape and move it to the mouse position
     private void moveSelected() {
+        GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null || !enabled) return;
 
-        selectedObject = inputShapes.moveObject(selectedObject, transform.getPosition());
+        inputShapes.setSelected(inputShapes.moveObject(selectedObject, transform.getPosition()));
     }
 
     private void shapeShortcut() {
+        GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null || moving) return;
 
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { selectedObject = inputShapes.rotateShortcut(selectedObject); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { selectedObject = inputShapes.scaleShortcut(selectedObject); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.BLEND.ordinal()]) { selectedObject = inputShapes.blendShortcut(selectedObject); }
-        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { selectedObject = inputShapes.roundShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROTATE.ordinal()]) { inputShapes.rotateShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.SCALE.ordinal()]) { inputShapes.scaleShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.BLEND.ordinal()]) { inputShapes.blendShortcut(selectedObject); }
+        if (shortcutsUsed[InputShapes.SHORTCUTS.ROUND.ordinal()]) { inputShapes.roundShortcut(selectedObject); }
     }
 
     // Selects the shape you hover over before interacting with it
     private void selectShape() {
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+        List<GameObject> objects = sceneManager.getScene().getObjects();
         selectedObjectBefore = null;
 
         // Find hovered shape
-        for (GameObject object : sceneManager.getScene().getObjects()) {
+        for (int i = objects.size() - 1; i >= 0; i--) {
+            GameObject object = objects.get(i);
+
             if (object.getClass() != Shape.class) continue;
             if (CalculateSDF.calculateSDF((Shape) object, worldPos) <= 0) {
-                selectedObject = object;
-                inputShapes.setCurrentObject(selectedObject);
+                inputShapes.setSelected(object);
+                // selectedObject = object;
+                inputShapes.setCurrentObject(object);
                 return;
             }
         }
-        selectedObject = null;
+        inputShapes.setSelected(null);
         inputShapes.setCurrentObject(null);
     }
 
     // Stops active shape from changing position
     private boolean freezeActiveShape(boolean pressed, InputShapes.SHORTCUTS shortcut) {
-        if (selectedObject == null) return true;
+        if (inputShapes.getSelected() == null) return true;
 
         // Shortcut array
         shortcutsUsed[shortcut.ordinal()] = pressed;

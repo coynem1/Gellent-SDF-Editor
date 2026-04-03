@@ -21,6 +21,8 @@ import Rendering.Objects.Components.Transform2D;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
+    private static final float DEFAULT_SCALE = 10f ;
+
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private SculptObject currentSculpt = new SculptObject();
@@ -38,7 +40,7 @@ public class InputStampShapes {
     public InputStampShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
 
-        transform.setPosition(new Vector2f(0f, 0f));
+        transform.setScale(DEFAULT_SCALE);
     }
 
     public void init(InputShapes inputShapes) {
@@ -52,12 +54,14 @@ public class InputStampShapes {
     public void reset() {
         activeShape = null;
         currentSculpt = new SculptObject();
-        transform = Transform2D.createFloat();
         activeTransform = true;
         selectedShape = InputShapes.SHAPES.CIRCLE;
         stampMode = InputShapes.MODES.UNION;
         shortcutsUsed = new boolean[InputShapes.SHORTCUTS.values().length];
         enabled = (inputShapes.getToolsMode() != InputShapes.TOOLS.SELECT);
+
+        transform = Transform2D.createFloat();
+        transform.setScale(DEFAULT_SCALE);
     }
 
     private void bindInputs() {
@@ -84,11 +88,11 @@ public class InputStampShapes {
         //     if (!enabled) return;
         //     if (activeShape != null) activeShape.setTransform(transform);
         // });
-        // InputImGui.onShapeChanged((shape) -> {
-        //     selectedShape = shape;
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setShape(shape);
-        // });
+        InputImGui.onShapeChanged((shape) -> {
+            selectedShape = shape;
+            if (!enabled) return;
+            if (activeShape != null) activeShape.setShape(shape);
+        });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
         });

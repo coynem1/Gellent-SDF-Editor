@@ -2,6 +2,7 @@ package Input;
 
 import Input.Actions.ActionDelete;
 import Input.Actions.ActionHandler;
+import Input.Actions.ActionStamp;
 import Jade.SceneManager;
 import Observers.InputImGui;
 import Observers.InputKeyEvents;
@@ -58,6 +59,7 @@ public class InputShapes {
     private boolean activeTransform = true; // Active shape tracks mouse position
     private static InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
     private GameObject currentObject = null;
+    private GameObject copiedObject = null;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -122,6 +124,9 @@ public class InputShapes {
                         break;
                     case GLFW_KEY_N:
                         sceneManager.newScene();
+                        break;
+                    case GLFW_KEY_V:
+                        pasteObject();
                         break;
                 }
             }
@@ -293,8 +298,30 @@ public class InputShapes {
     public void deleteSelected() {
         if (currentObject == null) return;
         actionHandler.perform(new ActionDelete(currentObject));
+        currentObject = null;
+    }
+    public void copySelected() {
+        copiedObject = currentObject.copy();
+    }
+    public void cutSelected() {
+        if (currentObject == null) return;
+        copySelected();
+        actionHandler.perform(new ActionDelete(currentObject));
+    }
+    public void pasteObject() {
+        if (copiedObject == null || copiedObject.getClass() != Shape.class) return;
+        Shape shape = (Shape) copiedObject.copy();
+        Transform2D<Vector2f> transform = shape.getComponent(Transform2D.class);
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+
+        if (transform != null) transform.setPosition(worldPos);
+        // shape = shape.copy();
+
+        actionHandler.perform(new ActionStamp(sceneManager.getScene(), shape));
+        setCurrentObject(shape);
     }
 
+    public void setSelected(GameObject object) { currentObject = object; }
     public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
     public void setActiveTransform(boolean active) {
         this.activeTransform = active;
@@ -303,6 +330,7 @@ public class InputShapes {
     }
     public void setCurrentObject(GameObject object) { this.currentObject = object; }
 
+    public GameObject getSelected() { return currentObject; }
     public static Vector3f getColourSelected() { return colourSelected; }
     public static TOOLS getToolsMode() { return toolsMode; }
     public boolean hasSelected() { if (currentObject != null) return true; return false;}
