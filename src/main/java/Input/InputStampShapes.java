@@ -1,6 +1,7 @@
 package Input;
 
 import Input.Actions.ActionHandler;
+import Input.Actions.ActionSetShape;
 import Input.Actions.ActionStamp;
 import Jade.SceneManager;
 import Observers.InputImGui;
@@ -66,32 +67,11 @@ public class InputStampShapes {
 
     private void bindInputs() {
         // // ImGui UI inputs
-        // InputImGui.onColourChanged((colour) -> {
-        //     colourSelected = colour;
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setColour(colour);
-        // });
-        // InputImGui.onScaleChanged((scale) -> {
-        //     transform.setScale(scale);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setTransform(transform);
-        // });
-        // InputImGui.onBlendChanged((blend) -> {
-        //     blending.setBlend(blend);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setBlend(blend);
-        // });
-        // InputImGui.onRotationChanged((rotation) -> {
-        //     // Convert to radians
-        //     rotation *= (float) Math.PI / 180;
-        //     transform.setRotation(-rotation);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setTransform(transform);
-        // });
         InputImGui.onShapeChanged((shape) -> {
+            if (!enabled || activeShape == null) return;
+
             selectedShape = shape;
-            if (!enabled) return;
-            if (activeShape != null) activeShape.setShape(shape);
+            inputShapes.changeShape(activeShape, shape);
         });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();

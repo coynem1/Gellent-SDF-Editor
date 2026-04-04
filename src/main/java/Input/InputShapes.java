@@ -167,6 +167,12 @@ public class InputShapes {
         InputShapesEvents.setToolModeCallback(toolsMode);
     }
 
+    // Change shape type
+    public Shape changeShape(@NotNull Shape shape, @NotNull InputShapes.SHAPES newShapeType) {
+        shape.setShape(newShapeType);
+        return shape;
+    }
+
     // Change select/stamp mode
     public MODES toggleMode(@NotNull Shape shape) {
         MODES shapeMode = MODES.values()[shape.getShapeMode()];

@@ -61,27 +61,34 @@ public class InputSelectShapes {
 
     private void bindInputs() {
         // ImGui UI inputs
-        // InputImGui.onColourChanged((colour) -> {
-        //     if (!enabled) return;
-        //     if (selectedObject != null && selectedObject.getClass() == Shape.class)
-        //         ((Shape) selectedObject).setColour(colour);
-        // });
-        // InputImGui.onScaleChanged((scale) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) selectedShape.getTransform().setScale(scale);
-        // });
-        // InputImGui.onBlendChanged((blend) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) selectedShape.setBlend(blend);
-        // });
-        // InputImGui.onRotationChanged((rotation) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) {
-        //         // Convert to radians
-        //         rotation *= (float) Math.PI / 180;
-        //         selectedShape.getTransform().setRotation(rotation);
-        //     }
-        // });
+        InputImGui.onScaleChanged((scale) -> {
+            if (!enabled) return;
+
+        });
+        InputImGui.onBlendChanged((blend) -> {
+            if (!enabled) return;
+
+        });
+        InputImGui.onRotationChanged((rotation) -> {
+            if (!enabled) return;
+            // if (selectedShape != null) {
+            //     // Convert to radians
+            //     rotation *= (float) Math.PI / 180;
+            //     selectedShape.getTransform().setRotation(rotation);
+            // }
+        });
+        InputImGui.onShapeChanged((shape) -> {
+            if (!enabled) return;
+            GameObject selectedObject = inputShapes.getSelected();
+
+            // Check it's a shape
+            if (selectedObject == null || selectedObject.getClass() != Shape.class) return;
+            Shape shapeObj = (Shape) selectedObject;
+            InputShapes.SHAPES shapeTypeBefore = shapeObj.getShapeType();
+
+            inputShapes.changeShape(shapeObj, shape);
+            actionHandler.perform(new ActionSetShape(shapeObj, shapeTypeBefore, shapeObj.getShapeType()));
+        });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
         });
@@ -384,6 +391,7 @@ public class InputSelectShapes {
         inputShapes.setSelected(inputShapes.moveObject(selectedObject, transform.getPosition()));
     }
 
+    // Handle when shortcuts are held
     private void shapeShortcut() {
         GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null || moving) return;
@@ -438,7 +446,7 @@ public class InputSelectShapes {
         return true;
     }
 
-    // TODO: Changes active shape to selected shape
+    // Changes active shape to the clicked one
     private void updateActiveShape() {
         if (InputShapes.getToolsMode() != InputShapes.TOOLS.SELECT) {
             enabled = false;

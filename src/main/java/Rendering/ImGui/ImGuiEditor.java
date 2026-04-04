@@ -2,8 +2,12 @@ package Rendering.ImGui;
 
 import Observers.InputImGui;
 import Input.InputShapes;
+import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Shape;
+import imgui.ImColor;
+import imgui.ImDrawList;
 import imgui.ImGui;
+import imgui.ImVec2;
 import imgui.flag.ImGuiSliderFlags;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImBoolean;
@@ -15,13 +19,11 @@ public class ImGuiEditor {
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
-    // private boolean showText = true;
     private ImInt toolSelected = new ImInt(InputShapes.TOOLS.SELECT.ordinal());
     private ImFloat scale = new ImFloat(10.0f);
     private float[] blend = new float[1];
     private float[] rotation = new float[1];
     private float[] position = new float[3];
-    private int count = 0;
 
     // private InputShapes inputShapes;
     private static float[] colour = DEFAULT_COLOUR;
@@ -31,44 +33,77 @@ public class ImGuiEditor {
     public ImGuiEditor() {}
 
     public void init() {
-        // inputShapes = SceneManager.get().getInputShapes();
         menubar.init();
 
         InputImGui.setScaleCallback(scale.get());
     }
 
+    // All rendering
     public void render() {
         menubar.render();
 
         if (ImGui.begin("Editor " + FontAwesomeIcons.SlidersH, ImGuiWindowFlags.AlwaysAutoResize)) {
-            ImGui.text("OS: [" + System.getProperty("os.name") + "] Arch: [" + System.getProperty("os.arch") + "]");
-            if (ImGui.button(FontAwesomeIcons.Save + " Save")) {
-                count++;
-            }
-            ImGui.sameLine(); ImGui.text(String.valueOf(count));
-
-            ImGui.text("Sliders");
-
-
-            if (ImGui.inputFloat("Scale", scale, 1.1f, 3.1f, ImGuiSliderFlags.AlwaysClamp)){
-                scale.set(Math.max(Shape.MINIMUM_SCALE, scale.get()));
-                InputImGui.setScaleCallback(scale.get());
-            }
-            if (ImGui.dragFloat("Angle", rotation, 0.1f, 0f, 360f, ImGuiSliderFlags.WrapAround)) { InputImGui.setRotationCallback(rotation[0]);}
-            ImGui.sameLine(); helpMarker("Click and drag to edit value.\n"+
-                    "Hold Shift/Alt for faster/slower edit.\n"+
-                    "Double-Click or Ctrl+Click to input value."
-            );
-            if (ImGui.dragFloat3("Position", position, 0.1f, 1f)) { InputImGui.setPosCallback(new Vector3f(position[0], position[1], position[2])); }
-
+            showShapeButtons();
             ImGui.separator();
-            if (ImGui.dragFloat("Blend", blend, 0.1f, 0f, 100f, ImGuiSliderFlags.AlwaysClamp)) {
-                InputImGui.setBlendCallback(blend[0]);
-            }
-            showExtras();
+            // tweakMenu();
         }
         ImGui.end();
     }
+
+    // Edit Selected
+    private void tweakMenu() {
+        ImGui.text("Edit Selected");
+
+        if (ImGui.inputFloat("Scale", scale, 1.1f, 3.1f, ImGuiSliderFlags.AlwaysClamp)){
+            scale.set(Math.max(Shape.MINIMUM_SCALE, scale.get()));
+            InputImGui.setScaleCallback(scale.get());
+        }
+        if (ImGui.dragFloat("Angle", rotation, 0.1f, 0f, 360f, ImGuiSliderFlags.WrapAround)) { InputImGui.setRotationCallback(rotation[0]);}
+        ImGui.sameLine(); helpMarker("Click and drag to edit value.\n"+
+                "Hold Shift/Alt for faster/slower edit.\n"+
+                "Double-Click or Ctrl+Click to input value."
+        );
+        if (ImGui.dragFloat3("Position", position, 0.1f, 1f)) { InputImGui.setPosCallback(new Vector3f(position[0], position[1], position[2])); }
+
+        ImGui.separator();
+        if (ImGui.dragFloat("Blend", blend, 0.1f, 0f, Blending.MAX_BLEND, ImGuiSliderFlags.AlwaysClamp)) {
+            InputImGui.setBlendCallback(blend[0]);
+        }
+    }
+
+    // Shape Buttons
+    private void showShapeButtons() {
+        float BOX_SIZE = 60f;
+        ImVec2 pos;
+
+        if (ImGui.button(FontAwesomeIcons.Circle, BOX_SIZE, BOX_SIZE)) { InputImGui.setShapeCallback(InputShapes.SHAPES.CIRCLE); }
+        ImGui.sameLine();
+        if (ImGui.button(FontAwesomeIcons.Square, BOX_SIZE, BOX_SIZE)) { InputImGui.setShapeCallback(InputShapes.SHAPES.BOX); }
+        ImGui.sameLine();
+        pos = ImGui.getCursorScreenPos();
+        if (ImGui.button(" ", BOX_SIZE, BOX_SIZE)) { InputImGui.setShapeCallback(InputShapes.SHAPES.TRIANGLE); }
+        ImGui.sameLine(); drawTriangle(pos, BOX_SIZE);
+        if (ImGui.button(FontAwesomeIcons.Star, BOX_SIZE, BOX_SIZE)) { InputImGui.setShapeCallback(InputShapes.SHAPES.STAR); }
+    }
+
+    // Draw ImGui triangle icon because the font doesn't have one
+    private void drawTriangle(ImVec2 pos, float boundarySize) {
+        float thickness = 1.7f;
+        float size = ImGuiWindow.ICON_SIZE - thickness;
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
+        float x = pos.x + (boundarySize - size) / 2;
+        float y = pos.y + (boundarySize - size) / 2;
+
+        drawList.addTriangle(
+                x + size/2, y,           // top middle
+                x,          y + size,    // bottom left
+                x + size,   y + size,    // bottom right
+                ImColor.rgba(255, 255, 255, 255),
+                thickness
+        );
+    }
+
 
     private void showExtras() {
         ImGui.text("Extras");

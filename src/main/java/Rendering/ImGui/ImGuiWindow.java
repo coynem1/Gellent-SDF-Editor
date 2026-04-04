@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class ImGuiWindow {
     private static final int FONT_SIZE = 25;
-    private static final int ICON_SIZE = 19;
+    public static final int ICON_SIZE = 19;
 
     protected ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     protected ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
