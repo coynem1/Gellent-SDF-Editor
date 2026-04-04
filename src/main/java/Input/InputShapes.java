@@ -1,11 +1,14 @@
 package Input;
 
+import Input.Actions.ActionDelete;
 import Input.Actions.ActionHandler;
+import Input.Actions.ActionStamp;
 import Jade.SceneManager;
+import Observers.InputImGui;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
+import Observers.InputShapesEvents;
 import Rendering.ImGui.ImGuiEditor;
-import Rendering.Objects.Components.Blending;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
 import Saving.GsonSaver;
@@ -14,7 +17,7 @@ import imgui.ImGui;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 import util.WorldCoords;
 
 import java.util.HashMap;
@@ -30,7 +33,7 @@ public class InputShapes {
     public enum TOOLS { SELECT, STAMP, SMEAR };
     public enum SHAPES { CIRCLE, BOX, TRIANGLE, STAR};
     public enum MODES { UNION, DIFFERENCE, INTERSECTION };
-    public enum SHORTCUTS { SCALE, ROTATE, ROUND, BLEND};
+    public enum SHORTCUTS { MOVE, SCALE, ROTATE, ROUND, BLEND, MODE };
     public static final HashMap<TOOLS, String> TOOL_NAMES = new HashMap<>() {{
         put(TOOLS.SELECT, "Select");
         put(TOOLS.STAMP, "Stamp");
@@ -54,7 +57,9 @@ public class InputShapes {
     private Vector2f mousePos = new Vector2f();
     private boolean mouseEngaged = false;   // Mouse has been moved enough to engage selected shortcuts
     private boolean activeTransform = true; // Active shape tracks mouse position
-    private InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    private static InputShapes.TOOLS toolsMode = InputShapes.TOOLS.SELECT;
+    private GameObject currentObject = null;
+    private GameObject copiedObject = null;
 
     public InputShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
@@ -74,6 +79,13 @@ public class InputShapes {
     }
 
     private void bindInputs() {
+        InputImGui.onToolChanged((tool) -> {
+            toolsMode = tool;
+        });
+
+        InputSaving.onOpened((_) ->{ reset(); });
+        InputSaving.onNewFile(this::reset);
+
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore
             if (ImGui.getIO().getWantCaptureMouse()) { return; }
@@ -113,9 +125,46 @@ public class InputShapes {
                     case GLFW_KEY_N:
                         sceneManager.newScene();
                         break;
+                    case GLFW_KEY_V:
+                        pasteObject();
+                        break;
                 }
             }
+            else {
+                switch (key) {
+                    case GLFW_KEY_TAB:
+                        toggleToolsMode();
+                        break;
+                }
+            }
+
         });
+    }
+
+    // Set everything back to default, for new scenes
+    public void reset() {
+        mouseEngaged = false;
+        activeTransform = true;
+        currentObject = null;
+        toolsMode = InputShapes.TOOLS.SELECT;
+        transform.setPosition(new Vector2f());
+        currentObject = null;
+
+        inputSelector.reset();
+        inputStamper.reset();
+    }
+
+    // Toggles between select/stamp
+    private void toggleToolsMode() {
+        // In case of smear, switch to select
+        if (toolsMode == TOOLS.SELECT) {
+            toolsMode = TOOLS.STAMP;
+        }
+        else {
+            toolsMode = TOOLS.SELECT;
+        }
+        currentObject = null;
+        InputShapesEvents.setToolModeCallback(toolsMode);
     }
 
     // Change select/stamp mode
@@ -158,8 +207,24 @@ public class InputShapes {
 
     // Rounds through mouse position
     public GameObject roundShortcut(@NotNull GameObject object) {
-        if (object.getClass() != Shape.class) return object;    // Only shapes can be rounded
+        ComponentRounded rounded = object.getComponent(ComponentRounded.class);
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+
+        // Must be shape
+        if (object.getClass() != Shape.class) return object;
+
+        // Check if the shapes unroundable
         Shape shape = (Shape) object;
+        for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
+            if (shape.getShapeType() == unroundable) return object;
+        }
+
+        // Add a rounded component if needed
+        if (rounded == null) {
+            rounded = new ComponentRounded();
+            object.addComponent(rounded);
+        }
+        if (transformObj == null) return object;
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
@@ -168,43 +233,105 @@ public class InputShapes {
         if (worldPos.distance(prevWorldPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
         if (!mouseEngaged) {
             // Easy reset rounded shortcut
-            shape.setRounded(0f);
+            rounded.setRounded(0f);
             return object;
         }
 
         // Normal Rounding
-        float round = worldPos.distance(prevWorldPos) / shape.getTransform().getScale() ;
-        shape.setRounded(round);
-        return shape;
+        float round = worldPos.distance(prevWorldPos) / transformObj.getScale() ;
+        rounded.setRounded(round);
+        return object;
     }
 
     // Rotates through mouse position
     public GameObject rotateShortcut(@NotNull GameObject object) {
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+        if (transformObj == null) return object;
+
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
-        Vector2f prevWorldPos = transform.getPosition();
+        Vector2f prevWorldPos = transformObj.getPosition();
+        Vector2f mousePrevPos = transform.getPosition();
 
         float angle = (float) Math.atan2(worldPos.y - prevWorldPos.y, worldPos.x - prevWorldPos.x);
         angle = angle + (float) Math.PI * 1.5f; // Offset to point top of object towards mouse
         transform.setRotation(angle);
 
-        if (object.getClass() == Shape.class) ((Shape) object).getTransform().setRotation(angle);
+        // Enabled only if the mouse has moved enough
+        if (worldPos.distance(mousePrevPos) > MOUSE_ENGAGE_DIST) mouseEngaged = true;
+        if (!mouseEngaged) {
+            // Easy reset Rotation shortcut
+            if (transformObj != null) transformObj.setRotation(0);
+            return object;
+        }
+
+        if (transformObj != null) transformObj.setRotation(angle);
         return object;
     }
 
     // Scales through mouse position
     public GameObject scaleShortcut(@NotNull GameObject object) {
+        Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
+        if (transformObj == null) return object;
+
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
-        Vector2f prevWorldPos = transform.getPosition();
+        Vector2f prevWorldPos = transformObj.getPosition();
 
         float scale = max(worldPos.distance(prevWorldPos), Shape.MINIMUM_SCALE);
         transform.setScale(scale);
 
-        ((Shape) object).getTransform().setScale(scale);
+        transformObj.setScale(scale);
         return object;
     }
 
-    public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
-    public void setActiveTransform(boolean active) {this.activeTransform = active;}
+    public GameObject moveObject(@NotNull GameObject object) { return moveObject(object, new Vector2f()); }
+    public GameObject moveObject(@NotNull GameObject object, Vector2f offset) {
+        Transform2D<Vector2f> transformComponent = object.getComponent(Transform2D.class);
 
+        // If focused on UI, ignore
+        if (ImGui.getIO().getWantCaptureMouse()) return object;
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+
+        if (transformComponent != null) transformComponent.setPosition(worldPos.sub(offset));
+        return object;
+    }
+
+    public void deleteSelected() {
+        if (currentObject == null) return;
+        actionHandler.perform(new ActionDelete(currentObject));
+        currentObject = null;
+    }
+    public void copySelected() {
+        copiedObject = currentObject.copy();
+    }
+    public void cutSelected() {
+        if (currentObject == null) return;
+        copySelected();
+        actionHandler.perform(new ActionDelete(currentObject));
+    }
+    public void pasteObject() {
+        if (copiedObject == null || copiedObject.getClass() != Shape.class) return;
+        Shape shape = (Shape) copiedObject.copy();
+        Transform2D<Vector2f> transform = shape.getComponent(Transform2D.class);
+        Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
+
+        if (transform != null) transform.setPosition(worldPos);
+        // shape = shape.copy();
+
+        actionHandler.perform(new ActionStamp(sceneManager.getScene(), shape));
+        setCurrentObject(shape);
+    }
+
+    public void setSelected(GameObject object) { currentObject = object; }
+    public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
+    public void setActiveTransform(boolean active) {
+        this.activeTransform = active;
+        if (!active) return;
+        transform.setPosition(new Vector2f(WorldCoords.screenToWorld(mousePos, sceneManager.getCamera())));
+    }
+    public void setCurrentObject(GameObject object) { this.currentObject = object; }
+
+    public GameObject getSelected() { return currentObject; }
     public static Vector3f getColourSelected() { return colourSelected; }
+    public static TOOLS getToolsMode() { return toolsMode; }
+    public boolean hasSelected() { if (currentObject != null) return true; return false;}
 }

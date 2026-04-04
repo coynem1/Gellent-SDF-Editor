@@ -7,4 +7,5 @@ public abstract class Component {
 
     public void start() {}
     public void update(float delta) {}
+    public abstract Component copy();
 }

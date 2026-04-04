@@ -13,7 +13,7 @@ import Rendering.RenderSDF;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import util.Time;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
 import java.nio.file.Paths;
 

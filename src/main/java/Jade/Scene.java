@@ -1,7 +1,5 @@
 package Jade;
 
-import Input.InputSaving;
-import Input.InputStampShapes;
 import Rendering.Objects.Components.Component;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
@@ -12,7 +10,6 @@ import Rendering.Shaders.Shader;
 import Saving.Deserialisers.DeserialiseComponents;
 import Saving.Deserialisers.DeserialiseGameObjects;
 import Saving.Deserialisers.DeserialiseShapes;
-import Saving.GsonSaver;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +17,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import util.GameClock;
 import util.Time;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +30,7 @@ public abstract class Scene {
     protected static final String RENDER_SDF = "RENDER_SDF";
     protected static final String RENDER_DEBUG = "RENDER_DEBUG";
     protected static final String DEFAULT_SCENE_NAME = "Unnamed Scene";
+    protected static final int MAX_SHAPES = 145;
 
     protected String name;
     protected RenderSDF render;
@@ -40,7 +38,6 @@ public abstract class Scene {
     protected Camera camera;
 
     protected HashMap<String, Shader> shaders;
-    protected Shader shaderSDF;
     protected HashMap<String, Path> vShaderPath;
     protected HashMap<String, Path> fShaderPath;
 
@@ -97,13 +94,19 @@ public abstract class Scene {
             e.printStackTrace();
         }
 
-        if (json.isEmpty()) return;
+        if (json.isEmpty()) SceneManager.get().loadScene(null);
 
-        Shape[] objs = gson.fromJson(json, Shape[].class);
-        for (Shape obj : objs) {
-            addObjectToScene(obj);
+        try {
+            // GameObject[] objs = gson.fromJson(json, GameObject[].class);
+            Shape[] objs = gson.fromJson(json, Shape[].class);
+            for (GameObject obj : objs) {
+                addObjectToScene(obj);
+            }
+            levelLoaded = true;
+        } catch (Exception e) {
+            // Load a blank scene if an error occurs
+            SceneManager.get().loadScene(null);
         }
-        levelLoaded = true;
     }
 
     // Start all objects in the scene
@@ -124,14 +127,18 @@ public abstract class Scene {
         }
     }
 
-    public void addObjectToScene(GameObject object) {
-        objects.add(object);
+    public void addObjectToScene(GameObject object) { addObjectToScene(object, objects.size()); }
+    public void addObjectToScene(GameObject object, int index) {
+        int i = index;
+        if (objects.size() >= MAX_SHAPES -1) {
+            removeObjectFromScene(objects.get(0));
+            i -= 1;
+        }
+        objects.add(i, object);
         if (isRunning) { object.start(); }
     }
 
-    public void removeObjectFromScene(GameObject object) {
-        objects.remove(object);
-    }
+    public void removeObjectFromScene(GameObject object) { objects.remove(object); }
 
     // Sends variables to shader at fixed intervals
     private void uploadShader() {
@@ -152,7 +159,6 @@ public abstract class Scene {
 
     // TODO: Optimise to update only shapes that have changed
     private void uploadShapes() {
-        int MAX_SHAPES = 100;
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
         int[] uShapeTypes = new int[MAX_SHAPES];
@@ -179,14 +185,11 @@ public abstract class Scene {
             uShapeAngles[i] = transform.getRotation();
             uShapeBlends[i] = shape.getBlend();
 
-
             ComponentRounded rounded = shape.getComponent(ComponentRounded.class);
             if (rounded == null) uShapeRounds[i] = 0f;
             else uShapeRounds[i] = rounded.getRounded();
 
         }
-
-        if (uShapeCount == 0) return;
 
         shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
         shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);

@@ -8,4 +8,11 @@ public class ComponentRounded extends Component {
 
     public void setRounded(float round) { this.rounded = min(round, MAX_ROUNDED); }
     public float getRounded() { return rounded; }
+
+    @Override
+    public Component copy() {
+        ComponentRounded copy = new ComponentRounded();
+        copy.rounded = rounded;
+        return copy;
+    }
 }

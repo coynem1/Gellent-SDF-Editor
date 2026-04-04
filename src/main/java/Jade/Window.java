@@ -3,6 +3,7 @@ package Jade;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
 import Rendering.ImGui.ImGuiWindow;
+import Rendering.ImGui.ImGuiWindowClose;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -28,6 +29,7 @@ public class Window {
     private long glfwWindow;
     private ImGuiWindow imguiWindow;
     private GameClock physicsClock = GameClock.get();
+    private SceneManager sceneManager = SceneManager.get();
 
     private static Window window;
     public static final String GLFW_VERSION = "#version 330";
@@ -154,12 +156,23 @@ public class Window {
         WindowIcon.setWindowIcon(glfwWindow);
 
         imguiWindow.clearBuffer();
+
+        glfwSetWindowCloseCallback(glfwWindow, windowHandle -> {
+            // Unsaved changes?
+            if (sceneManager.getActionHandler().hasUnsavedChanges()) {
+                // Prevent the window from closing immediately
+                glfwSetWindowShouldClose(windowHandle, false);
+                imguiWindow.setWindowClosing(true);
+            }
+        });
+
         renderBuffer();
+
     }
 
     public void loop() {
         float deltaTime = 0;
-        SceneManager sceneManager = SceneManager.get();
+        // SceneManager sceneManager = SceneManager.get();
         sceneManager.init();
 
         Time.get().beginFrame();

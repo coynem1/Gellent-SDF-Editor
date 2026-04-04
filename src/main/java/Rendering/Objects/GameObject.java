@@ -1,6 +1,7 @@
 package Rendering.Objects;
 
 import Rendering.Objects.Components.Component;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -54,6 +55,18 @@ public class GameObject {
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).start();
         }
+    }
+
+    // Create a deep copy
+    public GameObject copy() {
+        GameObject clone = new GameObject();
+        clone.setName(this.name);
+
+        for (Component c : components) {
+            clone.addComponent(c.copy());
+        }
+
+        return clone;
     }
 
     public void setName(String name) { this.name = name; }

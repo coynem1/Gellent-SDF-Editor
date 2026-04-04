@@ -1,10 +1,10 @@
-package util;
+package Rendering.Objects.Components;
 
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 // General transform
-public class Transform2D <T>{
+public class Transform2D <T> extends Component {
     protected T position;
     protected float rotation = 0f;
     protected float scale = 1.0f;
@@ -24,10 +24,11 @@ public class Transform2D <T>{
         return t;
     }
 
+    // Copy the transform to a new object
     public Transform2D<T> copy() {
         Transform2D<T> copy = new Transform2D<>();
         copy.rotation = this.rotation;
-        copy.scale    = this.scale;
+        copy.scale = this.scale;
 
         if (this.position instanceof Vector2f v) {
             copy.position = (T) new Vector2f(v);
@@ -36,6 +37,18 @@ public class Transform2D <T>{
         }
 
         return copy;
+    }
+
+    // Copy everything from another transform
+    public void copyFrom(Transform2D<T> other) {
+        this.rotation = other.rotation;
+        this.scale = other.scale;
+
+        if (other.position instanceof Vector2f v) {
+            this.position = (T) new Vector2f(v);
+        } else if (other.position instanceof Vector2i v) {
+            this.position = (T) new Vector2i(v);
+        }
     }
 
     // Setters for tweaking

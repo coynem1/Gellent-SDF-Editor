@@ -23,14 +23,17 @@ public class TitleWindow {
     private void bindObservers() {
         InputSaving.onSaved((name) -> {
             fileName = name;
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onNewFile(() -> {
             fileName = null;
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onOpened((filePath) -> {
             fileName = Paths.get(filePath).getFileName().toString();
+            unsavedChanges = false;
             updateWindowTitle();
         });
         InputSaving.onActionChanged((unsaved) -> {

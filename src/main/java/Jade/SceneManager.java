@@ -1,8 +1,6 @@
 package Jade;
 
-import Demo.DemoScene;
 import Input.Actions.ActionHandler;
-import Input.Actions.ActionStamp;
 import Input.InputSaving;
 import Input.InputShapes;
 import Rendering.Objects.SculptObject;
@@ -11,9 +9,8 @@ import Saving.GsonSaver;
 import Saving.TitleWindow;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
-import util.Transform2D;
+import Rendering.Objects.Components.Transform2D;
 
-import java.io.File;
 import java.nio.file.Path;
 
 public class SceneManager {
@@ -26,6 +23,7 @@ public class SceneManager {
     private GsonSaver gsonSaver = null;
     private ActionHandler actionHandler = null;
     private TitleWindow titleWindow = null;
+    private Path path = null;
 
     public SceneManager() {
         sceneModes = new String[]{"Editing", "Playing", "Debugging"};
@@ -42,9 +40,9 @@ public class SceneManager {
         gsonSaver.init();
 
         // Notify only once that the scene has been opened
-        Path path = gsonSaver.getRecentFile(0);
+        path = gsonSaver.getRecentFile(0);
         loadScene(path);
-        if (path != null) InputSaving.setOpenCallback(path.getFileName().toString());
+        if (path != null) InputSaving.setOpenCallback(path.toString());
 
         // Ensures that the scene is in the settings file
         InputSaving.onOpened((filePath) -> {
@@ -60,8 +58,9 @@ public class SceneManager {
     }
 
     // Load the most recent scene from settings, if not, load a blank scene
-    private void loadScene(Path path) {
+    public void loadScene(Path path) {
         setScene(new SceneBase());
+        SceneManager.get().getActionHandler().clear();
 
         if (path != null) {
             currentScene.loadSceneFromFile(path);
@@ -84,6 +83,7 @@ public class SceneManager {
         square.setTransform(transform);
 
         currentScene.addObjectToScene(square);
+        path = null;
     }
 
     // Singleton

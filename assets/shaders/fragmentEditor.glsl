@@ -104,7 +104,7 @@ void render(float dist, float zoom) {
     FragColor = vec4(col, 1.0);
 }
 
-#define MAX_SHAPES 100
+#define MAX_SHAPES 145
 
 uniform int uShapeCount;
 uniform int uShapeTypes[MAX_SHAPES];
