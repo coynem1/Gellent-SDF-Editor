@@ -76,7 +76,7 @@ public class SceneManager {
     private void blankScene() {
         Transform2D<Vector2f> transform = Transform2D.createFloat();
         transform.setPosition(new Vector2f(0,0));
-        transform.setScale(10f);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
 
         Shape square = new Shape(InputShapes.SHAPES.BOX, new SculptObject());
         square.setShapeMode(InputShapes.MODES.UNION);

@@ -93,10 +93,8 @@ public class Shape extends GameObject {
         shapeType = shape;
 
         // if unroundable, remove the rounded component that might be there
-        for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
-            if (shape == unroundable) {
-                removeComponents(ComponentRounded.class);
-            }
+        if (InputShapes.UNROUNDABLE_SHAPES.contains(shape)) {
+            removeComponents(ComponentRounded.class);
         }
     }
 

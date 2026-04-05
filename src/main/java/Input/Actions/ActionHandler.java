@@ -79,4 +79,5 @@ public class ActionHandler {
     public Scene getScene() { return scene; }
     public InputShapes getInputShapes() { return inputShapes; }
     public boolean hasUnsavedChanges() { return (lastSavedAction != undoStack.size()); }
+    public InputShapes.TOOLS getToolsMode() { return InputShapes.getToolsMode(); }
 }

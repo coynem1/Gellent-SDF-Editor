@@ -6,14 +6,12 @@ import Observers.InputImGui;
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
 import Observers.InputShapesEvents;
-import Rendering.Objects.Components.Blending;
-import Rendering.Objects.Components.ComponentRounded;
+import Rendering.Objects.Components.*;
 import Rendering.Objects.GameObject;
 import Rendering.Objects.Shape;
 import imgui.ImGui;
 import org.joml.Vector2f;
 import util.CalculateSDF;
-import Rendering.Objects.Components.Transform2D;
 import util.WorldCoords;
 
 import java.util.List;
@@ -34,6 +32,7 @@ public class InputSelectShapes {
     private boolean shortcutsUsed[] = new boolean[InputShapes.SHORTCUTS.values().length];
     private boolean usingShortcuts = true; // Active shape tracks mouse position
     private boolean moving = false;
+    private boolean activeImGui[] = new boolean[InputShapes.SHORTCUTS.values().length];   // If actively editing through ImGui
     private boolean enabled = false;
 
     public InputSelectShapes(SceneManager sceneManager) {
@@ -50,7 +49,6 @@ public class InputSelectShapes {
 
     // Set everything back to default, for new scenes
     public void reset() {
-        // selectedObject = null;
         selectedObjectBefore = null;
         moving = false;
         transform = Transform2D.createFloat();
@@ -61,27 +59,52 @@ public class InputSelectShapes {
 
     private void bindInputs() {
         // ImGui UI inputs
-        // InputImGui.onColourChanged((colour) -> {
-        //     if (!enabled) return;
-        //     if (selectedObject != null && selectedObject.getClass() == Shape.class)
-        //         ((Shape) selectedObject).setColour(colour);
-        // });
-        // InputImGui.onScaleChanged((scale) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) selectedShape.getTransform().setScale(scale);
-        // });
-        // InputImGui.onBlendChanged((blend) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) selectedShape.setBlend(blend);
-        // });
-        // InputImGui.onRotationChanged((rotation) -> {
-        //     if (!enabled) return;
-        //     if (selectedShape != null) {
-        //         // Convert to radians
-        //         rotation *= (float) Math.PI / 180;
-        //         selectedShape.getTransform().setRotation(rotation);
-        //     }
-        // });
+        InputImGui.onScaleChanged((scale, pressed) -> {
+            InputShapes.SHORTCUTS sc = InputShapes.SHORTCUTS.SCALE;
+            Transform2D<Vector2f> transformComponent = imGuiEditing(Transform2D.class, sc, pressed);
+
+            if (transformComponent != null) transformComponent.setScale(scale);
+
+        });
+        InputImGui.onBlendChanged((blend, pressed) -> {
+            InputShapes.SHORTCUTS sc = InputShapes.SHORTCUTS.BLEND;
+            imGuiEditing(Blending.class, sc, pressed);
+
+            inputShapes.blendShortcut(inputShapes.getSelected(), blend);
+        });
+        InputImGui.onRoundChanged((round, pressed) -> {
+            InputShapes.SHORTCUTS sc = InputShapes.SHORTCUTS.ROUND;
+            imGuiEditing(ComponentRounded.class, sc, pressed);
+
+            inputShapes.roundShortcut(inputShapes.getSelected(), round);
+        });
+        InputImGui.onRotationChanged((rotation, pressed) -> {
+            InputShapes.SHORTCUTS sc = InputShapes.SHORTCUTS.ROTATE;
+            Transform2D<Vector2f> transformComponent = imGuiEditing(Transform2D.class, sc, pressed);
+
+            float radians = (float) Math.toRadians(rotation);
+            if (transformComponent != null) transformComponent.setRotation(radians);
+        });
+        InputImGui.onPosChanged((pos, pressed) ->{
+            InputShapes.SHORTCUTS sc = InputShapes.SHORTCUTS.MOVE;
+            Transform2D<Vector2f> transformComponent = imGuiEditing(Transform2D.class, sc, pressed);
+
+            if (transformComponent != null) transformComponent.setPosition(pos);
+        });
+
+
+        InputImGui.onShapeChanged((shape) -> {
+            if (!enabled) return;
+            GameObject selectedObject = inputShapes.getSelected();
+
+            // Check it's a shape
+            if (selectedObject == null || selectedObject.getClass() != Shape.class) return;
+            Shape shapeObj = (Shape) selectedObject;
+            InputShapes.SHAPES shapeTypeBefore = shapeObj.getShapeType();
+
+            inputShapes.changeShape(shapeObj, shape);
+            actionHandler.perform(new ActionSetShape(shapeObj, shapeTypeBefore, shapeObj.getShapeType()));
+        });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
         });
@@ -142,7 +165,7 @@ public class InputSelectShapes {
             if (!usingShortcuts) shapeShortcut();
 
             // Move the selected object
-            if (moving) moveSelected();
+            if (moving && !ImGui.getIO().getWantCaptureMouse()) moveSelected();
         });
 
         // Shortcuts
@@ -168,8 +191,6 @@ public class InputSelectShapes {
                         savePreviousObject(InputShapes.SHORTCUTS.MODE);
                         shape.setShapeMode(inputShapes.toggleMode(shape));
                         saveAction(InputShapes.SHORTCUTS.MODE);
-
-                        // selectedObject = shape;
                         break;
                     case GLFW_KEY_S:
                         freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);
@@ -249,6 +270,26 @@ public class InputSelectShapes {
         });
     }
 
+    // Update the shortcut, create an action and return the ImGui Component that's being changed
+    private <T extends Component> T imGuiEditing(Class<T> t, InputShapes.SHORTCUTS sc, boolean pressed) {
+        GameObject selectedObject = inputShapes.getSelected();
+
+        if (selectedObject == null || !enabled) return null;
+        T instance = selectedObject.getComponent(t);
+
+        // Only save action when not actively editing through ImGui
+        if (!activeImGui[sc.ordinal()]) {
+            savePreviousObject(sc);
+            activeImGui[sc.ordinal()] = true;
+        }
+        if (!pressed) {
+            saveAction(sc);
+            activeImGui[sc.ordinal()] = false;
+        }
+
+        return instance;
+    }
+
     // Save the action and its properties
     private void saveAction(InputShapes.SHORTCUTS shortcut) {
         GameObject selectedObject = inputShapes.getSelected();
@@ -284,9 +325,6 @@ public class InputSelectShapes {
                 float blendA = blendingBefore == null ? 0f : blendingBefore.getBlend();
                 float blendB = blendingNow == null ? 0f : blendingNow.getBlend();
 
-                // TODO: Problem because blending components are deleted if 0
-                if (blendingNow == null || blendingBefore == null) return;
-
                 actionHandler.perform(new ActionBlend(selectedObject,
                         blendA,
                         blendB)
@@ -296,10 +334,12 @@ public class InputSelectShapes {
                 ComponentRounded roundingNow = selectedObject.getComponent(ComponentRounded.class);
                 ComponentRounded roundingBefore = selectedObjectBefore.getComponent(ComponentRounded.class);
 
-                if (roundingNow == null || roundingBefore == null) return;
+                float roundedA = roundingBefore == null ? 0f : roundingBefore.getRounded();
+                float roundedB = roundingNow == null ? 0f : roundingNow.getRounded();
+
                 actionHandler.perform(new ActionRound(selectedObject,
-                        roundingBefore.getRounded(),
-                        roundingNow.getRounded())
+                        roundedA,
+                        roundedB)
                 );
                 break;
             case MODE:
@@ -356,12 +396,20 @@ public class InputSelectShapes {
                 Blending blendingBefore = selectedObjectBefore.getComponent(Blending.class);
 
                 if (blendingNow != null && blendingBefore != null) blendingBefore.setBlend(blendingNow.getBlend());
+                else if (selectedObject.getClass() == Shape.class) {
+                    ((Shape) selectedObject).setBlend(0);
+                    ((Shape) selectedObjectBefore).setBlend(0);
+                }
                 break;
             case ROUND:
                 ComponentRounded roundNow = selectedObject.getComponent(ComponentRounded.class);
                 ComponentRounded roundBefore = selectedObjectBefore.getComponent(ComponentRounded.class);
 
                 if (roundNow != null && roundBefore != null) roundBefore.setRounded(roundNow.getRounded());
+                else if (selectedObject.getClass() == Shape.class) {
+                    ((Shape) selectedObject).setRounded(0);
+                    ((Shape) selectedObjectBefore).setRounded(0);
+                }
                 break;
             case MODE:
                 if (selectedObjectBefore.getClass() != Shape.class || selectedObject.getClass() != Shape.class) return;
@@ -381,9 +429,10 @@ public class InputSelectShapes {
         GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null || !enabled) return;
 
-        inputShapes.setSelected(inputShapes.moveObject(selectedObject, transform.getPosition()));
+        inputShapes.moveObject(selectedObject, transform.getPosition());
     }
 
+    // Handle when shortcuts are held
     private void shapeShortcut() {
         GameObject selectedObject = inputShapes.getSelected();
         if (selectedObject == null || moving) return;
@@ -407,7 +456,6 @@ public class InputSelectShapes {
             if (object.getClass() != Shape.class) continue;
             if (CalculateSDF.calculateSDF((Shape) object, worldPos) <= 0) {
                 inputShapes.setSelected(object);
-                // selectedObject = object;
                 inputShapes.setCurrentObject(object);
                 return;
             }
@@ -438,7 +486,7 @@ public class InputSelectShapes {
         return true;
     }
 
-    // TODO: Changes active shape to selected shape
+    // Changes active shape to the clicked one
     private void updateActiveShape() {
         if (InputShapes.getToolsMode() != InputShapes.TOOLS.SELECT) {
             enabled = false;

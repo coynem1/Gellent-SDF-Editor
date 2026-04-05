@@ -1,6 +1,7 @@
 package Input;
 
 import Input.Actions.ActionHandler;
+import Input.Actions.ActionSetShape;
 import Input.Actions.ActionStamp;
 import Jade.SceneManager;
 import Observers.InputImGui;
@@ -21,8 +22,6 @@ import Rendering.Objects.Components.Transform2D;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
-    private static final float DEFAULT_SCALE = 10f ;
-
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private SculptObject currentSculpt = new SculptObject();
@@ -40,7 +39,7 @@ public class InputStampShapes {
     public InputStampShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
 
-        transform.setScale(DEFAULT_SCALE);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
     }
 
     public void init(InputShapes inputShapes) {
@@ -61,37 +60,21 @@ public class InputStampShapes {
         enabled = (inputShapes.getToolsMode() != InputShapes.TOOLS.SELECT);
 
         transform = Transform2D.createFloat();
-        transform.setScale(DEFAULT_SCALE);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
     }
 
     private void bindInputs() {
-        // // ImGui UI inputs
-        // InputImGui.onColourChanged((colour) -> {
-        //     colourSelected = colour;
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setColour(colour);
-        // });
-        // InputImGui.onScaleChanged((scale) -> {
-        //     transform.setScale(scale);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setTransform(transform);
-        // });
-        // InputImGui.onBlendChanged((blend) -> {
-        //     blending.setBlend(blend);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setBlend(blend);
-        // });
-        // InputImGui.onRotationChanged((rotation) -> {
-        //     // Convert to radians
-        //     rotation *= (float) Math.PI / 180;
-        //     transform.setRotation(-rotation);
-        //     if (!enabled) return;
-        //     if (activeShape != null) activeShape.setTransform(transform);
-        // });
+        // ImGui UI inputs
         InputImGui.onShapeChanged((shape) -> {
-            selectedShape = shape;
+            // Switch to stamp mode if no shape is selected in select mode
+            if (!enabled && !inputShapes.hasSelected()) {
+                reset();
+                inputShapes.setToolsMode(InputShapes.TOOLS.STAMP);
+            }
             if (!enabled) return;
-            if (activeShape != null) activeShape.setShape(shape);
+
+            selectedShape = shape;
+            if (activeShape != null) inputShapes.changeShape(activeShape, shape);
         });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
@@ -123,8 +106,8 @@ public class InputStampShapes {
                 return;
             }
 
-            if (activeShape != null) {
-                activeShape = (Shape) inputShapes.moveObject(activeShape);
+            if (activeShape != null && !ImGui.getIO().getWantCaptureMouse()) {
+                inputShapes.moveObject(activeShape);
             }
         });
 

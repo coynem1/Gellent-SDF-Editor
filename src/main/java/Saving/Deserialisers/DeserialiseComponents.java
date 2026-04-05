@@ -1,9 +1,6 @@
 package Saving.Deserialisers;
 
-import Rendering.Objects.Components.Blending;
-import Rendering.Objects.Components.Component;
-import Rendering.Objects.Components.ComponentRounded;
-import Rendering.Objects.Components.Transform2D;
+import Rendering.Objects.Components.*;
 import com.google.gson.*;
 import org.joml.Vector2f;
 
@@ -44,7 +41,7 @@ public class DeserialiseComponents implements JsonSerializer<Component>, JsonDes
         }
 
         try {
-            return context.deserialize(data, COMPONENT_CLASSES.get(type));
+            return context.deserialize(data, ComponentNames.getComponentClass(type));
         } catch (JsonParseException e) {
             throw new JsonParseException("Unknown element type loaded: " + type,e);
         }

@@ -1,7 +1,8 @@
 package Rendering.ImGui;
 
-import Input.InputStampShapes;
 import Jade.Window;
+import Observers.InputImGui;
+import Observers.InputKeyEvents;
 import imgui.*;
 import imgui.app.Color;
 import imgui.flag.ImGuiConfigFlags;
@@ -12,11 +13,12 @@ import org.lwjgl.glfw.GLFW;
 import java.awt.*;
 
 import static imgui.ImGui.getIO;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F1;
 import static org.lwjgl.opengl.GL11.*;
 
 public class ImGuiWindow {
     private static final int FONT_SIZE = 25;
-    private static final int ICON_SIZE = 19;
+    public static final int ICON_SIZE = 19;
 
     protected ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     protected ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
@@ -28,6 +30,7 @@ public class ImGuiWindow {
     private ImGuiEditor editor;
     private ImGuiWindowClose windowClose;
     private final Color colorBg = new Color(.5f, .5f, .5f, 1);  // TODO: Remove
+    private boolean showHelp = false;
 
 
     public ImGuiWindow() {
@@ -64,6 +67,23 @@ public class ImGuiWindow {
         imGuiGl3.init(glslVersion);
 
         this.editor.init();
+        bindInputs();
+    }
+
+    private void bindInputs() {
+        InputImGui.onHelpChanged((open) -> {
+            showHelp = open;
+            ImGuiHelp.open();
+        });
+
+        InputKeyEvents.onKeyPressed((key, _, _) -> {
+            switch (key) {
+                case GLFW_KEY_F1:
+                    showHelp = true;
+                    ImGuiHelp.open();
+                    break;
+            }
+        });
     }
 
     // Creates font atlas and merges it with the default font
@@ -113,6 +133,7 @@ public class ImGuiWindow {
         // Render UI here
         editor.render();
         if (windowClosing) windowClose.close();
+        if (showHelp) ImGuiHelp.draw();
 
         endFrame();
     }
@@ -130,17 +151,11 @@ public class ImGuiWindow {
         }
     }
 
-    // Render OpenGL buffer and poll events
-    private void renderBuffer() {
-        GLFW.glfwSwapBuffers(glfwWindow);
-        GLFW.glfwPollEvents();
-    }
-
-    // Clear OpenGL buffer
-    public void clearBuffer() {
-        glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
+    // // Clear OpenGL buffer
+    // public void clearBuffer() {
+    //     glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
+    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // }
 
     public void destroy() {
         imGuiGl3.shutdown();

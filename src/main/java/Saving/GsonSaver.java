@@ -64,15 +64,18 @@ public class GsonSaver {
     }
 
     // Opens a dialog to open a file
-    public void load() {
+    public void load() { load(null);}
+    public void load(Path file) {
         String extension = SaveDialog.GELLENT_FILE_EXTENSION;
         String pathStr;
-        Path path;
+        Path path = file;
 
         // Open a file
-        pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
-        if (pathStr == null) return;
-        path = Path.of(pathStr);
+        if (path == null) {
+            pathStr = SaveDialog.showOpenDialog(SaveDialog.OPEN_SCENE_TITLE, extension, SaveDialog.GELLENT);
+            if (pathStr == null) return;
+            path = Path.of(pathStr);
+        }
 
         // File is not valid
         if (!isValidGellentFile(path)) return;

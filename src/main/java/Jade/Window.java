@@ -155,7 +155,7 @@ public class Window {
         // Set the window icon
         WindowIcon.setWindowIcon(glfwWindow);
 
-        imguiWindow.clearBuffer();
+        // imguiWindow.clearBuffer();
 
         glfwSetWindowCloseCallback(glfwWindow, windowHandle -> {
             // Unsaved changes?
