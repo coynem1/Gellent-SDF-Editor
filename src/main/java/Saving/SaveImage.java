@@ -11,6 +11,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.opengl.GL11.GL_PACK_ALIGNMENT;
+import static org.lwjgl.opengl.GL11.glPixelStorei;
+import static org.lwjgl.opengl.GL30.*;
+
 
 public class SaveImage {
     private static final int RGBA = 4;
@@ -33,15 +37,19 @@ public class SaveImage {
 
         WindowEvents.onFrameRendered((_) -> {
             if (!awaitUpdate) return;
+            awaitUpdate = false;
 
             String pathStr = SaveDialog.saveDialog("Save Image", "png", "PNG Image (*.png");
             if (pathStr == null) return;
 
-            ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * RGBA);
-            GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+            // Set alignment to 1 byte to fix interlacing
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
             width = Window.get().getWidth();
             height = Window.get().getHeight();
+
+            ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * RGBA);
+            GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
             try {
                 saveImage(width, height, buffer, pathStr);

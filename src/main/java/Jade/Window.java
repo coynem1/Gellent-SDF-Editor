@@ -20,6 +20,8 @@ import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 // Entire program, looping until closed
 public class Window {
@@ -186,6 +188,7 @@ public class Window {
             glfwPollEvents();
 
             // Base colour
+            glBindFramebuffer(GL_FRAMEBUFFER,0);
             glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
