@@ -76,6 +76,11 @@ public class ImGuiWindow {
             ImGuiHelp.open();
         });
 
+        InputImGui.onImageExportChanged((awaitFrame) -> {
+            if (!awaitFrame) return;
+
+        });
+
         InputKeyEvents.onKeyPressed((key, _, _) -> {
             switch (key) {
                 case GLFW_KEY_F1:

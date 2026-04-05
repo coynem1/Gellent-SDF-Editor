@@ -72,6 +72,7 @@ public class ImGuiMenubar {
             }
             if (ImGui.menuItem("Save", "Ctrl+S", false, true)) { gsonSaver.save(true); }
             if (ImGui.menuItem("Save As...", null, false, true)) { gsonSaver.save(false); }
+            if (ImGui.menuItem("Export as...", null, false, true)) { InputImGui.setImageExportCallback(true); }
             ImGui.separator();
 
             if (ImGui.menuItem("Quit", "Alt+F4", false, true)) { Window.get().destroy();}

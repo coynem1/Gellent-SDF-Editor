@@ -24,6 +24,7 @@ public class GsonSaver {
 
     private final Gson gson;
     private AppSettings settings;
+    private SaveImage saveImage;
     private File currentFile;
 
     public GsonSaver() {
@@ -33,6 +34,7 @@ public class GsonSaver {
             .registerTypeAdapter(Shape.class, new DeserialiseShapes())
             .create();
         this.settings = new AppSettings();
+        this.saveImage = new SaveImage();
 
         // Create the config folder if it doesn't exist
         new java.io.File(CONFIG_DIR).mkdirs();
