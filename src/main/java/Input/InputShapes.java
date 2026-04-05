@@ -210,6 +210,7 @@ public class InputShapes {
         if (!mouseEngaged) {
             // Easy reset blend shortcut
             shape.setBlend(0f);
+            InputShapesEvents.setBlendCallback(0f);
             return shape;
         }
 
@@ -222,6 +223,7 @@ public class InputShapes {
     // Rounds through mouse position or manually
     public GameObject roundShortcut(@NotNull GameObject object) { return roundShortcut(object, -1f);}
     public GameObject roundShortcut(@NotNull GameObject object, float round) {
+        float ROUNDED_SCALE = 10f;
         ComponentRounded rounded = object.getComponent(ComponentRounded.class);
         Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
 
@@ -241,7 +243,7 @@ public class InputShapes {
 
         // Manually setting roundness?
         if (round != -1f) {
-            rounded.setRounded(round);
+            rounded.setRounded(round / (transformObj.getScale() * ROUNDED_SCALE));
             return object;
         }
 
@@ -257,7 +259,7 @@ public class InputShapes {
         }
 
         // Normal Rounding
-        float roundness = worldPos.distance(prevWorldPos) / transformObj.getScale() ;
+        float roundness = worldPos.distance(prevWorldPos) / (transformObj.getScale() * ROUNDED_SCALE) ;
         rounded.setRounded(roundness);
         return object;
     }
@@ -283,7 +285,9 @@ public class InputShapes {
             return object;
         }
 
-        if (transformObj != null) transformObj.setRotation(angle);
+        if (transformObj != null) {
+            transformObj.setRotation(angle);
+        }
         return object;
     }
 
@@ -307,7 +311,11 @@ public class InputShapes {
         Transform2D<Vector2f> transformComponent = object.getComponent(Transform2D.class);
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
-        if (transformComponent != null) transformComponent.setPosition(worldPos.sub(offset));
+        if (transformComponent != null) {
+            Vector2f prevPos = worldPos.sub(offset);
+            transformComponent.setPosition(prevPos);
+            InputShapesEvents.setPosCallback(prevPos);
+        }
         return object;
     }
 

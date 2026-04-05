@@ -191,8 +191,6 @@ public class InputSelectShapes {
                         savePreviousObject(InputShapes.SHORTCUTS.MODE);
                         shape.setShapeMode(inputShapes.toggleMode(shape));
                         saveAction(InputShapes.SHORTCUTS.MODE);
-
-                        // selectedObject = shape;
                         break;
                     case GLFW_KEY_S:
                         freezeActiveShape(pressed, InputShapes.SHORTCUTS.SCALE);

@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 public class ImGuiEditor {
     private static final float EDITOR_WIDTH = 370f;
     private static final float PERCENT = 100f;
+    private static final float DEGREES = 360f;
     private final ImBoolean SHOW_DEMO_WINDOW = new ImBoolean(false);
     private static final float[] DEFAULT_COLOUR = new float[] {1f, 0.6f, 0.3f};
 
@@ -58,7 +59,7 @@ public class ImGuiEditor {
                 position[0] = transform.getPosition().x;
                 position[1] = transform.getPosition().y;
                 scale.set(transform.getScale());
-                rotation[0] = transform.getRotation();
+                rotation[0] = ((float) Math.toDegrees(transform.getRotation())) % DEGREES;
             } else {
                 position[0] = 0f;
                 position[1] = 0f;
@@ -77,6 +78,23 @@ public class ImGuiEditor {
             } else {
                 round[0] = 0f;
             }
+        });
+
+        InputShapesEvents.onBlendChanged((blend) ->{
+            this.blend[0] = (blend / Blending.MAX_BLEND) * PERCENT;
+        });
+        InputShapesEvents.onRoundChanged((round) ->{
+            this.round[0] = (round * ComponentRounded.MAX_ROUNDED);
+        });
+        InputShapesEvents.onPosChanged((pos) ->{
+            this.position[0] = pos.x;
+            this.position[1] = pos.y;
+        });
+        InputShapesEvents.onScaleChanged((value) ->{
+            scale.set(value);
+        });
+        InputShapesEvents.onRotationChanged((rotation) ->{
+            this.rotation[0] = ((float) Math.toDegrees(rotation)) % DEGREES;
         });
     }
 
@@ -123,7 +141,7 @@ public class ImGuiEditor {
         if (ImGui.isItemDeactivated()) InputImGui.setScaleCallback(scale.get(), false);
 
         // Rotation
-        if (ImGui.dragFloat("Angle", rotation, 0.1f, 0f, 360f, TWO_DECIMALS, ImGuiSliderFlags.WrapAround)) {
+        if (ImGui.dragFloat("Angle", rotation, 0.1f, 0f, DEGREES, TWO_DECIMALS, ImGuiSliderFlags.WrapAround)) {
             InputImGui.setRotationCallback(rotation[0], true);
         }
         if (ImGui.isItemDeactivated()) InputImGui.setRotationCallback(rotation[0], false);
@@ -150,9 +168,9 @@ public class ImGuiEditor {
         }
 
         if (ImGui.dragFloat("Round", round, 0.1f, 0f, PERCENT, TWO_DECIMALS, ImGuiSliderFlags.AlwaysClamp)) {
-            InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED, true);
+            InputImGui.setRoundCallback((round[0]) * ComponentRounded.MAX_ROUNDED, true);
         }
-        if (ImGui.isItemDeactivated()) InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED, false);
+        if (ImGui.isItemDeactivated()) InputImGui.setRoundCallback((round[0]) * ComponentRounded.MAX_ROUNDED, false);
         if (!roundable) ImGui.endDisabled();
     }
 
