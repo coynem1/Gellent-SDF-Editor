@@ -170,7 +170,6 @@ public class ImGuiEditor {
         }
 
         if (ImGui.dragFloat("Round", round, 0.1f, 0f, PERCENT, TWO_DECIMALS, ImGuiSliderFlags.AlwaysClamp)) {
-            IO.println((round[0]));
             InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED , true);
         }
         if (ImGui.isItemDeactivated()) InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED, false);
