@@ -22,8 +22,6 @@ import Rendering.Objects.Components.Transform2D;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputStampShapes {
-    private static final float DEFAULT_SCALE = 10f ;
-
     private static Vector3f colourSelected = ImGuiEditor.getColourSelected();    // Default colour
     private Transform2D<Vector2f> transform = Transform2D.createFloat();
     private SculptObject currentSculpt = new SculptObject();
@@ -41,7 +39,7 @@ public class InputStampShapes {
     public InputStampShapes(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
 
-        transform.setScale(DEFAULT_SCALE);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
     }
 
     public void init(InputShapes inputShapes) {
@@ -62,16 +60,21 @@ public class InputStampShapes {
         enabled = (inputShapes.getToolsMode() != InputShapes.TOOLS.SELECT);
 
         transform = Transform2D.createFloat();
-        transform.setScale(DEFAULT_SCALE);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
     }
 
     private void bindInputs() {
-        // // ImGui UI inputs
+        // ImGui UI inputs
         InputImGui.onShapeChanged((shape) -> {
-            if (!enabled || activeShape == null) return;
+            // Switch to stamp mode if no shape is selected in select mode
+            if (!enabled && !inputShapes.hasSelected()) {
+                reset();
+                inputShapes.setToolsMode(InputShapes.TOOLS.STAMP);
+            }
+            if (!enabled) return;
 
             selectedShape = shape;
-            inputShapes.changeShape(activeShape, shape);
+            if (activeShape != null) inputShapes.changeShape(activeShape, shape);
         });
         InputImGui.onToolChanged((tool) -> {
             updateActiveShape();
@@ -103,8 +106,8 @@ public class InputStampShapes {
                 return;
             }
 
-            if (activeShape != null) {
-                activeShape = (Shape) inputShapes.moveObject(activeShape);
+            if (activeShape != null && !ImGui.getIO().getWantCaptureMouse()) {
+                inputShapes.moveObject(activeShape);
             }
         });
 

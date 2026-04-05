@@ -68,7 +68,7 @@ public class DemoScene extends Scene {
         this.addObjectToScene(testObject);
 
         Transform2D<Vector2f> transform = testObject.getTransform();
-        transform.setScale(10f);
+        transform.setScale(Transform2D.DEFAULT_SCALE);
         transform.setRotation(45f);
         transform.setPosition(new Vector2f(0, 0));
         testObject.setTransform(transform);

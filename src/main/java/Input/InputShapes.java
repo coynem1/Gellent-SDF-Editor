@@ -20,6 +20,7 @@ import org.joml.Vector3f;
 import Rendering.Objects.Components.Transform2D;
 import util.WorldCoords;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import static java.lang.Math.max;
@@ -45,7 +46,9 @@ public class InputShapes {
         put(SHAPES.TRIANGLE, "Triangle");
         put(SHAPES.STAR, "Star");
     }};
-    public static final SHAPES[] UNROUNDABLE_SHAPES = { SHAPES.CIRCLE };
+    public static final EnumSet<SHAPES> UNROUNDABLE_SHAPES = EnumSet.of(
+            InputShapes.SHAPES.CIRCLE
+    );
 
     private InputStampShapes inputStamper;
     private InputSelectShapes inputSelector;
@@ -158,13 +161,11 @@ public class InputShapes {
     private void toggleToolsMode() {
         // In case of smear, switch to select
         if (toolsMode == TOOLS.SELECT) {
-            toolsMode = TOOLS.STAMP;
+            setToolsMode(TOOLS.STAMP);
         }
         else {
-            toolsMode = TOOLS.SELECT;
+            setToolsMode(TOOLS.SELECT);
         }
-        currentObject = null;
-        InputShapesEvents.setToolModeCallback(toolsMode);
     }
 
     // Change shape type
@@ -190,9 +191,16 @@ public class InputShapes {
     }
 
     // Rounds through mouse position
-    public GameObject blendShortcut(@NotNull GameObject object) {
+    public GameObject blendShortcut(@NotNull GameObject object) { return blendShortcut(object, -1f); }
+    public GameObject blendShortcut(@NotNull GameObject object, float blend) {
         if (object.getClass() != Shape.class) return object;    // Only shapes can be blended
         Shape shape = (Shape) object;
+
+        // Manually setting roundness?
+        if (blend != -1f) {
+            shape.setBlend(blend);
+            return object;
+        }
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
@@ -211,8 +219,9 @@ public class InputShapes {
         return shape;
     }
 
-    // Rounds through mouse position
-    public GameObject roundShortcut(@NotNull GameObject object) {
+    // Rounds through mouse position or manually
+    public GameObject roundShortcut(@NotNull GameObject object) { return roundShortcut(object, -1f);}
+    public GameObject roundShortcut(@NotNull GameObject object, float round) {
         ComponentRounded rounded = object.getComponent(ComponentRounded.class);
         Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
 
@@ -221,9 +230,7 @@ public class InputShapes {
 
         // Check if the shapes unroundable
         Shape shape = (Shape) object;
-        for (var unroundable : InputShapes.UNROUNDABLE_SHAPES) {
-            if (shape.getShapeType() == unroundable) return object;
-        }
+        if (InputShapes.UNROUNDABLE_SHAPES.contains(shape.getShapeType())) return object;
 
         // Add a rounded component if needed
         if (rounded == null) {
@@ -231,6 +238,12 @@ public class InputShapes {
             object.addComponent(rounded);
         }
         if (transformObj == null) return object;
+
+        // Manually setting roundness?
+        if (round != -1f) {
+            rounded.setRounded(round);
+            return object;
+        }
 
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
         Vector2f prevWorldPos = transform.getPosition();
@@ -244,8 +257,8 @@ public class InputShapes {
         }
 
         // Normal Rounding
-        float round = worldPos.distance(prevWorldPos) / transformObj.getScale() ;
-        rounded.setRounded(round);
+        float roundness = worldPos.distance(prevWorldPos) / transformObj.getScale() ;
+        rounded.setRounded(roundness);
         return object;
     }
 
@@ -292,9 +305,6 @@ public class InputShapes {
     public GameObject moveObject(@NotNull GameObject object) { return moveObject(object, new Vector2f()); }
     public GameObject moveObject(@NotNull GameObject object, Vector2f offset) {
         Transform2D<Vector2f> transformComponent = object.getComponent(Transform2D.class);
-
-        // If focused on UI, ignore
-        if (ImGui.getIO().getWantCaptureMouse()) return object;
         Vector2f worldPos = WorldCoords.screenToWorld(mousePos, sceneManager.getCamera());
 
         if (transformComponent != null) transformComponent.setPosition(worldPos.sub(offset));
@@ -327,7 +337,7 @@ public class InputShapes {
         setCurrentObject(shape);
     }
 
-    public void setSelected(GameObject object) { currentObject = object; }
+    public void setSelected(GameObject object) { currentObject = object; InputShapesEvents.setSelectedCallback(object); }
     public void setMouseEngaged(boolean engaged) {this.mouseEngaged = engaged;}
     public void setActiveTransform(boolean active) {
         this.activeTransform = active;
@@ -335,6 +345,11 @@ public class InputShapes {
         transform.setPosition(new Vector2f(WorldCoords.screenToWorld(mousePos, sceneManager.getCamera())));
     }
     public void setCurrentObject(GameObject object) { this.currentObject = object; }
+    public void setToolsMode(TOOLS mode) {
+        this.toolsMode = mode;
+        currentObject = null;
+        InputShapesEvents.setToolModeCallback(toolsMode);
+    }
 
     public GameObject getSelected() { return currentObject; }
     public static Vector3f getColourSelected() { return colourSelected; }

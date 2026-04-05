@@ -5,9 +5,10 @@ import org.joml.Vector2i;
 
 // General transform
 public class Transform2D <T> extends Component {
+    public static final float DEFAULT_SCALE = 10f;
     protected T position;
     protected float rotation = 0f;
-    protected float scale = 1.0f;
+    protected float scale = DEFAULT_SCALE;
 
     // Factory constructors to choose a vector type
     private Transform2D() {}
