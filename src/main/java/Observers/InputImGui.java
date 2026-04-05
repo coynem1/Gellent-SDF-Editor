@@ -43,6 +43,7 @@ public class InputImGui {
     private static final List<FloatHandler> onRoundChanged = new CopyOnWriteArrayList<>();
     private static final List<ShapeHandler> onShapeChanged = new CopyOnWriteArrayList<>();
     private static final List<ToolHandler> onToolChanged = new CopyOnWriteArrayList<>();
+    private static final List<BoolHandler> onImageExportChanged = new CopyOnWriteArrayList<>();
 
     public static void onHelpChanged(BoolHandler handler) { onHelpChanged.add(handler); }
     public static void onColourChanged(Vec3fHandler handler) { onColourChanged.add(handler); }
@@ -53,6 +54,7 @@ public class InputImGui {
     public static void onBlendChanged(FloatHandler handler) { onBlendChanged.add(handler); }
     public static void onShapeChanged(ShapeHandler handler) { onShapeChanged.add(handler); }
     public static void onToolChanged(ToolHandler handler) { onToolChanged.add(handler); }
+    public static void onImageExportChanged(BoolHandler handler) { onImageExportChanged.add(handler); }
 
     // Update all colour change observers
     public static void setHelpCallback(boolean open) { for (var h : onHelpChanged) { h.handle(open); }}
@@ -70,4 +72,5 @@ public class InputImGui {
     public static void setRoundCallback(float blend, boolean pressed) { for (var h : onRoundChanged) { h.handle(blend, pressed); }}
     public static void setShapeCallback(InputShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}
     public static void setToolCallback(InputShapes.TOOLS tool) { for (var h : onToolChanged) { h.handle(tool); }}
+    public static void setImageExportCallback(boolean awaitFrame) { for (var h : onImageExportChanged) { h.handle(awaitFrame); }}
 }

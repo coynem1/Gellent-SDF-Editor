@@ -2,6 +2,7 @@ package Jade;
 
 import Observers.InputKeyEvents;
 import Observers.InputMouseEvents;
+import Observers.WindowEvents;
 import Rendering.ImGui.ImGuiWindow;
 import Rendering.ImGui.ImGuiWindowClose;
 import org.lwjgl.Version;
@@ -30,6 +31,7 @@ public class Window {
     private ImGuiWindow imguiWindow;
     private GameClock physicsClock = GameClock.get();
     private SceneManager sceneManager = SceneManager.get();
+    private boolean awaitFrame = false;
 
     private static Window window;
     public static final String GLFW_VERSION = "#version 330";
@@ -190,6 +192,13 @@ public class Window {
             // Send a frame process to SceneManager
             sceneManager.process(deltaTime);
 
+            // If awaiting a frame render, send a signal before UI (E.g. Image export)
+            if (awaitFrame) {
+                glFinish(); // Block CPU until GPU is done
+                WindowEvents.setFrameRenderedCallback(true);
+                awaitFrame = false;
+            }
+
             // ImGui
             imguiWindow.render();
 
@@ -217,6 +226,9 @@ public class Window {
         glfwTerminate();
         System.exit(0);
     }
+
+    // Sends signals to observers awaiting a frame render
+    public void awaitNextFrame() { this.awaitFrame = true; }
 
     public int getWidth() { return width; }
     public int getHeight() {
