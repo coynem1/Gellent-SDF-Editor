@@ -243,7 +243,7 @@ public class InputShapes {
 
         // Manually setting roundness?
         if (round != -1f) {
-            rounded.setRounded(round / (transformObj.getScale() * ROUNDED_SCALE));
+            rounded.setRounded(round);
             return object;
         }
 

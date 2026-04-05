@@ -84,7 +84,7 @@ public class ImGuiEditor {
             this.blend[0] = (blend / Blending.MAX_BLEND) * PERCENT;
         });
         InputShapesEvents.onRoundChanged((round) ->{
-            this.round[0] = (round * ComponentRounded.MAX_ROUNDED);
+            this.round[0] = (round / ComponentRounded.MAX_ROUNDED) * PERCENT;
         });
         InputShapesEvents.onPosChanged((pos) ->{
             this.position[0] = pos.x;
@@ -112,7 +112,8 @@ public class ImGuiEditor {
             showShapeButtons();
 
             if (SceneManager.get().getActionHandler().hasSelected()) {
-                ImGui.separator();
+                ImGui.spacing();
+
                 ImGui.pushItemWidth(-90);
                 tweakMenu();
                 ImGui.popItemWidth();
@@ -126,7 +127,7 @@ public class ImGuiEditor {
         String TWO_DECIMALS = "%.2f";
         boolean roundable = false;
 
-        ImGui.text("Edit Selected");
+        ImGui.separatorText("Edit Selected Shape  " + FontAwesomeIcons.Edit);
 
         // Position
         if (ImGui.dragFloat2("Position", position, 0.1f, 1f, 0f, TWO_DECIMALS)) {
@@ -151,6 +152,7 @@ public class ImGuiEditor {
         );
 
         ImGui.separator();
+        ImGui.spacing();
 
         // Blend
         if (ImGui.dragFloat("Blend", blend, 0.1f, 0f, PERCENT, TWO_DECIMALS, ImGuiSliderFlags.AlwaysClamp)) {
@@ -168,16 +170,23 @@ public class ImGuiEditor {
         }
 
         if (ImGui.dragFloat("Round", round, 0.1f, 0f, PERCENT, TWO_DECIMALS, ImGuiSliderFlags.AlwaysClamp)) {
-            InputImGui.setRoundCallback((round[0]) * ComponentRounded.MAX_ROUNDED, true);
+            IO.println((round[0]));
+            InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED , true);
         }
-        if (ImGui.isItemDeactivated()) InputImGui.setRoundCallback((round[0]) * ComponentRounded.MAX_ROUNDED, false);
+        if (ImGui.isItemDeactivated()) InputImGui.setRoundCallback((round[0] / PERCENT) * ComponentRounded.MAX_ROUNDED, false);
         if (!roundable) ImGui.endDisabled();
     }
 
     // Shape Buttons
     private void showShapeButtons() {
-        float BOX_SIZE = 60f;
+        float BOX_SIZE = 70f;
+        float SPACING = ImGui.getStyle().getItemSpacing().x;
+        float totalWidth = (BOX_SIZE * 4) + (SPACING * 3);
         ImVec2 pos;
+
+        ImGui.separatorText("Shapes  " + FontAwesomeIcons.Shapes);
+
+        ImGui.setCursorPosX((ImGui.getContentRegionAvailX() - totalWidth) / 2);
 
         if (ImGui.button(FontAwesomeIcons.Circle, BOX_SIZE, BOX_SIZE)) { InputImGui.setShapeCallback(InputShapes.SHAPES.CIRCLE); }
         ImGui.sameLine();

@@ -28,8 +28,13 @@ public class InputImGui {
     public interface ToolHandler {
         void handle(InputShapes.TOOLS tool);
     }
+    @FunctionalInterface
+    public interface BoolHandler {
+        void handle(boolean value);
+    }
 
     // List of handlers
+    private static final List<BoolHandler> onHelpChanged = new CopyOnWriteArrayList<>();
     private static final List<Vec3fHandler> onColourChanged = new CopyOnWriteArrayList<>();
     private static final List<Vec2fHandler> onPosChanged = new CopyOnWriteArrayList<>();
     private static final List<FloatHandler> onRotationChanged = new CopyOnWriteArrayList<>();
@@ -39,6 +44,7 @@ public class InputImGui {
     private static final List<ShapeHandler> onShapeChanged = new CopyOnWriteArrayList<>();
     private static final List<ToolHandler> onToolChanged = new CopyOnWriteArrayList<>();
 
+    public static void onHelpChanged(BoolHandler handler) { onHelpChanged.add(handler); }
     public static void onColourChanged(Vec3fHandler handler) { onColourChanged.add(handler); }
     public static void onPosChanged(Vec2fHandler handler) { onPosChanged.add(handler); }
     public static void onRotationChanged(FloatHandler handler) { onRotationChanged.add(handler); }
@@ -49,9 +55,8 @@ public class InputImGui {
     public static void onToolChanged(ToolHandler handler) { onToolChanged.add(handler); }
 
     // Update all colour change observers
-    public static void setColourCallback(Vector3f colour) {
-        for (var h : onColourChanged) { h.handle(colour); }
-    }
+    public static void setHelpCallback(boolean open) { for (var h : onHelpChanged) { h.handle(open); }}
+    public static void setColourCallback(Vector3f colour) { for (var h : onColourChanged) { h.handle(colour); }}
     public static void setPosCallback(Vector2f position, boolean pressed) {
         for (var h : onPosChanged) { h.handle(position, pressed); }
     }

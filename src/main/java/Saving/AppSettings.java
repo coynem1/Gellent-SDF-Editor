@@ -1,6 +1,7 @@
 package Saving;
 
 import Jade.Window;
+import Observers.SettingsEvents;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public class AppSettings {
     private static final String RECENT_FILES = "RecentFiles";
     private static final String VERSION = "Version";
     private static final String SETTINGS_PATH = GsonSaver.CONFIG_DIR + File.separator + "settings.properties";
-    private static int MAX_RECENT_FILES = 5;
+    public static int MAX_RECENT_FILES = 5;
 
     private Properties properties = new Properties();
     private Properties defaultProperties = new Properties();
@@ -105,6 +106,7 @@ public class AppSettings {
         if (!exists) recentFiles.add(0, path.toString());
 
         properties.setProperty(RECENT_FILES, String.join(",", recentFiles));
+        SettingsEvents.setRecentFileCallback(recentFiles);
 
         try {
             save(properties);
@@ -120,6 +122,7 @@ public class AppSettings {
         // Get recent files
         String value = properties.getProperty(RECENT_FILES, "");
         recentFiles = value.isEmpty() ? new ArrayList<String>() : new ArrayList<String>(Arrays.asList(value.split(",")));
+        SettingsEvents.setRecentFileCallback(recentFiles);
 
         return recentFiles;
     }

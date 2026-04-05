@@ -86,7 +86,7 @@ void render(float dist, float zoom) {
         FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
-    else if (uToggleRender == 2) {
+    else if (uToggleRender == 1) {
         direction = 0.0;
     }
     else if (uToggleRender == 3) {
