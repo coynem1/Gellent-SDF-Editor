@@ -10,7 +10,7 @@ public class ComponentRounded extends Component {
 
     public void setRounded(float round) {
         this.rounded = min(round, MAX_ROUNDED);
-        // InputShapesEvents.setRoundCallback(min(round, MAX_ROUNDED));
+        InputShapesEvents.setRoundCallback(rounded);
     }
     public float getRounded() { return rounded; }
 
