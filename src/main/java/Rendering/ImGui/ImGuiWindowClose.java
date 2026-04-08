@@ -11,6 +11,7 @@ import imgui.flag.ImGuiWindowFlags;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
 public class ImGuiWindowClose {
+    private static final float DPI_SCALAR = ImGuiWindow.getDPIScalar();
     private boolean showUnsavedChangesPopup = true;
     private long window;
     private ImGuiWindow imguiWindow;
@@ -33,6 +34,7 @@ public class ImGuiWindowClose {
             ImGui.text("You have unsaved changes.");
             ImGui.text("Do you want to save before closing?");
             ImGui.separator();
+            ImGui.spacing();
 
             // Highlights button
             ImGui.pushStyleColor(ImGuiCol.Button,0.18f, 0.38f, 0.78f, 1.0f);
@@ -51,14 +53,14 @@ public class ImGuiWindowClose {
 
             // Grey buttons
             ImGui.pushStyleColor(ImGuiCol.Button,0.18f, 0.18f, 0.18f, 1.0f);
-            if (ImGui.button("Don't Save", 0, 0)) {
+            if (ImGui.button("Don't Save", 130 * DPI_SCALAR, 0)) {
                 glfwSetWindowShouldClose(window, true);
                 ImGui.closeCurrentPopup();
             }
 
             ImGui.sameLine();
 
-            if (ImGui.button("Cancel", 80, 0)) {
+            if (ImGui.button("Cancel", 80 * DPI_SCALAR, 0)) {
                 imguiWindow.setWindowClosing(false);
                 glfwSetWindowShouldClose(window, false);
                 ImGui.closeCurrentPopup();

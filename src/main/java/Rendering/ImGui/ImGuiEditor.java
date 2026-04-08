@@ -200,10 +200,9 @@ public class ImGuiEditor {
 
     // Draw ImGui triangle icon because the font doesn't have one
     private void drawTriangle(ImVec2 pos, float boundarySize) {
-        float thickness = 1.7f;
+        float thickness = 1.7f * DPI_SCALAR;
         float size = ImGuiWindow.ICON_SIZE * DPI_SCALAR - thickness;
         ImDrawList drawList = ImGui.getWindowDrawList();
-        IO.println("Triangle size: " + DPI_SCALAR);
 
         float x = pos.x + (boundarySize - size) / 2;
         float y = pos.y + (boundarySize - size) / 2;

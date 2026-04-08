@@ -7,20 +7,21 @@ import imgui.type.ImBoolean;
 
 public abstract class ImGuiHelp {
     private static final float WINDOW_WIDTH = 400f;
+    private static final float DPI_SCALAR = ImGuiWindow.getDPIScalar();
     private static final ImBoolean open = new ImBoolean(false);
 
     public static void open() { open.set(true); }
 
     private static void shortcutRow(String action, String keys) {
         ImGui.text(action);
-        ImGui.sameLine(WINDOW_WIDTH * 0.6f);
+        ImGui.sameLine(WINDOW_WIDTH * 0.6f * DPI_SCALAR);
         ImGui.textDisabled(keys);
     }
 
     public static void draw() {
         if (!open.get()) return;
 
-        ImGui.setNextWindowSizeConstraints(WINDOW_WIDTH, 0, Float.MAX_VALUE, Float.MAX_VALUE);
+        ImGui.setNextWindowSizeConstraints(WINDOW_WIDTH * DPI_SCALAR, 0, Float.MAX_VALUE, Float.MAX_VALUE);
         if (ImGui.begin("Controls & Shortcuts  " + FontAwesomeIcons.Info, open)) {
 
             // Shape editing
