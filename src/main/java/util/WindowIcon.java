@@ -5,12 +5,14 @@ import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public abstract class WindowIcon {
     private final static int RGBA_CHANNELS = 4;
-    private final static String ICON_PATH = "assets/Images/icon.png";
+    private final static String ICON_PATH = "Images/icon.png";
 
     public static void setWindowIcon(long window) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -18,8 +20,10 @@ public abstract class WindowIcon {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
+            ByteBuffer imageData = ResourcesLoader.load(ICON_PATH);
+
             // Load RGBA pixel data
-            ByteBuffer pixels = STBImage.stbi_load(ICON_PATH, w, h, channels, RGBA_CHANNELS);
+            ByteBuffer pixels = STBImage.stbi_load_from_memory(imageData, w, h, channels, RGBA_CHANNELS);
             if (pixels == null) {
                 System.err.println("Failed to load icon: " + STBImage.stbi_failure_reason());
                 return;
@@ -36,6 +40,21 @@ public abstract class WindowIcon {
 
             // Free pixel data
             STBImage.stbi_image_free(pixels);
+        }
+    }
+
+    // Loads an image from the resources folder
+    private static ByteBuffer loadImage(String path) {
+        try {
+            InputStream in = WindowIcon.class.getClassLoader().getResourceAsStream(path);
+            if (in == null) throw new IOException("Resource not found: " + path);
+
+            byte[] bytes = in.readAllBytes();
+            return ByteBuffer.allocateDirect(bytes.length).put(bytes).flip();
+
+        } catch (IOException e) {
+            System.err.println("Failed to load icon resource: " + e.getMessage());
+            return null;
         }
     }
 }

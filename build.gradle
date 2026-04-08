@@ -62,3 +62,11 @@ tasks.withType(JavaExec).configureEach {
             "--add-opens", "java.base/java.nio=ALL-UNNAMED"
     ]
 }
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['assets']
+        }
+    }
+}

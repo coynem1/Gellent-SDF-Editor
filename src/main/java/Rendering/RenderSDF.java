@@ -3,6 +3,7 @@ package Rendering;
 import Jade.Camera;
 import Rendering.Shaders.Shader;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL11.glDrawElements;
@@ -12,7 +13,7 @@ import static org.lwjgl.opengl.GL15.glGenBuffers;
 
 public class RenderSDF extends Renderer {
     // Begin shader setup
-    public RenderSDF(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
+    public RenderSDF(InputStream vertexShaderPath, InputStream fragmentShaderPath, Camera camera) {
         super();
         this.camera = camera;
 
