@@ -9,16 +9,18 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import org.lwjgl.glfw.GLFW;
+import util.ResourcesLoader;
 
 import java.awt.*;
 
 import static imgui.ImGui.getIO;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F1;
-import static org.lwjgl.opengl.GL11.*;
 
 public class ImGuiWindow {
     private static final int FONT_SIZE = 25;
     public static final int ICON_SIZE = 19;
+    private static final int DPI_STANDARD = 96;
+    private static final float DPI_SCALAR = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
 
     protected ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     protected ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
@@ -29,7 +31,6 @@ public class ImGuiWindow {
     private boolean windowClosing = false;
     private ImGuiEditor editor;
     private ImGuiWindowClose windowClose;
-    private final Color colorBg = new Color(.5f, .5f, .5f, 1);  // TODO: Remove
     private boolean showHelp = false;
 
 
@@ -93,12 +94,14 @@ public class ImGuiWindow {
 
     // Creates font atlas and merges it with the default font
     private void setupFont(final ImGuiIO io) {
-        final float DPI_STANDARD = 96f;
-        final float DPI_SCALAR = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
+
         final ImFontAtlas atlas = io.getFonts();    // Sprite sheet atlas
         final ImFontConfig baseConfig = new ImFontConfig(), iconConfig= new ImFontConfig(); // Character/icon types
         final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder(); // Glyphs ranges provide
         final ImFont defaultFont;
+
+        // All elements scale around this
+        // dpi_scalar = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
 
         // Enable FreeType font renderer
         atlas.setFreeTypeRenderer(true);
@@ -108,7 +111,7 @@ public class ImGuiWindow {
         baseConfig.setPixelSnapH(true);
         baseConfig.setGlyphRanges(atlas.getGlyphRangesDefault());
 
-        defaultFont = atlas.addFontFromFileTTF("assets/fonts/calibri.ttf", (int) FONT_SIZE * DPI_SCALAR, baseConfig);
+        defaultFont = atlas.addFontFromMemoryTTF(ResourcesLoader.loadBytes("fonts/calibri.ttf"), (int) FONT_SIZE * DPI_SCALAR, baseConfig);
         baseConfig.destroy();
 
         // Add default font
@@ -122,8 +125,8 @@ public class ImGuiWindow {
         iconConfig.setPixelSnapH(true);
 
         // Add icons and compile
-        atlas.addFontFromFileTTF("assets/fonts/fa-regular-400.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
-        atlas.addFontFromFileTTF("assets/fonts/fa-solid-900.ttf", (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromMemoryTTF(ResourcesLoader.loadBytes("fonts/fa-regular-400.ttf"), (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
+        atlas.addFontFromMemoryTTF(ResourcesLoader.loadBytes("fonts/fa-solid-900.ttf"), (int) ICON_SIZE * DPI_SCALAR, iconConfig, glyphRanges); // font awesome
         atlas.build();
 
         iconConfig.destroy();
@@ -156,12 +159,6 @@ public class ImGuiWindow {
         }
     }
 
-    // // Clear OpenGL buffer
-    // public void clearBuffer() {
-    //     glClearColor(colorBg.getRed(), colorBg.getGreen(), colorBg.getBlue(), colorBg.getAlpha());
-    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // }
-
     public void destroy() {
         imGuiGl3.shutdown();
         imGuiGlfw.shutdown();
@@ -169,5 +166,5 @@ public class ImGuiWindow {
     }
 
     public void setWindowClosing(boolean windowClosing) { this.windowClosing = windowClosing;}
-
+    public static float getDPIScalar() { return DPI_SCALAR; }
 }

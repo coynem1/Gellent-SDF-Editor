@@ -4,6 +4,7 @@ import Jade.Camera;
 import Rendering.Shaders.Shader;
 import org.lwjgl.BufferUtils;
 
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.FileSystemNotFoundException;
@@ -22,8 +23,8 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 // Parent to draw and store buffers
 public abstract class Renderer {
-    protected Path vertexShaderPath;
-    protected Path fragmentShaderPath;
+    protected InputStream vertexShaderPath;
+    protected InputStream fragmentShaderPath;
 
     protected Shader currentShader;
     protected int bufferCapacity = 1024;  // Default initial capacity
@@ -101,8 +102,8 @@ public abstract class Renderer {
         return currentShader;
     }
 
-    public void setShaderFiles(Path vertexShaderPath, Path fragmentShaderPath) {
-        if (!(Files.exists(vertexShaderPath) && Files.exists(fragmentShaderPath))) {
+    public void setShaderFiles(InputStream vertexShaderPath, InputStream fragmentShaderPath) {
+        if (vertexShaderPath == null || fragmentShaderPath == null) {
             throw new FileSystemNotFoundException("Vertex shader and/or fragment shader files do not exist");
         }
         this.vertexShaderPath = vertexShaderPath;

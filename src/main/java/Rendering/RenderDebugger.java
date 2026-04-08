@@ -4,6 +4,7 @@ import Jade.Camera;
 import Rendering.Shaders.Shader;
 import org.lwjgl.BufferUtils;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -16,7 +17,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 // Displays an overlay for visualising scene elements
 public class RenderDebugger extends Renderer {
 
-    public RenderDebugger(Path vertexShaderPath, Path fragmentShaderPath, Camera camera) {
+    public RenderDebugger(InputStream vertexShaderPath, InputStream fragmentShaderPath, Camera camera) {
         super();
 
         this.camera = camera;

@@ -19,6 +19,7 @@ import util.GameClock;
 import util.Time;
 import Rendering.Objects.Components.Transform2D;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,8 +39,8 @@ public abstract class Scene {
     protected Camera camera;
 
     protected HashMap<String, Shader> shaders;
-    protected HashMap<String, Path> vShaderPath;
-    protected HashMap<String, Path> fShaderPath;
+    protected HashMap<String, InputStream> vShaderPath;
+    protected HashMap<String, InputStream> fShaderPath;
 
     // Object handling
     protected ArrayList<GameObject> objects = new ArrayList<>();
@@ -51,16 +52,17 @@ public abstract class Scene {
 
     public Scene() {
         this.name = DEFAULT_SCENE_NAME;
-        this.vShaderPath = new HashMap<String, Path>();
-        this.fShaderPath = new HashMap<String, Path>();
+        this.vShaderPath = new HashMap<String, InputStream>();
+        this.fShaderPath = new HashMap<String, InputStream>();
         this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
 
-        // Default file paths
-        this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));
-        this.fShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/fragmentEditor.glsl"));
-        this.vShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugVertex.glsl"));
-        this.fShaderPath.put(RENDER_DEBUG, Paths.get("assets/shaders/debugFragment.glsl"));
+        // Load shaders through the resources folder
+        ClassLoader loader = getClass().getClassLoader();
+        this.vShaderPath.put(RENDER_SDF, loader.getResourceAsStream("shaders/vertexDemo.glsl"));
+        this.fShaderPath.put(RENDER_SDF, loader.getResourceAsStream("shaders/fragmentEditor.glsl"));
+        this.vShaderPath.put(RENDER_DEBUG, loader.getResourceAsStream("shaders/debugVertex.glsl"));
+        this.fShaderPath.put(RENDER_DEBUG, loader.getResourceAsStream("shaders/debugFragment.glsl"));
 
         // Renderers
         this.render = new RenderSDF(this.vShaderPath.get(RENDER_SDF), this.fShaderPath.get(RENDER_SDF), this.camera);

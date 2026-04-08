@@ -43,6 +43,7 @@ public class ImGuiEditor {
     private ImGuiMenubar menubar = new ImGuiMenubar();
     private int shapeSelected = 0;
     private GameObject selectedObject = null;
+    private static final float DPI_SCALAR = ImGuiWindow.getDPIScalar();
 
     public ImGuiEditor() {}
 
@@ -107,14 +108,14 @@ public class ImGuiEditor {
     public void render() {
         menubar.render();
 
-        ImGui.setNextWindowSize(EDITOR_WIDTH, 0); // width 300, height 0 = auto
+        ImGui.setNextWindowSize(EDITOR_WIDTH * DPI_SCALAR, 0); // width 300, height 0 = auto
         if (ImGui.begin("Editor " + FontAwesomeIcons.SlidersH, ImGuiWindowFlags.AlwaysAutoResize)) {
             showShapeButtons();
 
             if (SceneManager.get().getActionHandler().hasSelected()) {
                 ImGui.spacing();
 
-                ImGui.pushItemWidth(-90);
+                ImGui.pushItemWidth(-90 * DPI_SCALAR);
                 tweakMenu();
                 ImGui.popItemWidth();
             }
@@ -178,7 +179,7 @@ public class ImGuiEditor {
 
     // Shape Buttons
     private void showShapeButtons() {
-        float BOX_SIZE = 70f;
+        float BOX_SIZE = 70f * DPI_SCALAR;
         float SPACING = ImGui.getStyle().getItemSpacing().x;
         float totalWidth = (BOX_SIZE * 4) + (SPACING * 3);
         ImVec2 pos;
@@ -200,8 +201,9 @@ public class ImGuiEditor {
     // Draw ImGui triangle icon because the font doesn't have one
     private void drawTriangle(ImVec2 pos, float boundarySize) {
         float thickness = 1.7f;
-        float size = ImGuiWindow.ICON_SIZE - thickness;
+        float size = ImGuiWindow.ICON_SIZE * DPI_SCALAR - thickness;
         ImDrawList drawList = ImGui.getWindowDrawList();
+        IO.println("Triangle size: " + DPI_SCALAR);
 
         float x = pos.x + (boundarySize - size) / 2;
         float y = pos.y + (boundarySize - size) / 2;

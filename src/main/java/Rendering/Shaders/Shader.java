@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.BufferUtils;
 
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,25 +19,19 @@ import static org.lwjgl.opengl.GL20.glShaderSource;
 public class Shader {
     protected int shaderProgramID;
     private String vertexShaderSource, fragmentShaderSource;
-    private Path vertexPath, fragPath;
 
     // Opens a shader file
     public Shader() {}
 
     // General start for inherited overriding
-    public void init(Path vertexPath, Path fragPath) {
-        Path currentShader = vertexPath;
-        this.vertexPath = vertexPath;
-        this.fragPath = fragPath;
-
-        // Open files
+    public void init(InputStream vertexPath, InputStream fragPath) {
+        // Read files
         try {
-            this.vertexShaderSource = new String(Files.readAllBytes(this.vertexPath));
-            currentShader = fragPath;
-            this.fragmentShaderSource = new String(Files.readAllBytes(this.fragPath));
+            this.vertexShaderSource = new String(vertexPath.readAllBytes());
+            this.fragmentShaderSource = new String(fragPath.readAllBytes());
         }
         catch (Exception e) {
-            throw new RuntimeException("ERR: Could not load shader file " + currentShader.toString(), e);
+            throw new RuntimeException("ERR: Could not load shader data into string", e);
         }
     }
 
