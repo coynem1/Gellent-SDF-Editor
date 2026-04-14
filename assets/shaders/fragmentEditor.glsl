@@ -80,9 +80,9 @@ void render(float dist, float zoom) {
     vec3 col = (dist>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.60,0.75,1.0);
     float direction = (dist > 0) ? 2.0 : -2.0;
 
-    // Black and white
+    // Colour
     if (uToggleRender == 0) {
-        FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
+//        FragColor = (dist<0.0) ? vec4(1.0, 1.0, 1.0, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
     else if (uToggleRender == 1) {
@@ -103,12 +103,13 @@ void render(float dist, float zoom) {
     FragColor = vec4(col, 1.0);
 }
 
-#define MAX_SHAPES 145
+#define MAX_SHAPES 120
 
 uniform int uShapeCount;
 uniform int uShapeTypes[MAX_SHAPES];
 uniform int uShapeModes[MAX_SHAPES];
 uniform vec2 uShapePos[MAX_SHAPES];
+uniform vec3 uShapeCol[MAX_SHAPES];
 uniform float uShapeSizes[MAX_SHAPES];
 uniform float uShapeAngles[MAX_SHAPES];
 uniform float uShapeBlends[MAX_SHAPES];
@@ -153,9 +154,20 @@ float round_subtract(float base, float subtraction, float radius){
     return round_intersect(base, -subtraction, radius);
 }
 
+// Smooth union operation between two shapes with embedded blend factor
+vec3 colSmoothUnion(float d1, vec3 color1, float d2, vec3 color2, float k) {
+    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return mix(color2, color1, h);
+}
+vec3 colSmoothDifference(float d1, vec3 col1, float d2, vec3 col2, float k) {
+    float h = clamp(0.5 - 0.5 * (d1 + d2) / k, 0.0, 1.0);
+    return mix(col1, col2, h);
+}
+
 float userScene() {
     vec2 world = screenToWorld(gl_FragCoord.xy);
     float dist = 1e10; // Start with huge distance
+    vec3 colour = vec3(0.0);
 
     for (int i = 0; i < MAX_SHAPES; i++) {
         if (i >= uShapeCount) break;
@@ -164,6 +176,7 @@ float userScene() {
         float size  = uShapeSizes[i];
         vec2 p      = world - pos;
         vec2 pRotated = p;
+        vec3 col = uShapeCol[i];
 
         if (uShapeAngles[i] != 0.0) pRotated = rotate(p, uShapeAngles[i]);
 
@@ -176,25 +189,38 @@ float userScene() {
 
         // What modes are shapes in?
         if (uShapeModes[i] == 0) {
-            if (uShapeBlends[i] == 0.0) dist = min(dist, d);
-            else dist = round_merge(dist, d, uShapeBlends[i]);
+            // Save performance
+            if (uShapeBlends[i] == 0.0) {
+                if (d < 0.0) { colour = col; }
+                dist = min(dist, d);
+            }
+            else {
+                colour = colSmoothUnion(dist, colour, d, col, uShapeBlends[i]);
+                dist = round_merge(dist, d, uShapeBlends[i]);
+            }
         }
         else if (uShapeModes[i] == 1) {
-            if (uShapeBlends[i] == 0.0) dist = difference(dist, d);
-            else dist = round_subtract(dist, d, uShapeBlends[i]);
+            if (uShapeBlends[i] == 0.0) { dist = difference(dist, d); }
+            else {
+//                colour = colSmoothDifference(dist, colour, d, col, uShapeBlends[i]);
+                dist = round_subtract(dist, d, uShapeBlends[i]);
+            }
         }
         else {
             if (uShapeBlends[i] == 0.0) dist = intersect(dist, d);
             else dist = round_intersect(dist, d, uShapeBlends[i]);
         }
-//        dist = min(dist, d);
+
     }
+    if (dist < 0.0) FragColor = vec4(colour, 1.0);
+    else FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
     return dist;
 }
 
 void main()
 {
+
     float dist = userScene();
     render(dist, 1.4);
 }

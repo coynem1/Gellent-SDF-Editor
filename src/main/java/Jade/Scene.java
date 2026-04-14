@@ -15,6 +15,7 @@ import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
+import org.joml.Vector3f;
 import util.GameClock;
 import util.Time;
 import Rendering.Objects.Components.Transform2D;
@@ -31,7 +32,7 @@ public abstract class Scene {
     protected static final String RENDER_SDF = "RENDER_SDF";
     protected static final String RENDER_DEBUG = "RENDER_DEBUG";
     protected static final String DEFAULT_SCENE_NAME = "Unnamed Scene";
-    protected static final int MAX_SHAPES = 145;
+    protected static final int MAX_SHAPES = 120;
 
     protected String name;
     protected RenderSDF render;
@@ -163,6 +164,7 @@ public abstract class Scene {
     private void uploadShapes() {
         int uShapeCount = 0;
         Vector2f[] uShapePos = new Vector2f[MAX_SHAPES];
+        Vector3f[] uShapeCol = new Vector3f[MAX_SHAPES];
         int[] uShapeTypes = new int[MAX_SHAPES];
         int[] uShapeModes = new int[MAX_SHAPES];
         float[] uShapeSizes = new float[MAX_SHAPES];
@@ -180,6 +182,7 @@ public abstract class Scene {
 
             uShapeCount ++;
 
+            uShapeCol[i] = new Vector3f(shape.getColour());
             uShapePos[i] = new Vector2f(transform.getPosition().x,transform.getPosition().y);
             uShapeTypes[i] = shape.getShapeType().ordinal();
             uShapeModes[i] = shape.getShapeMode();
@@ -195,6 +198,7 @@ public abstract class Scene {
 
         shaders.get(RENDER_SDF).uploadInt("uShapeCount", uShapeCount);
         shaders.get(RENDER_SDF).uploadVec2f("uShapePos", uShapePos, uShapeCount);
+        shaders.get(RENDER_SDF).uploadVec3f("uShapeCol", uShapeCol, uShapeCount);
         shaders.get(RENDER_SDF).uploadInt("uShapeTypes", uShapeTypes);
         shaders.get(RENDER_SDF).uploadInt("uShapeModes", uShapeModes);
         shaders.get(RENDER_SDF).uploadFloat("uShapeSizes", uShapeSizes);
