@@ -19,7 +19,6 @@ public class InputKeyEvents {
     public static void onKeyPressed(KeyHandler handler) {
         onKeyPressed.add(handler);
     }
-
     public static void onKeyReleased(KeyHandler handler) {
         onKeyReleased.add(handler);
     }

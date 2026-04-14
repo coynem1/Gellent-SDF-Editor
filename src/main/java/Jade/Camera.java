@@ -73,17 +73,16 @@ public class Camera {
     public Matrix4f getViewMat(boolean isStatic) {
         Vector3f camFront = new Vector3f(0.0f, 0.0f, -1.0f);
         Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
-        Vector2f pos = this.position;
+        Vector2f pos = isStatic ? new Vector2f() : this.position;
+        Matrix4f target = isStatic ? this.staticViewMat : this.viewMat;
 
-        if (isStatic) { pos = new Vector2f(0.0f, 0.0f);}
-
-        this.viewMat.identity();
-        this.viewMat = viewMat.lookAt(
-                new Vector3f(pos.x, pos.y, CAMERA_Z),    // Camera location
-                camFront.add(pos.x, pos.y, 0.0f),     // Camera viewing center
-                camUp                                    // Up
+        target.identity();
+        target.lookAt(
+                new Vector3f(pos.x, pos.y, CAMERA_Z),
+                camFront.add(pos.x, pos.y, 0.0f),
+                camUp
         );
-        return this.viewMat;
+        return target;
     }
 
     // UI screen matrix

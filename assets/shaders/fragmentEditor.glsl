@@ -1,5 +1,4 @@
 #version 330 core
-uniform mat4 uProjection;
 uniform mat4 uView;
 uniform ivec2 uResolution;
 uniform vec2 uCamPos;   // World units

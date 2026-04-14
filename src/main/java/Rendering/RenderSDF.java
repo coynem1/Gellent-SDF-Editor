@@ -1,6 +1,7 @@
 package Rendering;
 
 import Jade.Camera;
+import Observers.WindowEvents;
 import Rendering.Shaders.Shader;
 
 import java.io.InputStream;
@@ -26,6 +27,13 @@ public class RenderSDF extends Renderer {
 
         // Open shader files, compile and link them
         useShaders();
+        bindObservers();
+    }
+
+    // TODO: Update vertices after resize
+    private void bindObservers() {
+        // WindowEvents.onScreenResized( (_, _) -> updateVertices());
+
     }
 
     // Vertices fix to the screen aspect ratio

@@ -37,12 +37,10 @@ public abstract class Renderer {
     // Vertex draw order
     protected IntBuffer indexBuffer;
     protected FloatBuffer vertexBuffer;
-    protected FloatBuffer circleVertexBuffer;
 
     public Renderer() {
         this.indexBuffer = BufferUtils.createIntBuffer(bufferCapacity);
         this.vertexBuffer = BufferUtils.createFloatBuffer(bufferCapacity);
-        this.circleVertexBuffer = BufferUtils.createFloatBuffer(bufferCapacity);
     }
 
     // Buffers for OpenGL

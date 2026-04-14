@@ -144,6 +144,7 @@ public class Window {
         glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
             width = newW;
             height = newH;
+            WindowEvents.setScreenResizedCallback(newW, newH);
         });
 
         // Attempt to set screen size at the start, attempts fullscreen
