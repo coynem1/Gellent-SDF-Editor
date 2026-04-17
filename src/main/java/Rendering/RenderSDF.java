@@ -33,7 +33,6 @@ public class RenderSDF extends Renderer {
     // TODO: Update vertices after resize
     private void bindObservers() {
         // WindowEvents.onScreenResized( (_, _) -> updateVertices());
-
     }
 
     // Vertices fix to the screen aspect ratio

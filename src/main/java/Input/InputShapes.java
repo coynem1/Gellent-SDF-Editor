@@ -4,10 +4,7 @@ import Input.Actions.ActionDelete;
 import Input.Actions.ActionHandler;
 import Input.Actions.ActionStamp;
 import Jade.SceneManager;
-import Observers.InputImGui;
-import Observers.InputKeyEvents;
-import Observers.InputMouseEvents;
-import Observers.InputShapesEvents;
+import Observers.*;
 import Rendering.ImGui.ImGuiEditor;
 import Rendering.Objects.Components.ComponentRounded;
 import Rendering.Objects.GameObject;
@@ -86,8 +83,8 @@ public class InputShapes {
             toolsMode = tool;
         });
 
-        InputSaving.onOpened((_) ->{ reset(); });
-        InputSaving.onNewFile(this::reset);
+        InputSavingEvents.onOpened((_) ->{ reset(); });
+        InputSavingEvents.onNewFile(this::reset);
 
         InputMouseEvents.onMove((xPos, yPos, _, _) -> {
             // If focused on UI, ignore

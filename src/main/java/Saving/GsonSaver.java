@@ -1,22 +1,19 @@
 package Saving;
 
-import Input.InputSaving;
+import Observers.InputSavingEvents;
 import Jade.Scene;
 import Jade.SceneManager;
 import Jade.Window;
 import Rendering.Objects.Components.Component;
-import Rendering.Objects.GameObject;
 import Rendering.Objects.Shape;
 import Saving.Deserialisers.DeserialiseComponents;
 import Saving.Deserialisers.DeserialiseShapes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import util.GameClock;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class GsonSaver {
     public static final String VERSION = "0.1a";
@@ -43,7 +40,7 @@ public class GsonSaver {
     public void init() {
         settings.init();
 
-        InputSaving.onOpened((filepath) ->{
+        InputSavingEvents.onOpened((filepath) ->{
             currentFile = new File(filepath);
             if (!currentFile.exists()) currentFile = null;
         });
@@ -58,7 +55,7 @@ public class GsonSaver {
         if (file != null) {
             try {
                 Files.writeString(file, serialised);
-                InputSaving.setSaveCallback(currentFile.getName());
+                InputSavingEvents.setSaveCallback(currentFile.getName());
             } catch (Exception e) {
                 IO.println("Failed to save scene data: " + e.getMessage());
             }
@@ -84,7 +81,7 @@ public class GsonSaver {
 
         currentFile = path.toFile();
         addRecentFiles(path);
-        InputSaving.setOpenCallback(path.toString());
+        InputSavingEvents.setOpenCallback(path.toString());
     }
 
     // Save the scene to a file

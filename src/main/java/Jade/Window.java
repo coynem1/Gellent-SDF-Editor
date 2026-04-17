@@ -136,10 +136,6 @@ public class Window {
         // Make OpenGL bindings available
         GL.createCapabilities();
 
-        // org.lwjgl.opengl.GLUtil.setupDebugMessageCallback();
-        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT);
-        // glEnable(org.lwjgl.opengl.GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
         // Update screen size variables automatically
         glfwSetWindowSizeCallback(glfwWindow, (_, newW, newH) -> {
             width = newW;
@@ -159,8 +155,6 @@ public class Window {
 
         // Set the window icon
         WindowIcon.setWindowIcon(glfwWindow);
-
-        // imguiWindow.clearBuffer();
 
         glfwSetWindowCloseCallback(glfwWindow, windowHandle -> {
             // Unsaved changes?

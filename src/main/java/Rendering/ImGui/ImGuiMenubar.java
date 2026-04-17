@@ -21,10 +21,6 @@ public class ImGuiMenubar {
 
     private ArrayList<String> recentFiles = new ArrayList<>();
 
-    public ImGuiMenubar() {
-        // actionHandler = SceneManager.get().getActionHandler();
-    }
-
     public void init() {
         bindObservers();
         sceneManager = SceneManager.get();
@@ -59,7 +55,6 @@ public class ImGuiMenubar {
         if (!ImGui.beginMainMenuBar()) {
             return;
         }
-
         boolean hasSelected = actionHandler.hasSelected();
 
         if (ImGui.beginMenu("File")) {
@@ -94,7 +89,6 @@ public class ImGuiMenubar {
             if (ImGui.menuItem("Controls", "F1", false, true)) { InputImGui.setHelpCallback(true); }
             ImGui.endMenu();
         }
-
         ImGui.endMainMenuBar();
     }
 

@@ -1,7 +1,7 @@
 package Jade;
 
 import Input.Actions.ActionHandler;
-import Input.InputSaving;
+import Observers.InputSavingEvents;
 import Input.InputShapes;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
@@ -42,10 +42,10 @@ public class SceneManager {
         // Notify only once that the scene has been opened
         path = gsonSaver.getRecentFile(0);
         loadScene(path);
-        if (path != null) InputSaving.setOpenCallback(path.toString());
+        if (path != null) InputSavingEvents.setOpenCallback(path.toString());
 
         // Ensures that the scene is in the settings file
-        InputSaving.onOpened((filePath) -> {
+        InputSavingEvents.onOpened((filePath) -> {
             loadScene(Path.of(filePath));
         });
     }
@@ -53,7 +53,7 @@ public class SceneManager {
     public void newScene() {
         setScene(new SceneBase());
         blankScene();
-        InputSaving.newFileCallback();
+        InputSavingEvents.newFileCallback();
         currentScene.start();
     }
 

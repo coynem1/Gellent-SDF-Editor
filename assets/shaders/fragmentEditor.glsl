@@ -156,8 +156,8 @@ float round_subtract(float base, float subtraction, float radius){
 
 // Smooth union operation between two shapes with embedded blend factor
 vec3 colSmoothUnion(float d1, vec3 color1, float d2, vec3 color2, float k) {
-    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
-    return mix(color2, color1, h);
+    float h = clamp(0.5 + 0.5 * (d1 - d2) / k, 0.0, 1.0);
+    return mix(color1, color2, h);
 }
 vec3 colSmoothDifference(float d1, vec3 col1, float d2, vec3 col2, float k) {
     float h = clamp(0.5 - 0.5 * (d1 + d2) / k, 0.0, 1.0);
@@ -195,7 +195,7 @@ float userScene() {
                 dist = min(dist, d);
             }
             else {
-                colour = colSmoothUnion(dist, colour, d, col, uShapeBlends[i]);
+                colour = colSmoothUnion(d, col, dist, colour, uShapeBlends[i]);
                 dist = round_merge(dist, d, uShapeBlends[i]);
             }
         }
@@ -220,7 +220,6 @@ float userScene() {
 
 void main()
 {
-
     float dist = userScene();
     render(dist, 1.4);
 }

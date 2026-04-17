@@ -63,6 +63,7 @@ public class ImGuiWindowClose {
             if (ImGui.button("Cancel", 80 * DPI_SCALAR, 0)) {
                 imguiWindow.setWindowClosing(false);
                 glfwSetWindowShouldClose(window, false);
+                showUnsavedChangesPopup = false;
                 ImGui.closeCurrentPopup();
             }
             ImGui.popStyleColor(1);

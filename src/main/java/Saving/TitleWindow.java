@@ -1,9 +1,8 @@
 package Saving;
 
-import Input.InputSaving;
+import Observers.InputSavingEvents;
 import Jade.Window;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class TitleWindow {
@@ -21,22 +20,22 @@ public class TitleWindow {
     }
 
     private void bindObservers() {
-        InputSaving.onSaved((name) -> {
+        InputSavingEvents.onSaved((name) -> {
             fileName = name;
             unsavedChanges = false;
             updateWindowTitle();
         });
-        InputSaving.onNewFile(() -> {
+        InputSavingEvents.onNewFile(() -> {
             fileName = null;
             unsavedChanges = false;
             updateWindowTitle();
         });
-        InputSaving.onOpened((filePath) -> {
+        InputSavingEvents.onOpened((filePath) -> {
             fileName = Paths.get(filePath).getFileName().toString();
             unsavedChanges = false;
             updateWindowTitle();
         });
-        InputSaving.onActionChanged((unsaved) -> {
+        InputSavingEvents.onActionChanged((unsaved) -> {
             unsavedChanges = unsaved;
             updateWindowTitle();
         });

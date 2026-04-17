@@ -1,13 +1,11 @@
 package Input.Actions;
 
-import Input.InputSaving;
+import Observers.InputSavingEvents;
 import Input.InputShapes;
-import Input.InputStampShapes;
 import Jade.Scene;
 import Jade.SceneManager;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 
 public class ActionHandler {
@@ -30,7 +28,7 @@ public class ActionHandler {
 
     // Unsaved changes update
     private void bindObservers() {
-        InputSaving.onSaved((_) -> {
+        InputSavingEvents.onSaved((_) -> {
             lastSavedAction = undoStack.size();
         });
     }
@@ -45,7 +43,7 @@ public class ActionHandler {
         action.execute();
         undoStack.push(action);
         redoStack.clear();  // Redo history emptied
-        InputSaving.setActionCallback(true);
+        InputSavingEvents.setActionCallback(true);
     }
 
     public void undo() {
@@ -53,7 +51,7 @@ public class ActionHandler {
         Action action = undoStack.pop();
         action.undo();
         redoStack.push(action);
-        InputSaving.setActionCallback(lastSavedAction != undoStack.size());
+        InputSavingEvents.setActionCallback(lastSavedAction != undoStack.size());
     }
 
     public void redo() {
@@ -61,7 +59,7 @@ public class ActionHandler {
         Action action = redoStack.pop();
         action.execute();
         undoStack.push(action);
-        InputSaving.setActionCallback(lastSavedAction != undoStack.size());
+        InputSavingEvents.setActionCallback(lastSavedAction != undoStack.size());
     }
 
     public void clear() {

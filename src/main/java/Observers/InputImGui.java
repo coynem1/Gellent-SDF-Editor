@@ -59,15 +59,9 @@ public class InputImGui {
     // Update all colour change observers
     public static void setHelpCallback(boolean open) { for (var h : onHelpChanged) { h.handle(open); }}
     public static void setColourCallback(Vector3f colour) { for (var h : onColourChanged) { h.handle(colour); }}
-    public static void setPosCallback(Vector2f position, boolean pressed) {
-        for (var h : onPosChanged) { h.handle(position, pressed); }
-    }
-    public static void setRotationCallback(float rotation, boolean pressed) {
-        for (var h : onRotationChanged) { h.handle(rotation, pressed); }
-    }
-    public static void setScaleCallback(float scale, boolean pressed) {
-        for (var h : onScaleChanged) { h.handle(scale, pressed); }
-    }
+    public static void setPosCallback(Vector2f position, boolean pressed) { for (var h : onPosChanged) { h.handle(position, pressed); }}
+    public static void setRotationCallback(float rotation, boolean pressed) { for (var h : onRotationChanged) { h.handle(rotation, pressed); }}
+    public static void setScaleCallback(float scale, boolean pressed) { for (var h : onScaleChanged) { h.handle(scale, pressed); }}
     public static void setBlendCallback(float blend, boolean pressed) { for (var h : onBlendChanged) { h.handle(blend, pressed); }}
     public static void setRoundCallback(float blend, boolean pressed) { for (var h : onRoundChanged) { h.handle(blend, pressed); }}
     public static void setShapeCallback(InputShapes.SHAPES shape) { for (var h : onShapeChanged) { h.handle(shape); }}

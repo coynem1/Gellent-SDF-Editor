@@ -1,9 +1,9 @@
-package Input;
+package Observers;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class InputSaving {
+public class InputSavingEvents {
     @FunctionalInterface    // Single method interface
     public interface boolHandler {
         void handle(boolean index);

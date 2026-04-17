@@ -160,6 +160,15 @@ public abstract class Scene {
         shaders.get(RENDER_SDF).uploadInt("uToggleRender", toggleRender);
     }
 
+    // Sends variables to shader every frame
+    private void uploadShaderImmediate() {
+        shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
+        shaders.get(RENDER_SDF).uploadFloat("uZoom", camera.getZoom());
+
+        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
+        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
+    }
+
     // TODO: Optimise to update only shapes that have changed
     private void uploadShapes() {
         int uShapeCount = 0;
@@ -206,15 +215,6 @@ public abstract class Scene {
         shaders.get(RENDER_SDF).uploadFloat("uShapeBlends", uShapeBlends);
         shaders.get(RENDER_SDF).uploadFloat("uShapeRounds", uShapeRounds);
 
-    }
-
-    // Sends variables to shader every frame
-    private void uploadShaderImmediate() {
-        shaders.get(RENDER_SDF).uploadVec2f("uCamPos", camera.getPosition());
-        shaders.get(RENDER_SDF).uploadFloat("uZoom", camera.getZoom());
-
-        shaders.get(RENDER_DEBUG).uploadMat4("uProjection", camera.getProjectionMat());
-        shaders.get(RENDER_DEBUG).uploadMat4("uView", camera.getViewMat(false));
     }
 
     public void process(float delta) {

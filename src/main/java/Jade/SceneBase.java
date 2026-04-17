@@ -24,6 +24,4 @@ public class SceneBase extends Scene {
             }
         });
     }
-
-
 }

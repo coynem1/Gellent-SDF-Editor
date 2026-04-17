@@ -100,9 +100,6 @@ public class ImGuiWindow {
         final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder(); // Glyphs ranges provide
         final ImFont defaultFont;
 
-        // All elements scale around this
-        // dpi_scalar = (float) Toolkit.getDefaultToolkit().getScreenResolution() / DPI_STANDARD;
-
         // Enable FreeType font renderer
         atlas.setFreeTypeRenderer(true);
 

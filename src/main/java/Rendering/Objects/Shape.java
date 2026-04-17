@@ -27,20 +27,17 @@ public class Shape extends GameObject {
     public void setColour(Vector3f colour) {this.colour = colour;}
     public void setTransform(Transform2D<Vector2f> newTransform) {
         Transform2D<Vector2f> transform = getComponent(Transform2D.class);
-
         // Remove transform if it's empty
         if (newTransform == null) {
             if (transform == null) return;
             removeComponents(Transform2D.class);
             return;
         }
-
         // Create a transform component if needed and set it
         if (transform == null) {
             addComponent(newTransform.copy());
             return;
         }
-
         transform.copyFrom(newTransform);
     }
     public void setBlend(float blend) {
@@ -134,15 +131,12 @@ public class Shape extends GameObject {
     @Override
     public Shape copy() {
         Shape clone = new Shape(getShapeType(), sculptObject);
-
         for (Component c : getComponents()) {
             clone.addComponent(c.copy());
         }
-
         clone.colour = colour;
         clone.shapeType = shapeType;
         clone.shapeModes = shapeModes;
-
         return clone;
     }
 }

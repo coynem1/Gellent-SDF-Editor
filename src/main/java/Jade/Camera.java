@@ -27,7 +27,6 @@ public class Camera {
     // Input
     private InputCamera inputCamera;
 
-
     public Camera(Vector2f position) {
         this.projectionMat = new Matrix4f();
         this.staticProjectionMat = new Matrix4f();
@@ -40,9 +39,6 @@ public class Camera {
         adjustProjection(projectionMat, false);
         adjustProjection(staticProjectionMat, true);
     }
-
-
-    public void process() {}
 
     // Calculates projection matrix screen from the camera or for
     public void adjustProjection(Matrix4f projectionMatrix, boolean isStatic) {
