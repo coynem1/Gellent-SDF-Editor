@@ -42,19 +42,4 @@ public abstract class WindowIcon {
             STBImage.stbi_image_free(pixels);
         }
     }
-
-    // Loads an image from the resources folder
-    private static ByteBuffer loadImage(String path) {
-        try {
-            InputStream in = WindowIcon.class.getClassLoader().getResourceAsStream(path);
-            if (in == null) throw new IOException("Resource not found: " + path);
-
-            byte[] bytes = in.readAllBytes();
-            return ByteBuffer.allocateDirect(bytes.length).put(bytes).flip();
-
-        } catch (IOException e) {
-            System.err.println("Failed to load icon resource: " + e.getMessage());
-            return null;
-        }
-    }
 }

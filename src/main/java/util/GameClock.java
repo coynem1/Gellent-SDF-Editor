@@ -85,7 +85,7 @@ public class GameClock {
 
             // Fixed timestep updates
             while (accumulator >= NS_PER_TICK) {
-                tickCallback(TICKS_PER_SEC / (float) MS_SECOND); // delta in seconds
+                tickCallback((float) MS_SECOND / TICKS_PER_SEC); // delta in seconds
                 accumulator -= NS_PER_TICK;
 
                 // Prevent spiral of death
