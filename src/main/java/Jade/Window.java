@@ -34,6 +34,7 @@ public class Window {
     private GameClock physicsClock = GameClock.get();
     private SceneManager sceneManager = SceneManager.get();
     private boolean awaitFrame = false;
+    private boolean running = false;
 
     private static Window window;
     public static final String GLFW_VERSION = "#version 330";
@@ -79,6 +80,9 @@ public class Window {
     }
 
     public void run() {
+        if (running) {return;}
+        running = true;
+
         IO.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init(); // Run screen initializations
@@ -93,7 +97,7 @@ public class Window {
         GLFW.glfwPollEvents();
     }
 
-    public void init() {
+    private void init() {
         // Error Callback
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -174,7 +178,7 @@ public class Window {
 
     }
 
-    public void loop() {
+    private void loop() {
         float deltaTime = 0;
         // SceneManager sceneManager = SceneManager.get();
         sceneManager.init();
@@ -216,6 +220,11 @@ public class Window {
 
     // Free memory and terminate GLFW
     public void destroy() {
+        if (!running) {return;}
+        running = false;
+
+        WindowEvents.setWindowShutdownCallback(true);
+
         // Destroy ImGui
         imguiWindow.destroy();
         physicsClock.stopThread();
@@ -238,6 +247,7 @@ public class Window {
         return height;
     }
     public long getWindow() {return glfwWindow;}
+    public String getTitle() {return title;}
 
     public void setTitle(String title) {
         this.title = title;

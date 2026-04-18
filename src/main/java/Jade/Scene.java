@@ -48,14 +48,21 @@ public abstract class Scene {
     protected boolean levelLoaded = false;
     protected boolean awaitGameClock = false;
     protected int toggleRender = 0;
+    protected boolean initiated = false;
 
-
+    // Create base variables
     public Scene() {
         this.name = DEFAULT_SCENE_NAME;
         this.vShaderPath = new HashMap<String, InputStream>();
         this.fShaderPath = new HashMap<String, InputStream>();
         this.shaders = new HashMap<String, Shader>();
         this.camera = new Camera(new Vector2f());
+    }
+
+    // Load shaders and create renderers
+    public void init() {
+        if (initiated) return;
+        initiated = true;
 
         // Load shaders through the resources folder
         ClassLoader loader = getClass().getClassLoader();

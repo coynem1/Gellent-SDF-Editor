@@ -1,7 +1,7 @@
 package Jade;
 
 import Input.Actions.ActionHandler;
-import Input.InputSaving;
+import Observers.InputSaving;
 import Input.InputShapes;
 import Rendering.Objects.SculptObject;
 import Rendering.Objects.Shape;
@@ -17,18 +17,14 @@ public class SceneManager {
     private static SceneManager instance;
     private Scene currentScene;
     private enum SceneMode {EDITING, PLAYING, DEBUGGING}
-    private static int currentMode;   // Editing, Playing or Debugging, etc.
-    private static String[] sceneModes;
+    private static SceneMode currentMode = SceneMode.EDITING;
 
     private GsonSaver gsonSaver = null;
     private ActionHandler actionHandler = null;
     private TitleWindow titleWindow = null;
     private Path path = null;
 
-    public SceneManager() {
-        sceneModes = new String[]{"Editing", "Playing", "Debugging"};
-        currentMode = 0;
-    }
+    public SceneManager() {}
 
     public void init() {
         // Input, Saving and Title
