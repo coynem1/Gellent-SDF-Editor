@@ -2,7 +2,9 @@ package util;
 
 
 import Jade.Window;
+import Observers.WindowEvents;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +27,7 @@ public class GameClock {
     // Handler and singleton
     protected static final List<TickObserver> onTick = new CopyOnWriteArrayList<>();
     protected static GameClock instance;
+    protected static boolean Shutdown = false;
 
     protected double accumulator = 0.0;
     
@@ -36,7 +39,11 @@ public class GameClock {
     public void addObserver(TickObserver observer) { onTick.add(observer); }
     public void removeObserver(TickObserver observer) { onTick.remove(observer); }
 
-    private GameClock() {}
+    private GameClock() {
+        WindowEvents.onWindowShutdown((_) -> {
+            running = false;
+        });
+    }
 
     public static GameClock get() {
         if (instance == null) {
@@ -68,9 +75,8 @@ public class GameClock {
     // Main loop
     protected void run() {
         long lastTime = System.nanoTime();
-        long window = Window.get().getWindow();
 
-        while (!glfwWindowShouldClose(window)) {
+        while (running) {
             long currentTime = System.nanoTime();
             double elapsed = currentTime - lastTime;
             lastTime = currentTime;
@@ -79,7 +85,7 @@ public class GameClock {
 
             // Fixed timestep updates
             while (accumulator >= NS_PER_TICK) {
-                tickCallback(TICKS_PER_SEC / (float) MS_SECOND); // delta in seconds
+                tickCallback((float) MS_SECOND / TICKS_PER_SEC); // delta in seconds
                 accumulator -= NS_PER_TICK;
 
                 // Prevent spiral of death
@@ -97,4 +103,6 @@ public class GameClock {
             observer.handle(delta);
         }
     }
+
+    public int getMillisecondInterval() { return (int) (1000.0 / TICKS_PER_SEC); }
 }

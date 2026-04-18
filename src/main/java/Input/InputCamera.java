@@ -66,8 +66,6 @@ public class InputCamera {
         });
     }
 
-    public void process(){}
-
     // When the move button is first pressed, set the anchor point
     private void cameraAnchor(){
         startCameraPos = camera.getPosition();

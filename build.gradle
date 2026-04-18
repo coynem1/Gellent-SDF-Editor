@@ -27,6 +27,20 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "failed", "skipped"
+        exceptionFormat "full"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+    }
+    jvmArgs += [
+        "--enable-native-access=ALL-UNNAMED",
+        "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
+        "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+        "-Dorg.lwjgl.util.DebugLoader=true",
+        "-Dorg.lwjgl.util.Debug=true"
+    ]
 }
 
 project.ext.lwjglVersion = "3.3.6"

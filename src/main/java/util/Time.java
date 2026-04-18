@@ -3,16 +3,15 @@ package util;
 public class Time {
     private static Time instance;
     public static float startTime = System.nanoTime();
-    private float frameStartTime;
+    private static float frameStartTime;
 
-    public Time() {
-        frameStartTime = startTime;
-    }
+    private Time() {}
 
     // Singleton
     public static Time get(){
         if (Time.instance == null){
             Time.instance = new Time();
+            frameStartTime = 0f;
         }
         return Time.instance;
     }

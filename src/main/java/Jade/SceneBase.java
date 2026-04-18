@@ -10,6 +10,7 @@ public class SceneBase extends Scene {
 
     public SceneBase() {
         super();
+        init();
 
         bindInputs();
     }

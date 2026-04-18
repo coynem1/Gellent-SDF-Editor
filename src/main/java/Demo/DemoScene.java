@@ -32,6 +32,7 @@ public class DemoScene extends Scene {
 
     public DemoScene() {
         super();
+        init();
 
         // File paths
         // this.vShaderPath.put(RENDER_SDF, Paths.get("assets/shaders/vertexDemo.glsl"));

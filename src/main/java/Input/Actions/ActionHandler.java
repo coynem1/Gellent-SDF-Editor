@@ -1,13 +1,11 @@
 package Input.Actions;
 
-import Input.InputSaving;
+import Observers.InputSaving;
 import Input.InputShapes;
-import Input.InputStampShapes;
 import Jade.Scene;
 import Jade.SceneManager;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 
 public class ActionHandler {

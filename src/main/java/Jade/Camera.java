@@ -27,7 +27,6 @@ public class Camera {
     // Input
     private InputCamera inputCamera;
 
-
     public Camera(Vector2f position) {
         this.projectionMat = new Matrix4f();
         this.staticProjectionMat = new Matrix4f();
@@ -40,9 +39,6 @@ public class Camera {
         adjustProjection(projectionMat, false);
         adjustProjection(staticProjectionMat, true);
     }
-
-
-    public void process() {}
 
     // Calculates projection matrix screen from the camera or for
     public void adjustProjection(Matrix4f projectionMatrix, boolean isStatic) {
@@ -62,9 +58,9 @@ public class Camera {
         float halfHeight = (viewHeight / 2.0f) / safeZoom;
 
         projectionMatrix.identity().ortho(
-            -halfWidth, halfWidth,
-            -halfHeight, halfHeight,
-            NEAR_PLANE, FAR_PLANE
+                -halfWidth, halfWidth,
+                -halfHeight, halfHeight,
+                NEAR_PLANE, FAR_PLANE
         );
 
     }
@@ -73,17 +69,16 @@ public class Camera {
     public Matrix4f getViewMat(boolean isStatic) {
         Vector3f camFront = new Vector3f(0.0f, 0.0f, -1.0f);
         Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
-        Vector2f pos = this.position;
+        Vector2f pos = isStatic ? new Vector2f() : this.position;
+        Matrix4f target = isStatic ? this.staticViewMat : this.viewMat;
 
-        if (isStatic) { pos = new Vector2f(0.0f, 0.0f);}
-
-        this.viewMat.identity();
-        this.viewMat = viewMat.lookAt(
-                new Vector3f(pos.x, pos.y, CAMERA_Z),    // Camera location
-                camFront.add(pos.x, pos.y, 0.0f),     // Camera viewing center
-                camUp                                    // Up
+        target.identity();
+        target.lookAt(
+                new Vector3f(pos.x, pos.y, CAMERA_Z),
+                camFront.add(pos.x, pos.y, 0.0f),
+                camUp
         );
-        return this.viewMat;
+        return target;
     }
 
     // UI screen matrix

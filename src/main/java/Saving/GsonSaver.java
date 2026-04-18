@@ -1,22 +1,19 @@
 package Saving;
 
-import Input.InputSaving;
+import Observers.InputSaving;
 import Jade.Scene;
 import Jade.SceneManager;
 import Jade.Window;
 import Rendering.Objects.Components.Component;
-import Rendering.Objects.GameObject;
 import Rendering.Objects.Shape;
 import Saving.Deserialisers.DeserialiseComponents;
 import Saving.Deserialisers.DeserialiseShapes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import util.GameClock;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class GsonSaver {
     public static final String VERSION = "0.1a";

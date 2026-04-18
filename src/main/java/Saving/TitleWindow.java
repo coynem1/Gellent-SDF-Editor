@@ -1,9 +1,8 @@
 package Saving;
 
-import Input.InputSaving;
+import Observers.InputSaving;
 import Jade.Window;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class TitleWindow {
