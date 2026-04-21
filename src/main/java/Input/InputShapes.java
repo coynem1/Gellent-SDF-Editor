@@ -220,7 +220,7 @@ public class InputShapes {
     // Rounds through mouse position or manually
     public GameObject roundShortcut(@NotNull GameObject object) { return roundShortcut(object, -1f);}
     public GameObject roundShortcut(@NotNull GameObject object, float round) {
-        float ROUNDED_SCALE = 10f;
+        float ROUNDED_SCALE = 2f;
         ComponentRounded rounded = object.getComponent(ComponentRounded.class);
         Transform2D<Vector2f> transformObj = object.getComponent(Transform2D.class);
 
