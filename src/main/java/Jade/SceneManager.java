@@ -44,6 +44,9 @@ public class SceneManager {
         InputSaving.onOpened((filePath) -> {
             loadScene(Path.of(filePath));
         });
+        InputSaving.onNewFile(() -> {
+            path = null;
+        });
     }
 
     public void newScene() {
