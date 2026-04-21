@@ -44,6 +44,9 @@ public class GsonSaver {
             currentFile = new File(filepath);
             if (!currentFile.exists()) currentFile = null;
         });
+        InputSaving.onNewFile(() ->{
+            currentFile = null;
+        });
     }
 
     public void save(boolean overwrite) {
