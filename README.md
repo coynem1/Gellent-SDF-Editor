@@ -13,4 +13,4 @@ This project runs using Java 25, if you already have Java installed, you can ski
 - Run the `/src/main/java/main.java` file.
 
 # Future
-This project will remain open-source for anyone to build off of if you choose to fork it. Pull-requests wont be accepted because of the maintenance required.
+This project will remain open-source for anyone to build off or if you choose to fork it. Pull-requests wont be accepted because of the maintenance required.
